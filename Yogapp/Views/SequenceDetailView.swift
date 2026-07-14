@@ -78,29 +78,16 @@ struct SequenceDetailView: View {
                 .accessibilityLabel(isFavorite ? "Remove favorite" : "Favorite")
             }
 
-            HStack(alignment: .center, spacing: 18) {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(sequence.title)
-                        .font(.system(.largeTitle, design: .serif, weight: .bold))
-                        .foregroundStyle(FlowDesign.text)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Text(sequence.subtitle)
-                        .font(.body)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                    metadataSummary
-                }
-                .layoutPriority(1)
-
-                PoseTransitionView(
-                    startPose: SunSalutationData.mountain,
-                    endPose: SunSalutationData.upwardSalute,
-                    progress: 0.78,
-                    isPaused: true
-                )
-                .frame(width: 118, height: 118)
-                .background(FlowDesign.paleAqua)
-                .clipShape(Circle())
+            VStack(alignment: .leading, spacing: 12) {
+                Text(sequence.title)
+                    .font(.system(.largeTitle, design: .serif, weight: .bold))
+                    .foregroundStyle(FlowDesign.text)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(sequence.subtitle)
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                metadataSummary
             }
         }
     }
