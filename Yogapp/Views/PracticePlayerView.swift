@@ -1,0 +1,268 @@
+import SwiftUI
+
+struct PracticePlayerView: View {
+    @State private var viewModel: PracticePlayerViewModel
+    let endWorkoutAction: () -> Void
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var isShowingIntro = true
+
+    init(viewModel: PracticePlayerViewModel, endWorkoutAction: @escaping () -> Void = {}) {
+        _viewModel = State(initialValue: viewModel)
+        self.endWorkoutAction = endWorkoutAction
+    }
+
+    var body: some View {
+        ZStack {
+            FlowDesign.background.ignoresSafeArea()
+
+            if viewModel.isComplete {
+                CompletionView(
+                    sequence: viewModel.sequence,
+                    restartAction: { viewModel.restart() },
+                    exitAction: endWorkout
+                )
+            } else {
+                GeometryReader { proxy in
+                    let usableHeight = proxy.size.height - proxy.safeAreaInsets.top - proxy.safeAreaInsets.bottom
+                    let figureSize = min(300, max(220, usableHeight * 0.34))
+                    let timerSize = min(104, max(86, usableHeight * 0.13))
+
+                    VStack(spacing: 12) {
+                        topBar
+                        progressArea
+                        Spacer(minLength: 0)
+                        figureArea(size: figureSize)
+                        currentStepArea
+                        CircularCountdownView(
+                            remainingTime: viewModel.remainingTime,
+                            duration: viewModel.currentStep.duration,
+                            size: timerSize
+                        )
+                        Spacer(minLength: 0)
+                        controls
+                    }
+                    .padding(.horizontal, FlowDesign.spacing)
+                    .padding(.top, proxy.safeAreaInsets.top + 8)
+                    .padding(.bottom, proxy.safeAreaInsets.bottom + 28)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+            }
+
+            if isShowingIntro && !viewModel.isComplete {
+                introOverlay
+            }
+        }
+        .navigationBarBackButtonHidden()
+        .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+            isShowingIntro = !viewModel.isPlaying && !viewModel.isComplete
+        }
+        .onDisappear {
+            viewModel.stop()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                viewModel.tick()
+            }
+        }
+    }
+
+    private var topBar: some View {
+        HStack {
+            Button {
+                endWorkout()
+            } label: {
+                Label("End", systemImage: "xmark")
+                    .font(.callout.weight(.bold))
+                    .padding(.horizontal, 14)
+                    .frame(height: 44)
+                    .background(Color(.systemBackground).opacity(0.86))
+                    .clipShape(Capsule())
+            }
+            .accessibilityLabel("End workout and return home")
+
+            Spacer()
+
+            Text("Round \(viewModel.currentRound) of \(viewModel.sequence.rounds)")
+                .font(.headline.weight(.bold))
+                .foregroundStyle(FlowDesign.text)
+
+            Spacer()
+
+            Button {
+                viewModel.restart()
+            } label: {
+                Image(systemName: "arrow.counterclockwise")
+                    .font(.headline.weight(.bold))
+                    .frame(width: 44, height: 44)
+                    .background(Color(.systemBackground).opacity(0.86))
+                    .clipShape(Circle())
+            }
+            .accessibilityLabel("Restart practice")
+        }
+    }
+
+    private var progressArea: some View {
+        VStack(spacing: 8) {
+            ProgressView(value: viewModel.overallProgress)
+                .tint(FlowDesign.teal)
+                .accessibilityLabel("Overall progress")
+            Text("\(Int((viewModel.overallProgress * 100).rounded()))% complete")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func figureArea(size: CGFloat) -> some View {
+        ZStack {
+            Circle()
+                .fill(FlowDesign.paleAqua.opacity(0.72))
+                .frame(width: size, height: size)
+
+            if viewModel.currentStep.kind == .transition, let endPose = viewModel.currentStep.endPose {
+                PoseTransitionView(
+                    startPose: viewModel.currentStep.startPose,
+                    endPose: endPose,
+                    progress: viewModel.transitionProgress,
+                    isPaused: viewModel.isPaused,
+                    startSide: viewModel.currentStep.side,
+                    endSide: viewModel.currentStep.endSide
+                )
+                .frame(width: size * 0.90, height: size * 0.90)
+            } else {
+                PoseIllustrationView(pose: viewModel.currentStep.startPose, side: viewModel.currentStep.side, isBreathing: viewModel.isPlaying && !viewModel.isPaused)
+                    .frame(width: size * 0.90, height: size * 0.90)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var currentStepArea: some View {
+        VStack(spacing: 10) {
+            Text(viewModel.currentStep.title)
+                .font(.title2.weight(.bold))
+                .multilineTextAlignment(.center)
+                .foregroundStyle(FlowDesign.text)
+            BreathBadge(cue: viewModel.currentStep.breathCue)
+                .scaleEffect(1.08)
+            if let side = activeSide.displayName {
+                Text("\(side) side")
+                    .font(.caption.weight(.bold))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 7)
+                    .background(Color(.systemBackground).opacity(0.82))
+                    .foregroundStyle(FlowDesign.secondaryText)
+                    .clipShape(Capsule())
+                    .accessibilityLabel("\(side) side")
+            }
+            Text(viewModel.currentStep.instruction)
+                .font(.body)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var controls: some View {
+        HStack(spacing: 18) {
+            Button {
+                viewModel.previous()
+            } label: {
+                Image(systemName: "backward.fill")
+                    .font(.title3.weight(.bold))
+                    .frame(width: 58, height: 58)
+                    .background(Color(.systemBackground))
+                    .clipShape(Circle())
+            }
+            .accessibilityLabel("Previous step")
+
+            Button {
+                viewModel.togglePause()
+            } label: {
+                Image(systemName: viewModel.isPaused ? "play.fill" : "pause.fill")
+                    .font(.title2.weight(.bold))
+                    .frame(width: 76, height: 76)
+                    .background(FlowDesign.teal)
+                    .foregroundStyle(.white)
+                    .clipShape(Circle())
+            }
+            .accessibilityLabel(viewModel.isPaused ? "Resume practice" : "Pause practice")
+
+            Button {
+                viewModel.next()
+            } label: {
+                Image(systemName: "forward.fill")
+                    .font(.title3.weight(.bold))
+                    .frame(width: 58, height: 58)
+                    .background(Color(.systemBackground))
+                    .clipShape(Circle())
+            }
+            .accessibilityLabel("Skip to next step")
+        }
+        .foregroundStyle(FlowDesign.teal)
+    }
+
+    private var activeSide: PracticeSide {
+        viewModel.currentStep.endSide == .none ? viewModel.currentStep.side : viewModel.currentStep.endSide
+    }
+
+    private var introOverlay: some View {
+        ZStack {
+            FlowDesign.background.opacity(0.96).ignoresSafeArea()
+            VStack(spacing: 20) {
+                PoseIllustrationView(pose: viewModel.sequence.steps.first?.startPose ?? SunSalutationData.mountain)
+                    .frame(width: 150, height: 150)
+                    .padding(18)
+                    .background(FlowDesign.paleAqua)
+                    .clipShape(Circle())
+
+                VStack(spacing: 10) {
+                    Text(viewModel.sequence.title)
+                        .font(.title.weight(.bold))
+                        .multilineTextAlignment(.center)
+                    Text(viewModel.sequence.onboardingNote)
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(viewModel.sequence.safetyNotes.prefix(2), id: \.self) { note in
+                        Label(note, systemImage: "checkmark.circle.fill")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(16)
+                .background(Color(.systemBackground).opacity(0.86))
+                .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
+
+                PrimaryButton("Begin Practice", systemImage: "play.fill") {
+                    isShowingIntro = false
+                    viewModel.start()
+                }
+            }
+            .padding(FlowDesign.spacing)
+        }
+    }
+
+    private func endWorkout() {
+        viewModel.stop()
+        endWorkoutAction()
+        dismiss()
+    }
+}
+
+#Preview("Practice Hold") {
+    let viewModel = PracticePlayerViewModel(sequence: SunSalutationData.sunSalutationA)
+    PracticePlayerView(viewModel: viewModel)
+}
+
+#Preview("Practice Transition") {
+    let viewModel = PracticePlayerViewModel(sequence: SunSalutationData.sunSalutationA)
+    viewModel.start()
+    viewModel.tick(now: Date().addingTimeInterval(8.5))
+    return PracticePlayerView(viewModel: viewModel)
+}
