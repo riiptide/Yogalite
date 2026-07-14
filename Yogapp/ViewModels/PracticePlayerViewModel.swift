@@ -38,6 +38,7 @@ final class PracticePlayerViewModel {
     }
 
     var overallProgress: Double {
+        if isComplete { return 1 }
         guard totalDuration > 0 else { return 0 }
         return min(max(completedElapsedTime / totalDuration, 0), 1)
     }

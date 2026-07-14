@@ -85,6 +85,7 @@ struct YogaSequence: Identifiable, Codable {
     let steps: [PracticeStep]
     let safetyNotes: [String]
     let onboardingNote: String
+    let tags: [String]
 
     init(
         id: String,
@@ -97,7 +98,8 @@ struct YogaSequence: Identifiable, Codable {
             "Move within a pain-free range and pause if anything feels sharp or unstable.",
             "Keep your breath steady and choose the gentler option whenever needed."
         ],
-        onboardingNote: String = "Move at a steady pace, follow the timer, and pause whenever you need more time."
+        onboardingNote: String = "Move at a steady pace, follow the timer, and pause whenever you need more time.",
+        tags: [String] = []
     ) {
         self.id = id
         self.title = title
@@ -107,6 +109,7 @@ struct YogaSequence: Identifiable, Codable {
         self.steps = steps
         self.safetyNotes = safetyNotes
         self.onboardingNote = onboardingNote
+        self.tags = tags
     }
 
     var estimatedDuration: TimeInterval {

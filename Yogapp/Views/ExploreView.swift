@@ -18,6 +18,7 @@ struct ExploreView: View {
                 || sequence.title.lowercased().contains(normalizedSearch)
                 || sequence.difficulty.lowercased().contains(normalizedSearch)
                 || sequence.estimatedDuration.minutesText.lowercased().contains(normalizedSearch)
+                || sequence.tags.contains { $0.lowercased().contains(normalizedSearch) }
 
             let matchesDifficulty = selectedDifficulty == "All" || sequence.difficulty == selectedDifficulty
             let matchesTime = selectedTimeRange.contains(sequence.estimatedMinutes)
