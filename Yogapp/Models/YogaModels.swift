@@ -119,4 +119,28 @@ struct YogaSequence: Identifiable, Codable {
     var estimatedMinutes: Int {
         max(1, Int((estimatedDuration / 60).rounded()))
     }
+
+    var thumbnailPose: Pose {
+        let uniqueHoldPoses = steps.reduce(into: [Pose]()) { poses, step in
+            guard step.kind == .hold, !poses.contains(where: { $0.id == step.startPose.id }) else { return }
+            poses.append(step.startPose)
+        }
+
+        let fallbackPoses = steps.reduce(into: [Pose]()) { poses, step in
+            guard !poses.contains(where: { $0.id == step.startPose.id }) else { return }
+            poses.append(step.startPose)
+            if let endPose = step.endPose, !poses.contains(where: { $0.id == endPose.id }) {
+                poses.append(endPose)
+            }
+        }
+
+        let poses = uniqueHoldPoses.isEmpty ? fallbackPoses : uniqueHoldPoses
+        guard !poses.isEmpty else {
+            return Pose(id: "mountain", name: "Mountain Pose", assetName: "mountain_pose")
+        }
+
+        let thumbnailCandidates = poses.count > 1 ? Array(poses.dropFirst()) : poses
+        let seed = "\(id)-\(title)".unicodeScalars.reduce(0) { $0 + Int($1.value) }
+        return thumbnailCandidates[seed % thumbnailCandidates.count]
+    }
 }

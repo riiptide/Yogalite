@@ -5,7 +5,7 @@ struct SequenceCard: View {
 
     var body: some View {
         HStack(spacing: 16) {
-            PoseIllustrationView(pose: sequence.steps.first?.startPose ?? SunSalutationData.mountain)
+            PoseIllustrationView(pose: sequence.thumbnailPose)
                 .frame(width: 88, height: 88)
                 .background(FlowDesign.paleAqua.opacity(0.70))
                 .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
