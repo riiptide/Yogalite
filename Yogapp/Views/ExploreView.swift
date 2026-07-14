@@ -63,7 +63,7 @@ struct ExploreView: View {
                     .padding(FlowDesign.spacing)
                 }
             }
-            .navigationTitle("Explore")
+            .navigationTitle("Explore flows")
             .searchable(text: $searchText, prompt: "Search title, tag, body area, or time")
             .navigationDestination(for: ExploreRoute.self) { route in
                 switch route {
@@ -76,16 +76,11 @@ struct ExploreView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Explore flows")
-                    .font(.largeTitle.weight(.bold))
-                    .foregroundStyle(FlowDesign.text)
-                Text("Search the full library, tap a tag, or narrow by level and time.")
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Search the full library, tap a tag, or narrow by level and time.")
+                .font(.body)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: 12) {
                 ExploreMetricCard(value: "\(sequences.count)", title: "flows", systemImage: "rectangle.stack")
@@ -96,7 +91,7 @@ struct ExploreView: View {
     }
 
     private var tagShelf: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Label("Browse by tag", systemImage: "tag")
                     .font(.headline.weight(.bold))
@@ -114,7 +109,7 @@ struct ExploreView: View {
                 }
             }
 
-            FlowLayout(spacing: 9) {
+            FlowLayout(spacing: 7) {
                 ForEach(featuredTags) { tag in
                     ExploreTagButton(
                         tag: tag,
@@ -126,9 +121,9 @@ struct ExploreView: View {
                 }
             }
         }
-        .padding(16)
+        .padding(12)
         .background(Color(.systemBackground).opacity(0.88))
-        .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerLarge, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
     }
 
     private var filters: some View {
@@ -329,22 +324,22 @@ private struct ExploreTagButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 Image(systemName: tag.systemImage)
-                    .font(.caption.weight(.bold))
-                    .frame(width: 18, height: 18)
+                    .font(.caption2.weight(.bold))
+                    .frame(width: 14, height: 14)
                 Text(tag.title)
-                    .font(.subheadline.weight(.bold))
+                    .font(.caption.weight(.bold))
                     .lineLimit(1)
                 Text("\(count)")
-                    .font(.caption.weight(.heavy))
-                    .padding(.horizontal, 7)
-                    .padding(.vertical, 4)
+                    .font(.caption2.weight(.heavy))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
                     .background(isSelected ? Color.white.opacity(0.24) : Color(.systemBackground).opacity(0.62))
                     .clipShape(Capsule())
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
             .background(isSelected ? tag.type.foreground : tag.type.background)
             .foregroundStyle(isSelected ? .white : tag.type.foreground)
             .clipShape(Capsule())
