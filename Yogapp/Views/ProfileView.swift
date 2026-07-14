@@ -3,6 +3,9 @@ import SwiftData
 
 struct ProfileView: View {
     @Query(sort: \PracticeCompletionRecord.completedAt, order: .reverse) private var completionRecords: [PracticeCompletionRecord]
+    @AppStorage("profileDisplayName") private var displayName = "Aaliyah"
+    @State private var isEditingName = false
+    @State private var draftDisplayName = ""
 
     private let goals = [
         ProfileGoal(title: "Morning", systemImage: "sun.max"),
@@ -55,6 +58,12 @@ struct ProfileView: View {
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar(.hidden, for: .navigationBar)
+            .sheet(isPresented: $isEditingName) {
+                EditProfileNameSheet(name: $draftDisplayName) {
+                    saveDisplayName()
+                }
+                .presentationDetents([.height(250)])
+            }
         }
     }
 
@@ -69,6 +78,8 @@ struct ProfileView: View {
             Spacer()
 
             Button {
+                draftDisplayName = displayName
+                isEditingName = true
             } label: {
                 Image(systemName: "pencil")
                     .font(.title3.weight(.semibold))
@@ -99,7 +110,7 @@ struct ProfileView: View {
             .accessibilityLabel("Profile avatar")
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("Aaliyah")
+                Text(displayName)
                     .font(.largeTitle.weight(.bold))
                     .foregroundStyle(FlowDesign.text)
                     .lineLimit(1)
@@ -235,6 +246,69 @@ struct ProfileView: View {
         Text(title)
             .font(.title3.weight(.bold))
             .foregroundStyle(FlowDesign.text)
+    }
+
+    private func saveDisplayName() {
+        let trimmedName = draftDisplayName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else { return }
+        displayName = trimmedName
+        isEditingName = false
+    }
+}
+
+private struct EditProfileNameSheet: View {
+    @Binding var name: String
+    let save: () -> Void
+    @Environment(\.dismiss) private var dismiss
+    @FocusState private var isNameFocused: Bool
+
+    private var canSave: Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Name")
+                    .font(.headline.weight(.bold))
+                    .foregroundStyle(FlowDesign.text)
+
+                TextField("Your name", text: $name)
+                    .font(.title3.weight(.semibold))
+                    .textInputAutocapitalization(.words)
+                    .submitLabel(.done)
+                    .focused($isNameFocused)
+                    .padding(14)
+                    .background(FlowDesign.paleAqua.opacity(0.52))
+                    .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
+                    .onSubmit {
+                        if canSave {
+                            save()
+                        }
+                    }
+
+                Spacer()
+            }
+            .padding(FlowDesign.spacing)
+            .navigationTitle("Edit profile")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save", action: save)
+                        .fontWeight(.bold)
+                        .disabled(!canSave)
+                }
+            }
+            .onAppear {
+                isNameFocused = true
+            }
+        }
     }
 }
 
