@@ -346,14 +346,17 @@ struct PracticePlayerView: View {
             guard !Task.isCancelled else { return }
             countdownDisplay = nil
             startAction()
-            narrateCurrentStep()
+            narrateCurrentStep(includeOpeningPoseName: true)
             countdownTask = nil
         }
     }
 
-    private func narrateCurrentStep() {
+    private func narrateCurrentStep(includeOpeningPoseName: Bool = false) {
         guard viewModel.isPlaying, !viewModel.isPaused, !viewModel.isComplete else { return }
-        narrationPlayer.speak(step: viewModel.currentStep)
+        narrationPlayer.speak(
+            step: viewModel.currentStep,
+            includeHoldPoseName: includeOpeningPoseName && viewModel.currentStep.kind == .hold
+        )
     }
 
     private func recordCompletionIfNeeded() {

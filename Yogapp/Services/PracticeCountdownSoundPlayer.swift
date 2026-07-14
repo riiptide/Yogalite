@@ -7,6 +7,6 @@ enum PracticeCountdownSoundPlayer {
     }
 
     static func playBeginBeep() {
-        AudioServicesPlaySystemSound(1025)
+        AudioServicesPlayAlertSound(1104)
     }
 }

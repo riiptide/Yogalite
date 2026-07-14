@@ -137,6 +137,19 @@ struct PracticeNarrationCueBuilderTests {
         #expect(PracticeNarrationCueBuilder.narration(for: step) == "Hold for 10 seconds")
     }
 
+    @Test func openingHoldStepSpeaksPoseNameAndHoldDuration() {
+        let step = PracticeStep(
+            kind: .hold,
+            title: "Mountain Pose",
+            startPose: mountain,
+            duration: 10,
+            breathCue: .natural,
+            instruction: "Stand tall."
+        )
+
+        #expect(PracticeNarrationCueBuilder.narration(for: step, includeHoldPoseName: true) == "Mountain Pose. Hold for 10 seconds")
+    }
+
     @Test func shortHoldDoesNotRepeatBreathOrPoseName() {
         let step = PracticeStep(
             kind: .hold,
