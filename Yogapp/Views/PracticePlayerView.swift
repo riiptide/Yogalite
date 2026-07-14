@@ -1,11 +1,14 @@
 import SwiftUI
+import SwiftData
 
 struct PracticePlayerView: View {
     @State private var viewModel: PracticePlayerViewModel
     let endWorkoutAction: () -> Void
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @State private var isShowingIntro = true
+    @State private var didRecordCurrentCompletion = false
 
     init(viewModel: PracticePlayerViewModel, endWorkoutAction: @escaping () -> Void = {}) {
         _viewModel = State(initialValue: viewModel)
@@ -19,7 +22,10 @@ struct PracticePlayerView: View {
             if viewModel.isComplete {
                 CompletionView(
                     sequence: viewModel.sequence,
-                    restartAction: { viewModel.restart() },
+                    restartAction: {
+                        didRecordCurrentCompletion = false
+                        viewModel.restart()
+                    },
                     exitAction: endWorkout
                 )
             } else {
@@ -55,6 +61,7 @@ struct PracticePlayerView: View {
         }
         .navigationBarBackButtonHidden()
         .toolbar(.hidden, for: .navigationBar)
+        .toolbar(.hidden, for: .tabBar)
         .onAppear {
             isShowingIntro = !viewModel.isPlaying && !viewModel.isComplete
         }
@@ -65,6 +72,10 @@ struct PracticePlayerView: View {
             if phase == .active {
                 viewModel.tick()
             }
+        }
+        .onChange(of: viewModel.isComplete) { _, isComplete in
+            guard isComplete else { return }
+            recordCompletionIfNeeded()
         }
     }
 
@@ -241,6 +252,7 @@ struct PracticePlayerView: View {
 
                 PrimaryButton("Begin Practice", systemImage: "play.fill") {
                     isShowingIntro = false
+                    didRecordCurrentCompletion = false
                     viewModel.start()
                 }
             }
@@ -252,6 +264,20 @@ struct PracticePlayerView: View {
         viewModel.stop()
         endWorkoutAction()
         dismiss()
+    }
+
+    private func recordCompletionIfNeeded() {
+        guard !didRecordCurrentCompletion else { return }
+        didRecordCurrentCompletion = true
+        modelContext.insert(
+            PracticeCompletionRecord(
+                sequenceID: viewModel.sequence.id,
+                sequenceTitle: viewModel.sequence.title,
+                duration: viewModel.sequence.estimatedDuration,
+                rounds: viewModel.sequence.rounds
+            )
+        )
+        try? modelContext.save()
     }
 }
 

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct YogappApp: App {
@@ -13,5 +14,9 @@ struct YogappApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: [
+            SavedPracticeRecord.self,
+            PracticeCompletionRecord.self
+        ])
     }
 }

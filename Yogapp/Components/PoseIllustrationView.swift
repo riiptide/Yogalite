@@ -136,7 +136,7 @@ struct PoseFigureConfiguration {
             PoseFigureConfiguration(torsoRotation: .degrees(100), armAngle: .degrees(132), hipOffset: CGSize(width: 0, height: 8), kneeBend: 0.04, verticalOffset: 18, bodyScale: 1.02, isHorizontal: true, foldAmount: 0.34)
         case "thread-needle", "child-pose":
             PoseFigureConfiguration(torsoRotation: .degrees(96), armAngle: .degrees(126), hipOffset: CGSize(width: -8, height: 32), kneeBend: 0.55, verticalOffset: 36, bodyScale: 0.96, isHorizontal: true, foldAmount: 0.82)
-        case "low-lunge", "warrior-two", "side-angle":
+        case "low-lunge", "warrior-one", "warrior-two", "side-angle":
             PoseFigureConfiguration(torsoRotation: .degrees(-18), armAngle: .degrees(-126), hipOffset: CGSize(width: 0, height: 12), kneeBend: 0.72, verticalOffset: 16, bodyScale: 1, isHorizontal: false, foldAmount: 0.15)
         case "triangle", "pyramid", "half-split", "seated-fold":
             PoseFigureConfiguration(torsoRotation: .degrees(68), armAngle: .degrees(82), hipOffset: CGSize(width: 0, height: 16), kneeBend: 0.18, verticalOffset: 20, bodyScale: 0.96, isHorizontal: false, foldAmount: 0.78)

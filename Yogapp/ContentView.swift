@@ -19,6 +19,16 @@ struct ContentView: View {
                 .tabItem {
                     Label("Explore", systemImage: "magnifyingglass")
                 }
+
+            LibraryView()
+                .tabItem {
+                    Label("Library", systemImage: "bookmark")
+                }
+
+            ProfileView()
+                .tabItem {
+                    Label("Profile", systemImage: "person.crop.circle")
+                }
         }
         .tint(FlowDesign.teal)
     }

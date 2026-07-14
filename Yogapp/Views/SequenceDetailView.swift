@@ -1,11 +1,17 @@
 import SwiftUI
+import SwiftData
 
 struct SequenceDetailView: View {
     let sequence: YogaSequence
     var endWorkoutAction: () -> Void = {}
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @Query private var savedPracticeRecords: [SavedPracticeRecord]
     @State private var selectedTab: DetailTab = .sequence
-    @State private var isFavorite = false
+
+    private var isFavorite: Bool {
+        savedPracticeRecords.contains { $0.sequenceID == sequence.id }
+    }
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -60,7 +66,7 @@ struct SequenceDetailView: View {
                 Spacer()
 
                 Button {
-                    isFavorite.toggle()
+                    toggleFavorite()
                 } label: {
                     Image(systemName: isFavorite ? "heart.fill" : "heart")
                         .font(.headline.weight(.bold))
@@ -82,11 +88,7 @@ struct SequenceDetailView: View {
                         .font(.body)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
-                    HStack(spacing: 12) {
-                        difficultyBadge
-                        MetadataLabel(title: "\(sequence.rounds) rounds", systemImage: "arrow.triangle.2.circlepath")
-                        MetadataLabel(title: sequence.estimatedDuration.minutesText, systemImage: "clock")
-                    }
+                    metadataSummary
                 }
 
                 PoseTransitionView(
@@ -143,12 +145,40 @@ struct SequenceDetailView: View {
     private var difficultyBadge: some View {
         Label(sequence.difficulty, systemImage: difficultyIcon)
             .font(.caption.weight(.bold))
+            .lineLimit(1)
             .padding(.horizontal, 10)
             .padding(.vertical, 7)
             .background(FlowDesign.paleAqua)
             .foregroundStyle(FlowDesign.teal)
             .clipShape(Capsule())
+            .fixedSize(horizontal: true, vertical: false)
             .accessibilityLabel("Difficulty: \(sequence.difficulty)")
+    }
+
+    private var metadataSummary: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 12) {
+                difficultyBadge
+                roundMetadata
+                durationMetadata
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
+                difficultyBadge
+                HStack(spacing: 12) {
+                    roundMetadata
+                    durationMetadata
+                }
+            }
+        }
+    }
+
+    private var roundMetadata: some View {
+        MetadataLabel(title: "\(sequence.rounds) rounds", systemImage: "arrow.triangle.2.circlepath")
+    }
+
+    private var durationMetadata: some View {
+        MetadataLabel(title: sequence.estimatedDuration.minutesText, systemImage: "clock")
     }
 
     private var difficultyIcon: String {
@@ -206,6 +236,15 @@ struct SequenceDetailView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color(.systemBackground))
             .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
+    }
+
+    private func toggleFavorite() {
+        if let savedRecord = savedPracticeRecords.first(where: { $0.sequenceID == sequence.id }) {
+            modelContext.delete(savedRecord)
+        } else {
+            modelContext.insert(SavedPracticeRecord(sequenceID: sequence.id))
+        }
+        try? modelContext.save()
     }
 }
 
