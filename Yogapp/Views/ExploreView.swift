@@ -7,6 +7,7 @@ struct ExploreView: View {
     @State private var selectedDifficulty: String = "All"
     @State private var selectedTimeRange: TimeRange = .any
     @State private var selectedTag: ExploreTag?
+    @FocusState private var isSearchFocused: Bool
 
     private let featuredTags: [ExploreTag] = [
         ExploreTag(title: "Morning", type: .timeOfDay, systemImage: "sun.max"),
@@ -54,7 +55,8 @@ struct ExploreView: View {
             ZStack {
                 FlowDesign.background.ignoresSafeArea()
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 24) {
+                    VStack(alignment: .leading, spacing: 20) {
+                        searchField
                         header
                         tagShelf
                         filters
@@ -64,7 +66,6 @@ struct ExploreView: View {
                 }
             }
             .navigationTitle("Explore flows")
-            .searchable(text: $searchText, prompt: "Search title, tag, body area, or time")
             .navigationDestination(for: ExploreRoute.self) { route in
                 switch route {
                 case .sequence(let id):
@@ -75,13 +76,40 @@ struct ExploreView: View {
         }
     }
 
+    private var searchField: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass")
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            TextField("Search title, tag, body area, or time", text: $searchText)
+                .font(.body)
+                .textInputAutocapitalization(.never)
+                .disableAutocorrection(true)
+                .focused($isSearchFocused)
+
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                    isSearchFocused = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.headline)
+                        .foregroundStyle(.secondary.opacity(0.7))
+                }
+                .accessibilityLabel("Clear search")
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 13)
+        .background(Color(.systemBackground).opacity(0.96))
+        .clipShape(Capsule())
+        .shadow(color: FlowDesign.teal.opacity(0.13), radius: 18, x: 0, y: 10)
+        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
+    }
+
     private var header: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Search the full library, tap a tag, or narrow by level and time.")
-                .font(.body)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
             HStack(spacing: 12) {
                 ExploreMetricCard(value: "\(sequences.count)", title: "flows", systemImage: "rectangle.stack")
                 ExploreMetricCard(value: "\(difficulties.count - 1)", title: "levels", systemImage: "chart.bar")
@@ -91,7 +119,7 @@ struct ExploreView: View {
     }
 
     private var tagShelf: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 9) {
             HStack {
                 Label("Browse by tag", systemImage: "tag")
                     .font(.headline.weight(.bold))
@@ -109,7 +137,7 @@ struct ExploreView: View {
                 }
             }
 
-            FlowLayout(spacing: 7) {
+            FlowLayout(spacing: 6) {
                 ForEach(featuredTags) { tag in
                     ExploreTagButton(
                         tag: tag,
@@ -324,22 +352,22 @@ private struct ExploreTagButton: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 6) {
+            HStack(spacing: 5) {
                 Image(systemName: tag.systemImage)
-                    .font(.caption2.weight(.bold))
-                    .frame(width: 14, height: 14)
+                    .font(.system(size: 10, weight: .bold))
+                    .frame(width: 11, height: 11)
                 Text(tag.title)
-                    .font(.caption.weight(.bold))
+                    .font(.caption2.weight(.bold))
                     .lineLimit(1)
                 Text("\(count)")
-                    .font(.caption2.weight(.heavy))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 3)
+                    .font(.system(size: 10, weight: .heavy))
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 2)
                     .background(isSelected ? Color.white.opacity(0.24) : Color(.systemBackground).opacity(0.62))
                     .clipShape(Capsule())
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 7)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
             .background(isSelected ? tag.type.foreground : tag.type.background)
             .foregroundStyle(isSelected ? .white : tag.type.foreground)
             .clipShape(Capsule())
