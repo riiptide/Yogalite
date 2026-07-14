@@ -83,13 +83,14 @@ struct SequenceDetailView: View {
                     Text(sequence.title)
                         .font(.system(.largeTitle, design: .serif, weight: .bold))
                         .foregroundStyle(FlowDesign.text)
-                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
                     Text(sequence.subtitle)
                         .font(.body)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                     metadataSummary
                 }
+                .layoutPriority(1)
 
                 PoseTransitionView(
                     startPose: SunSalutationData.mountain,
@@ -167,12 +168,10 @@ struct SequenceDetailView: View {
     }
 
     private var tagSummary: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                difficultyBadge
-                ForEach(visibleTags, id: \.self) { tag in
-                    SequenceTagBadge(tag: tag)
-                }
+        FlowLayout(spacing: 8) {
+            difficultyBadge
+            ForEach(visibleTags, id: \.self) { tag in
+                SequenceTagBadge(tag: tag)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

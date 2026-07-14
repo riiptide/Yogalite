@@ -33,6 +33,7 @@ struct HoldStepRow: View {
                 .background(FlowDesign.background)
                 .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerSmall, style: .continuous))
             textBlock
+                .frame(maxWidth: .infinity, alignment: .leading)
             Spacer(minLength: 4)
             trailing
         }
@@ -49,17 +50,12 @@ struct HoldStepRow: View {
 
     private var textBlock: some View {
         VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(step.title)
-                    .font(.headline)
-                    .lineLimit(2)
-                Text("Hold")
-                    .font(.caption.weight(.bold))
-                    .padding(.horizontal, 9)
-                    .padding(.vertical, 5)
-                    .background(FlowDesign.paleAqua)
-                    .foregroundStyle(FlowDesign.teal)
-                    .clipShape(Capsule())
+            Text(step.title)
+                .font(.headline)
+                .fixedSize(horizontal: false, vertical: true)
+
+            HStack(spacing: 6) {
+                stepKindBadge("Hold", background: FlowDesign.paleAqua)
                 if let side = step.side.displayName {
                     sideBadge(side)
                 }
@@ -76,7 +72,9 @@ struct HoldStepRow: View {
             Label(step.duration.secondsText, systemImage: "clock")
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
+                .fixedSize()
             BreathBadge(cue: step.breathCue)
+                .fixedSize()
         }
     }
 }
@@ -104,17 +102,12 @@ struct TransitionStepRow: View {
             .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerSmall, style: .continuous))
 
             VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Text(step.title)
-                        .font(.headline)
-                        .lineLimit(2)
-                    Text("Move")
-                        .font(.caption.weight(.bold))
-                        .padding(.horizontal, 9)
-                        .padding(.vertical, 5)
-                        .background(Color(.systemBackground).opacity(0.75))
-                        .foregroundStyle(FlowDesign.teal)
-                        .clipShape(Capsule())
+                Text(step.title)
+                    .font(.headline)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                HStack(spacing: 6) {
+                    stepKindBadge("Move", background: Color(.systemBackground).opacity(0.75))
                     if let side = activeSide.displayName {
                         sideBadge(side)
                     }
@@ -124,6 +117,7 @@ struct TransitionStepRow: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             Spacer(minLength: 4)
 
@@ -131,7 +125,9 @@ struct TransitionStepRow: View {
                 Label(step.duration.secondsText, systemImage: "clock")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
+                    .fixedSize()
                 BreathBadge(cue: step.breathCue)
+                    .fixedSize()
             }
         }
         .padding(12)
@@ -165,9 +161,23 @@ struct TransitionStepRow: View {
     }
 }
 
+private func stepKindBadge(_ title: String, background: Color) -> some View {
+    Text(title)
+        .font(.caption.weight(.bold))
+        .lineLimit(1)
+        .fixedSize(horizontal: true, vertical: false)
+        .padding(.horizontal, 9)
+        .padding(.vertical, 5)
+        .background(background)
+        .foregroundStyle(FlowDesign.teal)
+        .clipShape(Capsule())
+}
+
 private func sideBadge(_ side: String) -> some View {
     Text(side)
         .font(.caption.weight(.bold))
+        .lineLimit(1)
+        .fixedSize(horizontal: true, vertical: false)
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
         .background(Color(.systemBackground).opacity(0.75))
