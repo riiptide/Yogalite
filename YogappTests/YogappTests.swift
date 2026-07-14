@@ -124,7 +124,7 @@ struct PracticeNarrationCueBuilderTests {
     private let mountain = Pose(id: "mountain", name: "Mountain Pose", assetName: "mountain_pose")
     private let forwardFold = Pose(id: "forward-fold", name: "Forward Fold", assetName: "forward_fold")
 
-    @Test func holdStepSpeaksBreathPoseAndLongHoldDuration() {
+    @Test func longHoldStepSpeaksOnlyHoldDuration() {
         let step = PracticeStep(
             kind: .hold,
             title: "Mountain Pose",
@@ -134,10 +134,10 @@ struct PracticeNarrationCueBuilderTests {
             instruction: "Stand tall."
         )
 
-        #expect(PracticeNarrationCueBuilder.narration(for: step) == "Inhale. Mountain Pose. Hold for 10 seconds")
+        #expect(PracticeNarrationCueBuilder.narration(for: step) == "Hold for 10 seconds")
     }
 
-    @Test func shortHoldDoesNotSpeakHoldDuration() {
+    @Test func shortHoldDoesNotRepeatBreathOrPoseName() {
         let step = PracticeStep(
             kind: .hold,
             title: "Mountain Pose",
@@ -147,7 +147,7 @@ struct PracticeNarrationCueBuilderTests {
             instruction: "Stand tall."
         )
 
-        #expect(PracticeNarrationCueBuilder.narration(for: step) == "Exhale. Mountain Pose")
+        #expect(PracticeNarrationCueBuilder.narration(for: step).isEmpty)
     }
 
     @Test func transitionSpeaksBreathAndTargetPose() {

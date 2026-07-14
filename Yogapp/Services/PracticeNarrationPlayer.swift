@@ -5,17 +5,15 @@ enum PracticeNarrationCueBuilder {
     static func narration(for step: PracticeStep) -> String {
         var cues: [String] = []
 
-        if let breathCue = spokenBreathCue(for: step.breathCue) {
-            cues.append(breathCue)
-        }
-
         switch step.kind {
         case .hold:
-            cues.append(step.startPose.name)
             if step.duration >= 10 {
                 cues.append("Hold for \(Int(step.duration.rounded())) seconds")
             }
         case .transition:
+            if let breathCue = spokenBreathCue(for: step.breathCue) {
+                cues.append(breathCue)
+            }
             cues.append(step.endPose?.name ?? step.title)
         }
 
