@@ -10,6 +10,8 @@ struct PracticePlayerView: View {
     @State private var isShowingIntro = true
     @State private var didRecordCurrentCompletion = false
     @State private var narrationPlayer = PracticeNarrationPlayer()
+    @State private var countdownDisplay: CountdownDisplay?
+    @State private var countdownTask: Task<Void, Never>?
 
     init(viewModel: PracticePlayerViewModel, endWorkoutAction: @escaping () -> Void = {}) {
         _viewModel = State(initialValue: viewModel)
@@ -25,7 +27,9 @@ struct PracticePlayerView: View {
                     sequence: viewModel.sequence,
                     restartAction: {
                         didRecordCurrentCompletion = false
-                        viewModel.restart()
+                        beginPracticeWithCountdown {
+                            viewModel.restart()
+                        }
                     },
                     exitAction: endWorkout
                 )
@@ -59,6 +63,10 @@ struct PracticePlayerView: View {
             if isShowingIntro && !viewModel.isComplete {
                 introOverlay
             }
+
+            if let countdownDisplay {
+                countdownOverlay(countdownDisplay)
+            }
         }
         .navigationBarBackButtonHidden()
         .toolbar(.hidden, for: .navigationBar)
@@ -67,6 +75,7 @@ struct PracticePlayerView: View {
             isShowingIntro = !viewModel.isPlaying && !viewModel.isComplete
         }
         .onDisappear {
+            countdownTask?.cancel()
             narrationPlayer.stop()
             viewModel.stop()
         }
@@ -74,6 +83,8 @@ struct PracticePlayerView: View {
             if phase == .active {
                 viewModel.tick()
             } else {
+                countdownTask?.cancel()
+                countdownDisplay = nil
                 narrationPlayer.stop()
             }
         }
@@ -116,11 +127,8 @@ struct PracticePlayerView: View {
             Spacer()
 
             Button {
-                let previousStepID = viewModel.currentStep.id
-                narrationPlayer.stop()
-                viewModel.restart()
-                if viewModel.currentStep.id == previousStepID {
-                    narrateCurrentStep()
+                beginPracticeWithCountdown {
+                    viewModel.restart()
                 }
             } label: {
                 Image(systemName: "arrow.counterclockwise")
@@ -277,19 +285,70 @@ struct PracticePlayerView: View {
                 PrimaryButton("Begin Practice", systemImage: "play.fill") {
                     isShowingIntro = false
                     didRecordCurrentCompletion = false
-                    viewModel.start()
-                    narrateCurrentStep()
+                    beginPracticeWithCountdown {
+                        viewModel.start()
+                    }
                 }
             }
             .padding(FlowDesign.spacing)
         }
     }
 
+    private func countdownOverlay(_ display: CountdownDisplay) -> some View {
+        ZStack {
+            FlowDesign.background.opacity(0.96).ignoresSafeArea()
+
+            VStack(spacing: 18) {
+                Text(display.title)
+                    .font(.system(size: display == .begin ? 64 : 104, weight: .heavy, design: .rounded))
+                    .foregroundStyle(FlowDesign.teal)
+                    .contentTransition(.numericText())
+                    .scaleEffect(display == .begin ? 1.0 : 1.08)
+                    .animation(.spring(response: 0.28, dampingFraction: 0.72), value: display)
+
+                Text(display == .begin ? "Begin" : "Get ready")
+                    .font(.title3.weight(.bold))
+                    .foregroundStyle(FlowDesign.text)
+            }
+            .padding(32)
+            .frame(maxWidth: .infinity)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(display.accessibilityLabel)
+        }
+    }
+
     private func endWorkout() {
+        countdownTask?.cancel()
         narrationPlayer.stop()
         viewModel.stop()
         endWorkoutAction()
         dismiss()
+    }
+
+    private func beginPracticeWithCountdown(startAction: @escaping @MainActor () -> Void) {
+        countdownTask?.cancel()
+        narrationPlayer.stop()
+        viewModel.stop()
+
+        countdownTask = Task { @MainActor in
+            for value in [3, 2, 1] {
+                guard !Task.isCancelled else { return }
+                countdownDisplay = .number(value)
+                PracticeCountdownSoundPlayer.playCountBeep()
+                try? await Task.sleep(for: .seconds(1))
+            }
+
+            guard !Task.isCancelled else { return }
+            countdownDisplay = .begin
+            PracticeCountdownSoundPlayer.playBeginBeep()
+            try? await Task.sleep(for: .milliseconds(650))
+
+            guard !Task.isCancelled else { return }
+            countdownDisplay = nil
+            startAction()
+            narrateCurrentStep()
+            countdownTask = nil
+        }
     }
 
     private func narrateCurrentStep() {
@@ -309,6 +368,29 @@ struct PracticePlayerView: View {
             )
         )
         try? modelContext.save()
+    }
+}
+
+private enum CountdownDisplay: Equatable {
+    case number(Int)
+    case begin
+
+    var title: String {
+        switch self {
+        case .number(let value):
+            "\(value)"
+        case .begin:
+            "Begin"
+        }
+    }
+
+    var accessibilityLabel: String {
+        switch self {
+        case .number(let value):
+            "\(value)"
+        case .begin:
+            "Begin practice"
+        }
     }
 }
 
