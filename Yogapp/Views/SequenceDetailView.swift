@@ -156,20 +156,39 @@ struct SequenceDetailView: View {
     }
 
     private var metadataSummary: some View {
-        ViewThatFits(in: .horizontal) {
+        VStack(alignment: .leading, spacing: 10) {
+            tagSummary
+
             HStack(spacing: 12) {
-                difficultyBadge
                 roundMetadata
                 durationMetadata
             }
+        }
+    }
 
-            VStack(alignment: .leading, spacing: 10) {
+    private var tagSummary: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
                 difficultyBadge
-                HStack(spacing: 12) {
-                    roundMetadata
-                    durationMetadata
+                ForEach(visibleTags, id: \.self) { tag in
+                    SequenceTagBadge(tag: tag)
                 }
             }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .contain)
+    }
+
+    private var visibleTags: [String] {
+        var seenTags = Set<String>()
+        return sequence.tags.filter { tag in
+            let tagKey = normalizedTag(tag)
+            guard tagKey != normalizedTag(sequence.difficulty),
+                  !seenTags.contains(tagKey) else {
+                return false
+            }
+            seenTags.insert(tagKey)
+            return true
         }
     }
 
@@ -187,6 +206,13 @@ struct SequenceDetailView: View {
         case "intermediate": "flame"
         default: "chart.bar"
         }
+    }
+
+    private func normalizedTag(_ tag: String) -> String {
+        tag.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+            .replacingOccurrences(of: "\u{2013}", with: "-")
+            .replacingOccurrences(of: "\u{2014}", with: "-")
+            .lowercased()
     }
 
     private var safetyPanel: some View {
