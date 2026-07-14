@@ -34,8 +34,6 @@ struct HoldStepRow: View {
                 .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerSmall, style: .continuous))
             textBlock
                 .frame(maxWidth: .infinity, alignment: .leading)
-            Spacer(minLength: 4)
-            trailing
         }
     }
 
@@ -50,15 +48,21 @@ struct HoldStepRow: View {
 
     private var textBlock: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(step.title)
-                .font(.headline)
-                .fixedSize(horizontal: false, vertical: true)
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(step.title)
+                    .font(.headline)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                durationLabel
+            }
 
             HStack(spacing: 6) {
                 stepKindBadge("Hold", background: FlowDesign.paleAqua)
                 if let side = step.side.displayName {
                     sideBadge(side)
                 }
+                BreathBadge(cue: step.breathCue)
+                    .fixedSize()
             }
             Text(step.instruction)
                 .font(.subheadline)
@@ -67,15 +71,11 @@ struct HoldStepRow: View {
         }
     }
 
-    private var trailing: some View {
-        VStack(alignment: .trailing, spacing: 10) {
-            Label(step.duration.secondsText, systemImage: "clock")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .fixedSize()
-            BreathBadge(cue: step.breathCue)
-                .fixedSize()
-        }
+    private var durationLabel: some View {
+        Label(step.duration.secondsText, systemImage: "clock")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .fixedSize()
     }
 }
 
@@ -102,15 +102,21 @@ struct TransitionStepRow: View {
             .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerSmall, style: .continuous))
 
             VStack(alignment: .leading, spacing: 6) {
-                Text(step.title)
-                    .font(.headline)
-                    .fixedSize(horizontal: false, vertical: true)
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text(step.title)
+                        .font(.headline)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    durationLabel
+                }
 
                 HStack(spacing: 6) {
                     stepKindBadge("Move", background: Color(.systemBackground).opacity(0.75))
                     if let side = activeSide.displayName {
                         sideBadge(side)
                     }
+                    BreathBadge(cue: step.breathCue)
+                        .fixedSize()
                 }
                 Text(step.instruction)
                     .font(.subheadline)
@@ -118,17 +124,6 @@ struct TransitionStepRow: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-
-            Spacer(minLength: 4)
-
-            VStack(alignment: .trailing, spacing: 10) {
-                Label(step.duration.secondsText, systemImage: "clock")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                    .fixedSize()
-                BreathBadge(cue: step.breathCue)
-                    .fixedSize()
-            }
         }
         .padding(12)
         .background(FlowDesign.paleAqua.opacity(0.72))
@@ -158,6 +153,13 @@ struct TransitionStepRow: View {
 
     private var activeSide: PracticeSide {
         step.endSide == .none ? step.side : step.endSide
+    }
+
+    private var durationLabel: some View {
+        Label(step.duration.secondsText, systemImage: "clock")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .fixedSize()
     }
 }
 
