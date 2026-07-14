@@ -9,6 +9,7 @@ struct PracticePlayerView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var isShowingIntro = true
     @State private var didRecordCurrentCompletion = false
+    @State private var narrationPlayer = PracticeNarrationPlayer()
 
     init(viewModel: PracticePlayerViewModel, endWorkoutAction: @escaping () -> Void = {}) {
         _viewModel = State(initialValue: viewModel)
@@ -66,16 +67,29 @@ struct PracticePlayerView: View {
             isShowingIntro = !viewModel.isPlaying && !viewModel.isComplete
         }
         .onDisappear {
+            narrationPlayer.stop()
             viewModel.stop()
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 viewModel.tick()
+            } else {
+                narrationPlayer.stop()
             }
         }
         .onChange(of: viewModel.isComplete) { _, isComplete in
             guard isComplete else { return }
+            narrationPlayer.stop()
             recordCompletionIfNeeded()
+        }
+        .onChange(of: viewModel.currentStep.id) { _, _ in
+            guard viewModel.isPlaying, !viewModel.isPaused, !viewModel.isComplete else { return }
+            narrationPlayer.speak(step: viewModel.currentStep)
+        }
+        .onChange(of: viewModel.isPaused) { _, isPaused in
+            if isPaused {
+                narrationPlayer.stop()
+            }
         }
     }
 
@@ -102,7 +116,12 @@ struct PracticePlayerView: View {
             Spacer()
 
             Button {
+                let previousStepID = viewModel.currentStep.id
+                narrationPlayer.stop()
                 viewModel.restart()
+                if viewModel.currentStep.id == previousStepID {
+                    narrateCurrentStep()
+                }
             } label: {
                 Image(systemName: "arrow.counterclockwise")
                     .font(.headline.weight(.bold))
@@ -190,6 +209,11 @@ struct PracticePlayerView: View {
 
             Button {
                 viewModel.togglePause()
+                if viewModel.isPaused {
+                    narrationPlayer.stop()
+                } else if viewModel.isPlaying, !viewModel.isComplete {
+                    narrateCurrentStep()
+                }
             } label: {
                 Image(systemName: viewModel.isPaused ? "play.fill" : "pause.fill")
                     .font(.title2.weight(.bold))
@@ -254,6 +278,7 @@ struct PracticePlayerView: View {
                     isShowingIntro = false
                     didRecordCurrentCompletion = false
                     viewModel.start()
+                    narrateCurrentStep()
                 }
             }
             .padding(FlowDesign.spacing)
@@ -261,9 +286,15 @@ struct PracticePlayerView: View {
     }
 
     private func endWorkout() {
+        narrationPlayer.stop()
         viewModel.stop()
         endWorkoutAction()
         dismiss()
+    }
+
+    private func narrateCurrentStep() {
+        guard viewModel.isPlaying, !viewModel.isPaused, !viewModel.isComplete else { return }
+        narrationPlayer.speak(step: viewModel.currentStep)
     }
 
     private func recordCompletionIfNeeded() {

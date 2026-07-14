@@ -118,3 +118,49 @@ struct PracticePlayerViewModelTests {
         #expect(abs(viewModel.overallProgress - 0.5) < 0.0001)
     }
 }
+
+@MainActor
+struct PracticeNarrationCueBuilderTests {
+    private let mountain = Pose(id: "mountain", name: "Mountain Pose", assetName: "mountain_pose")
+    private let forwardFold = Pose(id: "forward-fold", name: "Forward Fold", assetName: "forward_fold")
+
+    @Test func holdStepSpeaksBreathPoseAndLongHoldDuration() {
+        let step = PracticeStep(
+            kind: .hold,
+            title: "Mountain Pose",
+            startPose: mountain,
+            duration: 10,
+            breathCue: .inhale,
+            instruction: "Stand tall."
+        )
+
+        #expect(PracticeNarrationCueBuilder.narration(for: step) == "Inhale. Mountain Pose. Hold for 10 seconds")
+    }
+
+    @Test func shortHoldDoesNotSpeakHoldDuration() {
+        let step = PracticeStep(
+            kind: .hold,
+            title: "Mountain Pose",
+            startPose: mountain,
+            duration: 8,
+            breathCue: .exhale,
+            instruction: "Stand tall."
+        )
+
+        #expect(PracticeNarrationCueBuilder.narration(for: step) == "Exhale. Mountain Pose")
+    }
+
+    @Test func transitionSpeaksBreathAndTargetPose() {
+        let step = PracticeStep(
+            kind: .transition,
+            title: "Mountain Pose to Forward Fold",
+            startPose: mountain,
+            endPose: forwardFold,
+            duration: 4,
+            breathCue: .exhale,
+            instruction: "Fold forward."
+        )
+
+        #expect(PracticeNarrationCueBuilder.narration(for: step) == "Exhale. Forward Fold")
+    }
+}
