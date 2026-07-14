@@ -104,8 +104,6 @@ struct ExploreView: View {
         .padding(.vertical, 13)
         .background(Color(.systemBackground).opacity(0.96))
         .clipShape(Capsule())
-        .shadow(color: FlowDesign.teal.opacity(0.13), radius: 18, x: 0, y: 10)
-        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
     }
 
     private var header: some View {
