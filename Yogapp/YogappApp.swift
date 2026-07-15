@@ -17,9 +17,7 @@ struct YogappApp: App {
         }
         .modelContainer(for: [
             SavedPracticeRecord.self,
-            PracticeCompletionRecord.self,
-            ProductAnalyticsProfile.self,
-            ProductAnalyticsEvent.self
+            PracticeCompletionRecord.self
         ])
     }
 }

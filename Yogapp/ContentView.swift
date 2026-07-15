@@ -6,11 +6,9 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct ContentView: View {
     @AppStorage("didCompleteOnboarding") private var didCompleteOnboarding = false
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
@@ -22,12 +20,12 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            ProductAnalytics.recordAppBecameActive(modelContext: modelContext)
+            ProductAnalytics.recordAppBecameActive()
         }
         .onChange(of: scenePhase) { _, phase in
             switch phase {
             case .active:
-                ProductAnalytics.recordAppBecameActive(modelContext: modelContext)
+                ProductAnalytics.recordAppBecameActive()
             case .background:
                 ProductAnalytics.recordAppEnteredBackground()
             default:

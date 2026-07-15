@@ -1,9 +1,7 @@
 import Foundation
-import SwiftData
 
-@Model
-final class ProductAnalyticsProfile {
-    @Attribute(.unique) var id: String
+struct ProductAnalyticsProfile: Codable {
+    var id: String
     var anonymousInstallID: String
     var installedAt: Date
     var lastActiveDayKey: String?
@@ -27,8 +25,7 @@ final class ProductAnalyticsProfile {
     }
 }
 
-@Model
-final class ProductAnalyticsEvent {
+struct ProductAnalyticsEvent: Codable {
     var id: UUID
     var name: String
     var occurredAt: Date
@@ -76,36 +73,36 @@ enum ProductAnalyticsRetentionMilestone: Int, CaseIterable {
 enum ProductAnalytics {
     static let profileID = "local-anonymous-profile"
 
+    private static let profileStorageKey = "productAnalyticsProfile"
     private static let sessionWasCleanKey = "productAnalyticsSessionWasClean"
     private static let sessionStartedKey = "productAnalyticsSessionStarted"
 
     static func recordAppBecameActive(
-        modelContext: ModelContext,
         now: Date = Date(),
         calendar: Calendar = .current
     ) {
-        let profile = analyticsProfile(modelContext: modelContext, now: now)
+        var profile = analyticsProfile(now: now)
         let key = dayKey(for: now, calendar: calendar)
 
-        recordPossibleCrashIfNeeded(modelContext: modelContext, now: now, calendar: calendar)
+        recordPossibleCrashIfNeeded(now: now, calendar: calendar)
         markSessionStarted()
 
         if profile.lastActiveDayKey != key {
-            insertEvent(.dailyActiveUser, modelContext: modelContext, now: now, calendar: calendar)
+            appendEvent(.dailyActiveUser, now: now, calendar: calendar)
             profile.lastActiveDayKey = key
         }
 
         let milestones = retentionMilestones(installedAt: profile.installedAt, activeAt: now, calendar: calendar)
         if milestones.contains(.sevenDays), !profile.recordedSevenDayRetention {
-            insertEvent(.retainedAfterSevenDays, modelContext: modelContext, now: now, calendar: calendar)
+            appendEvent(.retainedAfterSevenDays, now: now, calendar: calendar)
             profile.recordedSevenDayRetention = true
         }
         if milestones.contains(.thirtyDays), !profile.recordedThirtyDayRetention {
-            insertEvent(.retainedAfterThirtyDays, modelContext: modelContext, now: now, calendar: calendar)
+            appendEvent(.retainedAfterThirtyDays, now: now, calendar: calendar)
             profile.recordedThirtyDayRetention = true
         }
 
-        try? modelContext.save()
+        saveProfile(profile)
     }
 
     static func recordAppEnteredBackground() {
@@ -114,13 +111,11 @@ enum ProductAnalytics {
 
     static func recordPracticeCompleted(
         sequence: YogaSequence,
-        modelContext: ModelContext,
         now: Date = Date(),
         calendar: Calendar = .current
     ) {
-        insertEvent(
+        appendEvent(
             .practiceCompleted,
-            modelContext: modelContext,
             now: now,
             calendar: calendar,
             sequenceID: sequence.id,
@@ -128,15 +123,14 @@ enum ProductAnalytics {
             value: sequence.estimatedDuration,
             details: "rounds=\(sequence.rounds)"
         )
-        try? modelContext.save()
     }
 
-    static func recordFavoriteAdded(sequence: YogaSequence, modelContext: ModelContext) {
-        recordFavorite(.favoriteFlowAdded, sequence: sequence, modelContext: modelContext)
+    static func recordFavoriteAdded(sequence: YogaSequence) {
+        recordFavorite(.favoriteFlowAdded, sequence: sequence)
     }
 
-    static func recordFavoriteRemoved(sequence: YogaSequence, modelContext: ModelContext) {
-        recordFavorite(.favoriteFlowRemoved, sequence: sequence, modelContext: modelContext)
+    static func recordFavoriteRemoved(sequence: YogaSequence) {
+        recordFavorite(.favoriteFlowRemoved, sequence: sequence)
     }
 
     static func dayKey(for date: Date, calendar: Calendar = .current) -> String {
@@ -161,34 +155,30 @@ enum ProductAnalytics {
 
     private static func recordFavorite(
         _ eventName: ProductAnalyticsEventName,
-        sequence: YogaSequence,
-        modelContext: ModelContext
+        sequence: YogaSequence
     ) {
-        insertEvent(
+        appendEvent(
             eventName,
-            modelContext: modelContext,
             sequenceID: sequence.id,
             sequenceTitle: sequence.title
         )
-        try? modelContext.save()
     }
 
-    private static func analyticsProfile(modelContext: ModelContext, now: Date) -> ProductAnalyticsProfile {
-        let descriptor = FetchDescriptor<ProductAnalyticsProfile>(
-            predicate: #Predicate { $0.id == profileID }
-        )
-
-        if let profile = try? modelContext.fetch(descriptor).first {
+    private static func analyticsProfile(now: Date) -> ProductAnalyticsProfile {
+        if let data = UserDefaults.standard.data(forKey: profileStorageKey),
+           let profile = try? JSONDecoder().decode(ProductAnalyticsProfile.self, from: data) {
             return profile
         }
 
-        let profile = ProductAnalyticsProfile(installedAt: now)
-        modelContext.insert(profile)
-        return profile
+        return ProductAnalyticsProfile(installedAt: now)
+    }
+
+    private static func saveProfile(_ profile: ProductAnalyticsProfile) {
+        guard let data = try? JSONEncoder().encode(profile) else { return }
+        UserDefaults.standard.set(data, forKey: profileStorageKey)
     }
 
     private static func recordPossibleCrashIfNeeded(
-        modelContext: ModelContext,
         now: Date,
         calendar: Calendar
     ) {
@@ -196,7 +186,7 @@ enum ProductAnalytics {
         let sessionWasClean = UserDefaults.standard.bool(forKey: sessionWasCleanKey)
         guard sessionStarted, !sessionWasClean else { return }
 
-        insertEvent(.possibleCrash, modelContext: modelContext, now: now, calendar: calendar)
+        appendEvent(.possibleCrash, now: now, calendar: calendar)
     }
 
     private static func markSessionStarted() {
@@ -204,9 +194,8 @@ enum ProductAnalytics {
         UserDefaults.standard.set(false, forKey: sessionWasCleanKey)
     }
 
-    private static func insertEvent(
+    private static func appendEvent(
         _ name: ProductAnalyticsEventName,
-        modelContext: ModelContext,
         now: Date = Date(),
         calendar: Calendar = .current,
         sequenceID: String? = nil,
@@ -214,16 +203,41 @@ enum ProductAnalytics {
         value: Double? = nil,
         details: String? = nil
     ) {
-        modelContext.insert(
-            ProductAnalyticsEvent(
-                name: name,
-                occurredAt: now,
-                dayKey: dayKey(for: now, calendar: calendar),
-                sequenceID: sequenceID,
-                sequenceTitle: sequenceTitle,
-                value: value,
-                details: details
-            )
+        let event = ProductAnalyticsEvent(
+            name: name,
+            occurredAt: now,
+            dayKey: dayKey(for: now, calendar: calendar),
+            sequenceID: sequenceID,
+            sequenceTitle: sequenceTitle,
+            value: value,
+            details: details
         )
+        guard let data = try? JSONEncoder().encode(event) else { return }
+
+        let fileURL = analyticsEventsURL()
+        try? FileManager.default.createDirectory(
+            at: fileURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+
+        if FileManager.default.fileExists(atPath: fileURL.path),
+           let handle = try? FileHandle(forWritingTo: fileURL) {
+            defer { try? handle.close() }
+            try? handle.seekToEnd()
+            try? handle.write(contentsOf: data)
+            try? handle.write(contentsOf: Data("\n".utf8))
+        } else {
+            var line = data
+            line.append(Data("\n".utf8))
+            try? line.write(to: fileURL, options: .atomic)
+        }
+    }
+
+    private static func analyticsEventsURL() -> URL {
+        let baseURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? FileManager.default.temporaryDirectory
+        return baseURL
+            .appendingPathComponent("Yogalite", isDirectory: true)
+            .appendingPathComponent("product-analytics.jsonl")
     }
 }
