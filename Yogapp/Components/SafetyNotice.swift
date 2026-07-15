@@ -3,7 +3,7 @@ import SwiftUI
 struct SafetyNotice: View {
     var body: some View {
         Label {
-            Text("Yogalite supports general wellness and is not medical advice. Move gently, stop if anything feels painful or dizzy, and check with a qualified professional before starting a new routine when needed.")
+            Text("Yogalite is for general wellness, not medical advice. Move gently, stop for pain or dizziness, and check with a professional when needed.")
                 .font(.caption.weight(.semibold))
                 .fixedSize(horizontal: false, vertical: true)
         } icon: {

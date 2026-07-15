@@ -152,8 +152,6 @@ struct OnboardingView: View {
                 .font(.title3)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
-
-            SafetyNotice()
         }
     }
 
@@ -258,6 +256,8 @@ struct OnboardingView: View {
             Text("\(selectedTags.count)/3 selected")
                 .font(.caption.weight(.bold))
                 .foregroundStyle(.secondary)
+
+            SafetyNotice()
         }
     }
 
