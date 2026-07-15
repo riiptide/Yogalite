@@ -28,7 +28,7 @@ struct LibraryView: View {
                 FlowDesign.background.ignoresSafeArea()
 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 24) {
+                    VStack(alignment: .leading, spacing: 22) {
                         header
                         summary
                         savedPracticeList
@@ -36,7 +36,7 @@ struct LibraryView: View {
                     .padding(FlowDesign.spacing)
                 }
             }
-            .navigationTitle("Library")
+            .navigationTitle("Saved Practices")
             .task {
                 PracticePersistence.seedSavedPracticesIfNeeded(modelContext: modelContext, didSeed: &didSeedSavedPractices)
             }
@@ -51,10 +51,7 @@ struct LibraryView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Saved practices")
-                .font(.largeTitle.weight(.bold))
-                .foregroundStyle(FlowDesign.text)
+        VStack(alignment: .leading, spacing: 4) {
             Text("Your go-to flows, ready when you want to return to them.")
                 .font(.body)
                 .foregroundStyle(.secondary)
@@ -129,7 +126,7 @@ private struct LibraryStatCard: View {
     let systemImage: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        HStack(spacing: 10) {
             Image(systemName: systemImage)
                 .font(.headline.weight(.bold))
                 .foregroundStyle(FlowDesign.teal)
@@ -147,11 +144,10 @@ private struct LibraryStatCard: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(Color(.systemBackground).opacity(0.90))
-        .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
+        .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(title), \(value)")
     }
