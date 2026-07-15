@@ -40,17 +40,30 @@ struct OnboardingView: View {
             VStack(spacing: 0) {
                 progressHeader
 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 24) {
-                        hero
-                        stepContent
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 24) {
+                            hero
+                            stepContent
+                        }
+                        .padding(FlowDesign.spacing)
+                        .padding(.bottom, 12)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .padding(FlowDesign.spacing)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .scrollDismissesKeyboard(.interactively)
+                    .onChange(of: isNameFocused) { _, focused in
+                        guard focused else { return }
+                        scrollToNameField(with: proxy)
+                    }
+                    .onChange(of: step) { _, newStep in
+                        guard newStep == .name else { return }
+                        scrollToNameField(with: proxy)
+                    }
                 }
-
-                footer
             }
+        }
+        .safeAreaInset(edge: .bottom) {
+            footer
         }
         .onAppear {
             displayName = storedDisplayName
@@ -92,6 +105,8 @@ struct OnboardingView: View {
                 Text(step.eyebrow)
                     .font(.title2.weight(.bold))
                     .foregroundStyle(FlowDesign.text)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.84)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -153,6 +168,7 @@ struct OnboardingView: View {
                 .submitLabel(.next)
                 .focused($isNameFocused)
                 .padding(16)
+                .id(OnboardingScrollTarget.nameField)
                 .background(Color(.systemBackground).opacity(0.94))
                 .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
                 .overlay {
@@ -222,7 +238,8 @@ struct OnboardingView: View {
                             }
                             Text(tag)
                                 .font(.caption.weight(.bold))
-                                .lineLimit(1)
+                                .multilineTextAlignment(.leading)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                         .padding(.horizontal, 12)
                         .padding(.vertical, 9)
@@ -300,6 +317,18 @@ struct OnboardingView: View {
     private func canSelect(_ tag: String) -> Bool {
         selectedTags.contains(tag) || selectedTags.count < 3
     }
+
+    private func scrollToNameField(with proxy: ScrollViewProxy) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            withAnimation(.snappy) {
+                proxy.scrollTo(OnboardingScrollTarget.nameField, anchor: .center)
+            }
+        }
+    }
+}
+
+private enum OnboardingScrollTarget {
+    static let nameField = "onboarding-name-field"
 }
 
 private enum OnboardingStep: Int, CaseIterable, Identifiable {
@@ -347,6 +376,7 @@ private struct OnboardingChoiceButton: View {
                     .font(.headline.weight(.bold))
                     .foregroundStyle(isSelected ? .white : FlowDesign.text)
                     .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Spacer()
 
