@@ -142,68 +142,28 @@ struct ExploreView: View {
     }
 
     private var filters: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Label("Refine", systemImage: "slider.horizontal.3")
-                    .font(.headline.weight(.bold))
-                    .foregroundStyle(FlowDesign.text)
-
-                Spacer()
-
-                if isFiltering {
-                    Button("Reset") {
-                        clearFilters()
-                    }
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(FlowDesign.teal)
-                }
+        HStack(spacing: 10) {
+            FilterMenuButton(
+                title: "Difficulty",
+                selection: selectedDifficulty,
+                options: difficulties
+            ) { difficulty in
+                selectedDifficulty = difficulty
             }
+            .accessibilityLabel("Difficulty filter")
 
-            HStack(spacing: 10) {
-                FilterMenuButton(
-                    title: "Difficulty",
-                    selection: selectedDifficulty,
-                    options: difficulties
-                ) { difficulty in
-                    selectedDifficulty = difficulty
-                }
-                .accessibilityLabel("Difficulty filter")
-
-                FilterMenuButton(
-                    title: "Duration",
-                    selection: selectedTimeRange.title,
-                    options: TimeRange.allCases.map(\.title)
-                ) { title in
-                    selectedTimeRange = TimeRange.allCases.first { $0.title == title } ?? .any
-                }
-                .accessibilityLabel("Duration filter")
+            FilterMenuButton(
+                title: "Duration",
+                selection: selectedTimeRange.title,
+                options: TimeRange.allCases.map(\.title)
+            ) { title in
+                selectedTimeRange = TimeRange.allCases.first { $0.title == title } ?? .any
             }
-
-            activeFilterSummary
+            .accessibilityLabel("Duration filter")
         }
         .padding(16)
         .background(Color(.systemBackground).opacity(0.88))
         .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
-    }
-
-    @ViewBuilder
-    private var activeFilterSummary: some View {
-        if isFiltering {
-            FlowLayout(spacing: 8) {
-                if !searchText.isEmpty {
-                    ActiveFilterChip(title: "Search: \(searchText)", systemImage: "magnifyingglass")
-                }
-                if let selectedTag {
-                    ActiveFilterChip(title: selectedTag.title, systemImage: selectedTag.systemImage)
-                }
-                if selectedDifficulty != "All" {
-                    ActiveFilterChip(title: selectedDifficulty, systemImage: "chart.bar")
-                }
-                if selectedTimeRange != .any {
-                    ActiveFilterChip(title: selectedTimeRange.title, systemImage: "clock")
-                }
-            }
-        }
     }
 
     @ViewBuilder
@@ -265,13 +225,6 @@ struct ExploreView: View {
         sequences.filter { sequence in
             sequence.tags.contains { normalized($0) == normalized(tag.title) }
         }.count
-    }
-
-    private func clearFilters() {
-        searchText = ""
-        selectedDifficulty = "All"
-        selectedTimeRange = .any
-        selectedTag = nil
     }
 
     private func normalized(_ value: String) -> String {
@@ -366,22 +319,6 @@ private struct ExploreTagButton: View {
         .buttonStyle(.plain)
         .accessibilityLabel("\(tag.title), \(count) flows")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
-    }
-}
-
-private struct ActiveFilterChip: View {
-    let title: String
-    let systemImage: String
-
-    var body: some View {
-        Label(title, systemImage: systemImage)
-            .font(.caption.weight(.bold))
-            .lineLimit(1)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 7)
-            .background(FlowDesign.paleAqua.opacity(0.74))
-            .foregroundStyle(FlowDesign.teal)
-            .clipShape(Capsule())
     }
 }
 
