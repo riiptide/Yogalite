@@ -437,3 +437,28 @@ struct RoundTextTests {
         #expect(2.roundsText == "2 rounds")
     }
 }
+
+@MainActor
+struct ProductAnalyticsTests {
+    @Test func dayKeyUsesTheProvidedCalendar() {
+        #expect(ProductAnalytics.dayKey(for: date(year: 2026, month: 7, day: 15), calendar: calendar) == "2026-07-15")
+    }
+
+    @Test func retentionMilestonesAppearAfterSevenAndThirtyLocalDays() {
+        let installedAt = date(year: 2026, month: 1, day: 1)
+
+        #expect(ProductAnalytics.retentionMilestones(installedAt: installedAt, activeAt: date(year: 2026, month: 1, day: 7), calendar: calendar).isEmpty)
+        #expect(ProductAnalytics.retentionMilestones(installedAt: installedAt, activeAt: date(year: 2026, month: 1, day: 8), calendar: calendar) == [.sevenDays])
+        #expect(ProductAnalytics.retentionMilestones(installedAt: installedAt, activeAt: date(year: 2026, month: 1, day: 31), calendar: calendar) == [.sevenDays, .thirtyDays])
+    }
+
+    private var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        return calendar
+    }
+
+    private func date(year: Int, month: Int, day: Int) -> Date {
+        DateComponents(calendar: calendar, timeZone: calendar.timeZone, year: year, month: month, day: day, hour: 12).date!
+    }
+}

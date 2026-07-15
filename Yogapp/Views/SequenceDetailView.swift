@@ -260,8 +260,10 @@ struct SequenceDetailView: View {
     private func toggleFavorite() {
         if let savedRecord = savedPracticeRecords.first(where: { $0.sequenceID == sequence.id }) {
             modelContext.delete(savedRecord)
+            ProductAnalytics.recordFavoriteRemoved(sequence: sequence, modelContext: modelContext)
         } else {
             modelContext.insert(SavedPracticeRecord(sequenceID: sequence.id))
+            ProductAnalytics.recordFavoriteAdded(sequence: sequence, modelContext: modelContext)
         }
         try? modelContext.save()
     }

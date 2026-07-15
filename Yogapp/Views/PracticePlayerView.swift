@@ -382,6 +382,7 @@ struct PracticePlayerView: View {
                 rounds: viewModel.sequence.rounds
             )
         )
+        ProductAnalytics.recordPracticeCompleted(sequence: viewModel.sequence, modelContext: modelContext)
         try? modelContext.save()
     }
 }
