@@ -4,15 +4,22 @@ import SwiftData
 struct ProfileView: View {
     @Query(sort: \PracticeCompletionRecord.completedAt, order: .reverse) private var completionRecords: [PracticeCompletionRecord]
     @AppStorage("profileDisplayName") private var displayName = "Aaliyah"
+    @AppStorage("selectedPracticeTags") private var selectedPracticeTags = ""
     @State private var isEditingName = false
     @State private var draftDisplayName = ""
 
-    private let goals = [
-        ProfileGoal(title: "Morning", systemImage: "sun.max"),
-        ProfileGoal(title: "Flexibility", systemImage: "figure.flexibility"),
-        ProfileGoal(title: "Stress Relief", systemImage: "leaf"),
-        ProfileGoal(title: "Beginner", systemImage: "figure.yoga")
-    ]
+    private var goals: [ProfileGoal] {
+        let savedGoals = OnboardingPreferences.decodeTags(selectedPracticeTags).map(ProfileGoal.init)
+        guard !savedGoals.isEmpty else {
+            return [
+                ProfileGoal(title: "Morning"),
+                ProfileGoal(title: "Flexibility"),
+                ProfileGoal(title: "Stress Relief"),
+                ProfileGoal(title: "Beginner")
+            ]
+        }
+        return savedGoals
+    }
 
     private let settings = [
         ProfileSetting(title: "Notifications", systemImage: "bell"),
@@ -379,7 +386,40 @@ private struct ProfileSettingsRow: View {
 
 private struct ProfileGoal: Identifiable {
     let title: String
-    let systemImage: String
+    var systemImage: String {
+        switch title {
+        case "Morning":
+            return "sun.max"
+        case "Evening":
+            return "sunset"
+        case "Stress Relief":
+            return "leaf"
+        case "Better Sleep":
+            return "moon.stars"
+        case "Strength":
+            return "flame"
+        case "Flexibility":
+            return "figure.flexibility"
+        case "Mobility":
+            return "figure.walk.motion"
+        case "Balance":
+            return "figure.yoga"
+        case "Core":
+            return "figure.core.training"
+        case "Hips", "Hamstrings":
+            return "figure.strengthtraining.functional"
+        case "Back Care":
+            return "figure.cooldown"
+        case "Beginner":
+            return "sparkles"
+        case "Quick Practices":
+            return "timer"
+        case "Restorative":
+            return "heart"
+        default:
+            return "tag"
+        }
+    }
     var id: String { title }
 }
 

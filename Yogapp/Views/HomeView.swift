@@ -3,6 +3,7 @@ import SwiftUI
 struct HomeView: View {
     private let sequences = SunSalutationData.allSequences
     @State private var path: [HomeRoute] = []
+    @AppStorage("profileDisplayName") private var displayName = ""
 
     private var selectedDailySequence: YogaSequence {
         DailyFlowSelector.sequence(for: Date(), in: sequences) ?? SunSalutationData.sunSalutationB
@@ -18,6 +19,14 @@ struct HomeView: View {
 
     private var timeOfDayGreeting: TimeOfDayGreeting {
         TimeOfDayGreeting.current()
+    }
+
+    private var greetingTitle: String {
+        let trimmedName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else {
+            return timeOfDayGreeting.title
+        }
+        return "\(timeOfDayGreeting.title), \(trimmedName)"
     }
 
     var body: some View {
@@ -51,11 +60,11 @@ struct HomeView: View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 8) {
-                    Text(timeOfDayGreeting.title)
+                    Text(greetingTitle)
                         .font(.largeTitle.weight(.bold))
                         .foregroundStyle(FlowDesign.text)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.82)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.78)
                     Image(systemName: timeOfDayGreeting.systemImage)
                         .font(.title2.weight(.semibold))
                         .foregroundStyle(FlowDesign.teal)

@@ -278,3 +278,13 @@ struct DailyFlowSelectorTests {
         )
     }
 }
+
+@MainActor
+struct OnboardingPreferencesTests {
+    @Test func selectedTagsRoundTripThroughStorageString() {
+        let encodedTags = OnboardingPreferences.encodeTags(["Strength", "Morning", "Hips"])
+
+        #expect(encodedTags == "Hips|Morning|Strength")
+        #expect(OnboardingPreferences.decodeTags(encodedTags) == ["Hips", "Morning", "Strength"])
+    }
+}

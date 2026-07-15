@@ -8,7 +8,17 @@
 import SwiftUI
 
 struct ContentView: View {
+    @AppStorage("didCompleteOnboarding") private var didCompleteOnboarding = false
+
     var body: some View {
+        if didCompleteOnboarding {
+            mainTabs
+        } else {
+            OnboardingView()
+        }
+    }
+
+    private var mainTabs: some View {
         TabView {
             HomeView()
                 .tabItem {
