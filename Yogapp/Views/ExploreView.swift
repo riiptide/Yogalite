@@ -26,16 +26,6 @@ struct ExploreView: View {
         ["All"] + Array(Set(sequences.map(\.difficulty).filter { normalized($0) != "gentle" })).sorted()
     }
 
-    private var timeRangeSummaries: [TimeRangeSummary] {
-        TimeRange.filterRanges.map { range in
-            TimeRangeSummary(
-                range: range,
-                count: sequences.filter { range.contains($0.estimatedMinutes) }.count,
-                total: sequences.count
-            )
-        }
-    }
-
     private var filteredSequences: [YogaSequence] {
         sequences.filter { sequence in
             let normalizedSearch = normalized(searchText.trimmingCharacters(in: .whitespacesAndNewlines))
@@ -170,54 +160,30 @@ struct ExploreView: View {
             }
 
             HStack(spacing: 10) {
-                Picker("Difficulty", selection: $selectedDifficulty) {
-                    ForEach(difficulties, id: \.self) { difficulty in
-                        Text(difficulty).tag(difficulty)
-                    }
+                FilterMenuButton(
+                    title: "Difficulty",
+                    selection: selectedDifficulty,
+                    options: difficulties
+                ) { difficulty in
+                    selectedDifficulty = difficulty
                 }
-                .pickerStyle(.menu)
-                .buttonStyle(.bordered)
                 .accessibilityLabel("Difficulty filter")
+
+                FilterMenuButton(
+                    title: "Duration",
+                    selection: selectedTimeRange.title,
+                    options: TimeRange.allCases.map(\.title)
+                ) { title in
+                    selectedTimeRange = TimeRange.allCases.first { $0.title == title } ?? .any
+                }
+                .accessibilityLabel("Duration filter")
             }
 
-            timeDistribution
             activeFilterSummary
         }
         .padding(16)
         .background(Color(.systemBackground).opacity(0.88))
         .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
-    }
-
-    private var timeDistribution: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text("Timing")
-                    .font(.caption.weight(.heavy))
-                    .foregroundStyle(.secondary)
-                    .textCase(.uppercase)
-
-                Spacer()
-
-                Button(selectedTimeRange == .any ? "Any time" : "Clear time") {
-                    selectedTimeRange = .any
-                }
-                .font(.caption.weight(.bold))
-                .foregroundStyle(FlowDesign.teal)
-                .disabled(selectedTimeRange == .any)
-                .opacity(selectedTimeRange == .any ? 0.58 : 1)
-            }
-
-            VStack(spacing: 8) {
-                ForEach(timeRangeSummaries) { summary in
-                    TimeRangeDistributionButton(
-                        summary: summary,
-                        isSelected: selectedTimeRange == summary.range
-                    ) {
-                        selectedTimeRange = selectedTimeRange == summary.range ? .any : summary.range
-                    }
-                }
-            }
-        }
     }
 
     @ViewBuilder
@@ -419,66 +385,53 @@ private struct ActiveFilterChip: View {
     }
 }
 
-private struct TimeRangeSummary: Identifiable {
-    let range: TimeRange
-    let count: Int
-    let total: Int
-
-    var id: TimeRange { range }
-
-    var fraction: CGFloat {
-        guard total > 0 else { return 0 }
-        return CGFloat(count) / CGFloat(total)
-    }
-}
-
-private struct TimeRangeDistributionButton: View {
-    let summary: TimeRangeSummary
-    let isSelected: Bool
-    let action: () -> Void
-
-    private var fillFraction: CGFloat {
-        summary.count > 0 ? max(summary.fraction, 0.04) : 0
-    }
+private struct FilterMenuButton: View {
+    let title: String
+    let selection: String
+    let options: [String]
+    let onSelect: (String) -> Void
 
     var body: some View {
-        Button(action: action) {
-            VStack(alignment: .leading, spacing: 7) {
-                HStack(spacing: 8) {
-                    Text(summary.range.title)
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(isSelected ? FlowDesign.teal : FlowDesign.text)
-                        .lineLimit(1)
-
-                    Spacer()
-
-                    Text("\(summary.count)")
-                        .font(.caption.weight(.heavy))
-                        .foregroundStyle(isSelected ? FlowDesign.teal : .secondary)
-                }
-
-                GeometryReader { proxy in
-                    ZStack(alignment: .leading) {
-                        Capsule()
-                            .fill(Color(.secondarySystemBackground))
-                        Capsule()
-                            .fill(isSelected ? FlowDesign.teal : FlowDesign.teal.opacity(0.32))
-                            .frame(width: proxy.size.width * fillFraction)
+        Menu {
+            ForEach(options, id: \.self) { option in
+                Button {
+                    onSelect(option)
+                } label: {
+                    if option == selection {
+                        Label(option, systemImage: "checkmark")
+                    } else {
+                        Text(option)
                     }
                 }
-                .frame(height: 5)
             }
-            .padding(10)
-            .background(isSelected ? FlowDesign.paleAqua.opacity(0.88) : Color(.secondarySystemBackground).opacity(0.36))
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(isSelected ? FlowDesign.teal.opacity(0.24) : Color.clear, lineWidth: 1)
+        } label: {
+            VStack(alignment: .leading, spacing: 7) {
+                Text(title)
+                    .font(.caption.weight(.heavy))
+                    .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+
+                HStack(spacing: 6) {
+                    Text(selection)
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(FlowDesign.text)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.82)
+
+                    Spacer(minLength: 4)
+
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.secondary)
+                }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(Color(.secondarySystemBackground).opacity(0.56))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("\(summary.range.title), \(summary.count) flows")
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 
@@ -488,8 +441,6 @@ private enum TimeRange: String, CaseIterable, Identifiable {
     case standard
     case steady
     case extended
-
-    static let filterRanges: [TimeRange] = [.quick, .standard, .steady, .extended]
 
     var id: String { rawValue }
 
