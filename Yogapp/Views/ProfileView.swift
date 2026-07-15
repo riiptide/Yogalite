@@ -11,6 +11,7 @@ struct ProfileView: View {
     @State private var isEditingName = false
     @State private var draftDisplayName = ""
     @State private var selectedPhotoItem: PhotosPickerItem?
+    @State private var photoToCrop: ProfilePhotoCropItem?
 
     private var goals: [ProfileGoal] {
         let selectedGoals = Set(OnboardingPreferences.decodeTags(selectedPracticeTags))
@@ -68,6 +69,14 @@ struct ProfileView: View {
                     saveDisplayName()
                 }
                 .presentationDetents([.height(250)])
+            }
+            .sheet(item: $photoToCrop) { cropItem in
+                ProfilePhotoCropSheet(image: cropItem.image) { croppedData in
+                    profilePhotoData = croppedData
+                    photoToCrop = nil
+                } cancel: {
+                    photoToCrop = nil
+                }
             }
             .onChange(of: selectedPhotoItem) { _, newItem in
                 Task {
@@ -175,12 +184,12 @@ struct ProfileView: View {
     private func loadProfilePhoto(from item: PhotosPickerItem?) async {
         guard let item,
               let data = try? await item.loadTransferable(type: Data.self),
-              let preparedData = ProfilePhotoProcessor.preparedImageData(from: data) else {
+              let image = UIImage(data: data)?.normalizedForCropping() else {
             return
         }
 
         await MainActor.run {
-            profilePhotoData = preparedData
+            photoToCrop = ProfilePhotoCropItem(image: image)
             selectedPhotoItem = nil
         }
     }
@@ -324,6 +333,187 @@ private struct ProfileAvatar: View {
                 }
                 .offset(x: -4, y: -4)
         }
+    }
+}
+
+private struct ProfilePhotoCropItem: Identifiable {
+    let id = UUID()
+    let image: UIImage
+}
+
+private struct ProfilePhotoCropSheet: View {
+    let image: UIImage
+    let save: (Data) -> Void
+    let cancel: () -> Void
+    @State private var offset: CGSize = .zero
+    @State private var lastOffset: CGSize = .zero
+    @State private var scale: CGFloat = 1
+    @State private var lastScale: CGFloat = 1
+    @State private var currentCropSide: CGFloat = 512
+
+    private let outputSideLength: CGFloat = 512
+    private let minimumScale: CGFloat = 1
+    private let maximumScale: CGFloat = 4
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 22) {
+                Text("Move and pinch to crop your profile photo.")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                GeometryReader { proxy in
+                    let cropSide = min(proxy.size.width, proxy.size.height)
+
+                    ZStack {
+                        Color.black.opacity(0.06)
+
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .scaleEffect(scale)
+                            .offset(offset)
+                            .frame(width: cropSide, height: cropSide)
+                            .clipShape(Rectangle())
+                            .gesture(cropGesture(cropSide: cropSide))
+
+                        Circle()
+                            .stroke(Color.white, lineWidth: 3)
+                            .shadow(color: .black.opacity(0.24), radius: 6, x: 0, y: 2)
+                            .padding(1.5)
+                            .allowsHitTesting(false)
+
+                        RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous)
+                            .stroke(FlowDesign.teal.opacity(0.34), lineWidth: 2)
+                            .allowsHitTesting(false)
+                    }
+                    .frame(width: cropSide, height: cropSide)
+                    .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .onAppear {
+                        currentCropSide = cropSide
+                        clampOffset(for: cropSide)
+                    }
+                    .onChange(of: cropSide) { _, newCropSide in
+                        currentCropSide = newCropSide
+                        clampOffset(for: newCropSide)
+                    }
+                    .onChange(of: scale) { _, _ in
+                        clampOffset(for: cropSide)
+                    }
+                }
+                .aspectRatio(1, contentMode: .fit)
+
+                Button {
+                    resetCrop()
+                } label: {
+                    Label("Reset crop", systemImage: "arrow.counterclockwise")
+                        .font(.subheadline.weight(.bold))
+                }
+                .foregroundStyle(FlowDesign.teal)
+            }
+            .padding(FlowDesign.spacing)
+            .background(FlowDesign.background.ignoresSafeArea())
+            .navigationTitle("Crop photo")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", action: cancel)
+                }
+
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        if let croppedData = croppedPhotoData() {
+                            save(croppedData)
+                        }
+                    }
+                    .fontWeight(.bold)
+                }
+            }
+        }
+    }
+
+    private func cropGesture(cropSide: CGFloat) -> some Gesture {
+        SimultaneousGesture(
+            DragGesture()
+                .onChanged { value in
+                    offset = clampedOffset(
+                        CGSize(width: lastOffset.width + value.translation.width, height: lastOffset.height + value.translation.height),
+                        cropSide: cropSide,
+                        scale: scale
+                    )
+                }
+                .onEnded { _ in
+                    offset = clampedOffset(offset, cropSide: cropSide, scale: scale)
+                    lastOffset = offset
+                },
+            MagnificationGesture()
+                .onChanged { value in
+                    scale = min(max(lastScale * value, minimumScale), maximumScale)
+                    offset = clampedOffset(offset, cropSide: cropSide, scale: scale)
+                }
+                .onEnded { _ in
+                    scale = min(max(scale, minimumScale), maximumScale)
+                    offset = clampedOffset(offset, cropSide: cropSide, scale: scale)
+                    lastScale = scale
+                    lastOffset = offset
+                }
+        )
+    }
+
+    private func resetCrop() {
+        withAnimation(.snappy) {
+            offset = .zero
+            lastOffset = .zero
+            scale = 1
+            lastScale = 1
+        }
+    }
+
+    private func clampOffset(for cropSide: CGFloat) {
+        offset = clampedOffset(offset, cropSide: cropSide, scale: scale)
+        lastOffset = offset
+    }
+
+    private func clampedOffset(_ proposedOffset: CGSize, cropSide: CGFloat, scale: CGFloat) -> CGSize {
+        let displaySize = displayedImageSize(for: cropSide, scale: scale)
+        let horizontalLimit = max((displaySize.width - cropSide) / 2, 0)
+        let verticalLimit = max((displaySize.height - cropSide) / 2, 0)
+
+        return CGSize(
+            width: min(max(proposedOffset.width, -horizontalLimit), horizontalLimit),
+            height: min(max(proposedOffset.height, -verticalLimit), verticalLimit)
+        )
+    }
+
+    private func croppedPhotoData() -> Data? {
+        ProfilePhotoProcessor.preparedImageData(
+            from: image,
+            cropRect: cropRect(for: currentCropSide),
+            sideLength: outputSideLength
+        )
+    }
+
+    private func cropRect(for cropSide: CGFloat) -> CGRect {
+        let displaySize = displayedImageSize(for: cropSide, scale: scale)
+        let imageScale = displaySize.width / image.size.width
+        let originX = ((displaySize.width - cropSide) / 2 - offset.width) / imageScale
+        let originY = ((displaySize.height - cropSide) / 2 - offset.height) / imageScale
+        let sideLength = cropSide / imageScale
+
+        return CGRect(
+            x: min(max(originX, 0), image.size.width - sideLength),
+            y: min(max(originY, 0), image.size.height - sideLength),
+            width: sideLength,
+            height: sideLength
+        )
+    }
+
+    private func displayedImageSize(for cropSide: CGFloat, scale: CGFloat) -> CGSize {
+        let baseScale = max(cropSide / image.size.width, cropSide / image.size.height)
+        return CGSize(width: image.size.width * baseScale * scale, height: image.size.height * baseScale * scale)
     }
 }
 
@@ -494,38 +684,35 @@ private struct ProfileSetting: Identifiable {
 }
 
 private enum ProfilePhotoProcessor {
-    static func preparedImageData(from data: Data, sideLength: CGFloat = 512) -> Data? {
-        guard let image = UIImage(data: data) else { return nil }
-
-        let squareLength = min(image.size.width, image.size.height)
-        let cropOrigin = CGPoint(
-            x: (image.size.width - squareLength) / 2,
-            y: (image.size.height - squareLength) / 2
-        )
-        let cropRect = CGRect(origin: cropOrigin, size: CGSize(width: squareLength, height: squareLength))
-
-        guard let croppedImage = image.cgImage?.cropping(to: cropRect.scaled(by: image.scale)) else {
-            return nil
-        }
-
+    static func preparedImageData(from image: UIImage, cropRect: CGRect, sideLength: CGFloat = 512) -> Data? {
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: sideLength, height: sideLength))
         let resizedImage = renderer.image { _ in
-            UIImage(cgImage: croppedImage, scale: image.scale, orientation: image.imageOrientation)
-                .draw(in: CGRect(origin: .zero, size: CGSize(width: sideLength, height: sideLength)))
+            let drawScale = sideLength / cropRect.width
+            image.draw(
+                in: CGRect(
+                    x: -cropRect.minX * drawScale,
+                    y: -cropRect.minY * drawScale,
+                    width: image.size.width * drawScale,
+                    height: image.size.height * drawScale
+                )
+            )
         }
 
         return resizedImage.jpegData(compressionQuality: 0.82)
     }
 }
 
-private extension CGRect {
-    func scaled(by scale: CGFloat) -> CGRect {
-        CGRect(
-            x: origin.x * scale,
-            y: origin.y * scale,
-            width: size.width * scale,
-            height: size.height * scale
-        )
+private extension UIImage {
+    func normalizedForCropping() -> UIImage {
+        guard imageOrientation != .up else { return self }
+
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = scale
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+
+        return renderer.image { _ in
+            draw(in: CGRect(origin: .zero, size: size))
+        }
     }
 }
 
