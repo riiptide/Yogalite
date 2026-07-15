@@ -42,11 +42,6 @@ struct ProfileView: View {
         completionRecords.first
     }
 
-    private var profileUIImage: UIImage? {
-        guard !profilePhotoData.isEmpty else { return nil }
-        return UIImage(data: profilePhotoData)
-    }
-
     var body: some View {
         NavigationStack {
             ZStack {
@@ -109,9 +104,11 @@ struct ProfileView: View {
     }
 
     private var profileSummary: some View {
-        HStack(spacing: 18) {
+        let avatarData = profilePhotoData
+
+        return HStack(spacing: 18) {
             PhotosPicker(selection: $selectedPhotoItem, matching: .images, photoLibrary: .shared()) {
-                profileAvatar
+                ProfileAvatar(photoData: avatarData)
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Profile avatar")
@@ -132,43 +129,6 @@ struct ProfileView: View {
                 .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-
-    private var profileAvatar: some View {
-        ZStack(alignment: .bottomTrailing) {
-            ZStack {
-                Circle()
-                    .fill(FlowDesign.paleAqua.opacity(0.82))
-
-                if let profileUIImage {
-                    Image(uiImage: profileUIImage)
-                        .resizable()
-                        .scaledToFill()
-                } else {
-                    PoseIllustrationView(pose: SunSalutationData.upwardSalute)
-                        .padding(18)
-                }
-            }
-            .frame(width: 118, height: 118)
-            .clipShape(Circle())
-            .overlay {
-                Circle()
-                    .stroke(Color(.systemBackground), lineWidth: 4)
-            }
-            .shadow(color: FlowDesign.teal.opacity(0.12), radius: 16, x: 0, y: 8)
-
-            Image(systemName: "camera.fill")
-                .font(.caption.weight(.bold))
-                .foregroundStyle(.white)
-                .frame(width: 30, height: 30)
-                .background(FlowDesign.teal)
-                .clipShape(Circle())
-                .overlay {
-                    Circle()
-                        .stroke(Color(.systemBackground), lineWidth: 2)
-                }
-                .offset(x: -4, y: -4)
         }
     }
 
@@ -318,6 +278,52 @@ struct ProfileView: View {
         guard !trimmedName.isEmpty else { return }
         displayName = trimmedName
         isEditingName = false
+    }
+}
+
+private struct ProfileAvatar: View {
+    let photoData: Data
+
+    private var profileUIImage: UIImage? {
+        guard !photoData.isEmpty else { return nil }
+        return UIImage(data: photoData)
+    }
+
+    var body: some View {
+        ZStack(alignment: .bottomTrailing) {
+            ZStack {
+                Circle()
+                    .fill(FlowDesign.paleAqua.opacity(0.82))
+
+                if let profileUIImage {
+                    Image(uiImage: profileUIImage)
+                        .resizable()
+                        .scaledToFill()
+                } else {
+                    PoseIllustrationView(pose: SunSalutationData.upwardSalute)
+                        .padding(18)
+                }
+            }
+            .frame(width: 118, height: 118)
+            .clipShape(Circle())
+            .overlay {
+                Circle()
+                    .stroke(Color(.systemBackground), lineWidth: 4)
+            }
+            .shadow(color: FlowDesign.teal.opacity(0.12), radius: 16, x: 0, y: 8)
+
+            Image(systemName: "camera.fill")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(.white)
+                .frame(width: 30, height: 30)
+                .background(FlowDesign.teal)
+                .clipShape(Circle())
+                .overlay {
+                    Circle()
+                        .stroke(Color(.systemBackground), lineWidth: 2)
+                }
+                .offset(x: -4, y: -4)
+        }
     }
 }
 
