@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct PracticePlayerView: View {
     @State private var viewModel: PracticePlayerViewModel
@@ -73,16 +74,20 @@ struct PracticePlayerView: View {
         .toolbar(.hidden, for: .tabBar)
         .onAppear {
             isShowingIntro = !viewModel.isPlaying && !viewModel.isComplete
+            updateIdleTimerDisabled()
         }
         .onDisappear {
             countdownTask?.cancel()
             narrationPlayer.stop()
             viewModel.stop()
+            UIApplication.shared.isIdleTimerDisabled = false
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
+                updateIdleTimerDisabled()
                 viewModel.tick()
             } else {
+                UIApplication.shared.isIdleTimerDisabled = false
                 countdownTask?.cancel()
                 countdownDisplay = nil
                 narrationPlayer.stop()
@@ -90,6 +95,7 @@ struct PracticePlayerView: View {
         }
         .onChange(of: viewModel.isComplete) { _, isComplete in
             guard isComplete else { return }
+            UIApplication.shared.isIdleTimerDisabled = false
             narrationPlayer.stop()
             recordCompletionIfNeeded()
         }
@@ -321,6 +327,7 @@ struct PracticePlayerView: View {
         countdownTask?.cancel()
         narrationPlayer.stop()
         viewModel.stop()
+        UIApplication.shared.isIdleTimerDisabled = false
         endWorkoutAction()
         dismiss()
     }
@@ -346,6 +353,7 @@ struct PracticePlayerView: View {
             guard !Task.isCancelled else { return }
             countdownDisplay = nil
             startAction()
+            updateIdleTimerDisabled()
             narrateCurrentStep(includeOpeningPoseName: true)
             countdownTask = nil
         }
@@ -357,6 +365,10 @@ struct PracticePlayerView: View {
             step: viewModel.currentStep,
             includeHoldPoseName: includeOpeningPoseName && viewModel.currentStep.kind == .hold
         )
+    }
+
+    private func updateIdleTimerDisabled() {
+        UIApplication.shared.isIdleTimerDisabled = scenePhase == .active && !viewModel.isComplete
     }
 
     private func recordCompletionIfNeeded() {
