@@ -65,17 +65,24 @@ struct SequenceDetailView: View {
 
                 Spacer()
 
-                Button {
-                    toggleFavorite()
-                } label: {
-                    Image(systemName: isFavorite ? "heart.fill" : "heart")
-                        .font(.headline.weight(.bold))
-                        .foregroundStyle(isFavorite ? FlowDesign.teal : .secondary)
-                        .frame(width: 44, height: 44)
-                        .background(Color(.systemBackground).opacity(0.85))
-                        .clipShape(Circle())
+                HStack(spacing: 8) {
+                    Text(isFavorite ? "Added to favorites" : "Add to favorites")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+
+                    Button {
+                        toggleFavorite()
+                    } label: {
+                        Image(systemName: isFavorite ? "heart.fill" : "heart")
+                            .font(.headline.weight(.bold))
+                            .foregroundStyle(isFavorite ? FlowDesign.teal : .secondary)
+                            .frame(width: 44, height: 44)
+                            .background(Color(.systemBackground).opacity(0.85))
+                            .clipShape(Circle())
+                    }
+                    .accessibilityLabel(isFavorite ? "Remove favorite" : "Add to favorites")
                 }
-                .accessibilityLabel(isFavorite ? "Remove favorite" : "Favorite")
             }
 
             VStack(alignment: .leading, spacing: 12) {
