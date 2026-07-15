@@ -24,7 +24,7 @@ struct CompletionView: View {
                     .font(.largeTitle.weight(.bold))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(FlowDesign.text)
-                Text("You completed \(sequence.rounds) rounds of \(sequence.title).")
+                Text("You completed \(sequence.rounds.roundsText) of \(sequence.title).")
                     .font(.body)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)

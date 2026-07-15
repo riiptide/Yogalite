@@ -32,7 +32,7 @@ struct SequenceCard: View {
         .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerLarge, style: .continuous))
         .shadow(color: .black.opacity(0.07), radius: 18, x: 0, y: 10)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(sequence.title), \(sequence.difficulty), about \(sequence.estimatedDuration.minutesText), \(sequence.rounds) rounds")
+        .accessibilityLabel("\(sequence.title), \(sequence.difficulty), about \(sequence.estimatedDuration.minutesText), \(sequence.rounds.roundsText)")
     }
 
     private var metadataGrid: some View {
@@ -46,7 +46,7 @@ struct SequenceCard: View {
         ) {
             MetadataLabel(title: sequence.difficulty, systemImage: "chart.bar")
             MetadataLabel(title: sequence.estimatedDuration.minutesText, systemImage: "clock")
-            MetadataLabel(title: "\(sequence.rounds) rounds", systemImage: "arrow.triangle.2.circlepath")
+            MetadataLabel(title: sequence.rounds.roundsText, systemImage: "arrow.triangle.2.circlepath")
         }
         .font(.caption)
     }

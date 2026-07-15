@@ -117,7 +117,7 @@ struct SequenceDetailView: View {
                         .font(.headline.weight(.bold))
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text("\(sequence.rounds) rounds")
+                    Text(sequence.rounds.roundsText)
                         .font(.headline.weight(.bold))
                         .foregroundStyle(FlowDesign.teal)
                 }
@@ -179,7 +179,7 @@ struct SequenceDetailView: View {
     }
 
     private var roundMetadata: some View {
-        MetadataLabel(title: "\(sequence.rounds) rounds", systemImage: "arrow.triangle.2.circlepath")
+        MetadataLabel(title: sequence.rounds.roundsText, systemImage: "arrow.triangle.2.circlepath")
     }
 
     private var durationMetadata: some View {
@@ -229,7 +229,7 @@ struct SequenceDetailView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("This completes one round")
                     .font(.headline)
-                Text("Repeat \(sequence.rounds) rounds")
+                Text("Repeat \(sequence.rounds.roundsText)")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

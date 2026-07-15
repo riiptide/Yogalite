@@ -25,3 +25,9 @@ extension TimeInterval {
         return "\(minutes) min"
     }
 }
+
+extension Int {
+    var roundsText: String {
+        self == 1 ? "1 round" : "\(self) rounds"
+    }
+}

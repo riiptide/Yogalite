@@ -382,3 +382,11 @@ struct OnboardingPreferencesTests {
         #expect(OnboardingPreferences.decodeTags(encodedTags) == ["Hips", "Morning", "Strength"])
     }
 }
+
+@MainActor
+struct RoundTextTests {
+    @Test func formatsSingularAndPluralRounds() {
+        #expect(1.roundsText == "1 round")
+        #expect(2.roundsText == "2 rounds")
+    }
+}

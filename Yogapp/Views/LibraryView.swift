@@ -187,7 +187,7 @@ private struct SavedPracticeCard: View {
             HStack(spacing: 10) {
                 MetadataLabel(title: savedPractice.sequence.difficulty, systemImage: "chart.bar")
                 MetadataLabel(title: savedPractice.sequence.estimatedDuration.minutesText, systemImage: "clock")
-                MetadataLabel(title: "\(savedPractice.sequence.rounds) rounds", systemImage: "arrow.triangle.2.circlepath")
+                MetadataLabel(title: savedPractice.sequence.rounds.roundsText, systemImage: "arrow.triangle.2.circlepath")
             }
             .font(.caption)
             .foregroundStyle(.secondary)
