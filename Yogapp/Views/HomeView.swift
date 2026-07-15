@@ -4,17 +4,19 @@ struct HomeView: View {
     private let sequences = SunSalutationData.allSequences
     @State private var path: [HomeRoute] = []
     @AppStorage("profileDisplayName") private var displayName = ""
+    @AppStorage("selectedPracticeTags") private var selectedPracticeTags = ""
 
     private var selectedDailySequence: YogaSequence {
         DailyFlowSelector.sequence(for: Date(), in: sequences) ?? SunSalutationData.sunSalutationB
     }
 
-    private var totalPoseCount: Int {
-        Set(sequences.flatMap { sequence in
-            sequence.steps.flatMap { step in
-                [step.startPose.id, step.endPose?.id].compactMap { $0 }
-            }
-        }).count
+    private var recommendedSequences: [YogaSequence] {
+        RecommendedFlowSelector.sequences(
+            for: Date(),
+            in: sequences,
+            selectedTags: OnboardingPreferences.decodeTags(selectedPracticeTags),
+            excluding: selectedDailySequence.id
+        )
     }
 
     private var timeOfDayGreeting: TimeOfDayGreeting {
@@ -37,7 +39,7 @@ struct HomeView: View {
                     VStack(alignment: .leading, spacing: 24) {
                         morningHeader
                         todayFlowCard
-                        dailyStats
+                        recommendedFlowsSection
                         allFlowsSection
                     }
                     .padding(FlowDesign.spacing)
@@ -101,15 +103,15 @@ struct HomeView: View {
 
     private var todayFlowCard: some View {
         NavigationLink(value: HomeRoute.sequence(selectedDailySequence.id)) {
-            HStack(alignment: .center, spacing: 14) {
-                VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 10) {
                     Text("Today's Flow")
                         .font(.caption.weight(.heavy))
                         .textCase(.uppercase)
                         .foregroundStyle(FlowDesign.teal)
 
                     Text(selectedDailySequence.title)
-                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                        .font(.system(.title, design: .rounded, weight: .bold))
                         .foregroundStyle(FlowDesign.text)
                         .lineLimit(3)
                         .minimumScaleFactor(0.78)
@@ -121,8 +123,8 @@ struct HomeView: View {
 
                     Label("Start Practice", systemImage: "play.fill")
                         .font(.headline.weight(.bold))
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
                         .background(FlowDesign.teal)
                         .foregroundStyle(.white)
                         .clipShape(Capsule())
@@ -130,15 +132,15 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 PoseIllustrationView(pose: heroPose(for: selectedDailySequence))
-                    .frame(width: 138, height: 184)
+                    .frame(width: 116, height: 154)
                     .background(
                         Circle()
                             .fill(FlowDesign.paleAqua.opacity(0.76))
-                            .frame(width: 138, height: 138)
+                            .frame(width: 116, height: 116)
                     )
                     .accessibilityHidden(true)
             }
-            .padding(20)
+            .padding(18)
             .background(
                 LinearGradient(
                     colors: [
@@ -157,11 +159,26 @@ struct HomeView: View {
         .buttonStyle(.plain)
     }
 
-    private var dailyStats: some View {
-        HStack(spacing: 12) {
-            HomeMetricCard(value: "\(sequences.count)", title: "flows", systemImage: "rectangle.stack")
-            HomeMetricCard(value: "\(totalPoseCount)", title: "poses", systemImage: "figure.yoga")
-            HomeMetricCard(value: selectedDailySequence.estimatedDuration.minutesText.replacingOccurrences(of: " min", with: ""), title: "min", systemImage: "clock")
+    private var recommendedFlowsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Recommended for you")
+                    .font(.headline.weight(.bold))
+                    .foregroundStyle(FlowDesign.text)
+                Spacer()
+                Text("Today")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(FlowDesign.teal)
+            }
+
+            HStack(spacing: 12) {
+                ForEach(recommendedSequences) { sequence in
+                    NavigationLink(value: HomeRoute.sequence(sequence.id)) {
+                        HomeRecommendationCard(sequence: sequence)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
         }
     }
 
@@ -178,12 +195,12 @@ struct HomeView: View {
             }
 
             VStack(spacing: 16) {
-                            ForEach(sequences) { sequence in
-                                NavigationLink(value: HomeRoute.sequence(sequence.id)) {
-                                    SequenceCard(sequence: sequence)
-                                }
-                                .buttonStyle(.plain)
-                            }
+                ForEach(sequences) { sequence in
+                    NavigationLink(value: HomeRoute.sequence(sequence.id)) {
+                        SequenceCard(sequence: sequence)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         }
     }
@@ -263,11 +280,61 @@ enum DailyFlowSelector {
         calendar: Calendar = .autoupdatingCurrent
     ) -> YogaSequence? {
         guard !sequences.isEmpty else { return nil }
-        let dayIndex = localDayIndex(for: date, calendar: calendar)
-        return sequences[positiveModulo(dayIndex, sequences.count)]
+        let dayIndex = LocalDaySeed.index(for: date, calendar: calendar)
+        return sequences[LocalDaySeed.positiveModulo(dayIndex, sequences.count)]
+    }
+}
+
+enum RecommendedFlowSelector {
+    static func sequences(
+        for date: Date = Date(),
+        in sequences: [YogaSequence],
+        selectedTags: [String],
+        excluding excludedSequenceID: String? = nil,
+        count: Int = 2,
+        calendar: Calendar = .autoupdatingCurrent
+    ) -> [YogaSequence] {
+        guard count > 0 else { return [] }
+        let candidates = sequences.filter { $0.id != excludedSequenceID }
+        guard !candidates.isEmpty else { return [] }
+
+        let preferredTags = Set(selectedTags.map(normalized))
+        let dayIndex = LocalDaySeed.index(for: date, calendar: calendar)
+
+        return candidates
+            .enumerated()
+            .sorted { lhs, rhs in
+                let lhsScore = preferenceScore(for: lhs.element, preferredTags: preferredTags)
+                let rhsScore = preferenceScore(for: rhs.element, preferredTags: preferredTags)
+
+                if lhsScore != rhsScore {
+                    return lhsScore > rhsScore
+                }
+
+                let lhsRank = LocalDaySeed.positiveModulo(lhs.offset - dayIndex, candidates.count)
+                let rhsRank = LocalDaySeed.positiveModulo(rhs.offset - dayIndex, candidates.count)
+                return lhsRank < rhsRank
+            }
+            .prefix(count)
+            .map(\.element)
     }
 
-    private static func localDayIndex(for date: Date, calendar: Calendar) -> Int {
+    private static func preferenceScore(for sequence: YogaSequence, preferredTags: Set<String>) -> Int {
+        guard !preferredTags.isEmpty else { return 0 }
+        let sequenceTags = Set(sequence.tags.map(normalized))
+        return preferredTags.intersection(sequenceTags).count
+    }
+
+    private static func normalized(_ value: String) -> String {
+        value
+            .replacingOccurrences(of: "–", with: "-")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+    }
+}
+
+private enum LocalDaySeed {
+    static func index(for date: Date, calendar: Calendar) -> Int {
         let referenceDate = DateComponents(
             calendar: calendar,
             timeZone: calendar.timeZone,
@@ -281,45 +348,42 @@ enum DailyFlowSelector {
         return calendar.dateComponents([.day], from: referenceDay, to: targetDay).day ?? 0
     }
 
-    private static func positiveModulo(_ value: Int, _ divisor: Int) -> Int {
+    static func positiveModulo(_ value: Int, _ divisor: Int) -> Int {
         let remainder = value % divisor
         return remainder >= 0 ? remainder : remainder + divisor
     }
 }
 
-private struct HomeMetricCard: View {
-    let value: String
-    let title: String
-    let systemImage: String
+private struct HomeRecommendationCard: View {
+    let sequence: YogaSequence
 
     var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: systemImage)
-                .font(.headline.weight(.semibold))
-                .foregroundStyle(FlowDesign.teal)
-                .frame(width: 38, height: 38)
-                .background(FlowDesign.paleAqua)
-                .clipShape(Circle())
+        VStack(alignment: .leading, spacing: 10) {
+            PoseIllustrationView(pose: sequence.thumbnailPose)
+                .frame(width: 58, height: 58)
+                .frame(maxWidth: .infinity)
+                .background(FlowDesign.paleAqua.opacity(0.72))
+                .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
 
             VStack(alignment: .leading, spacing: 1) {
-                Text(value)
-                    .font(.title3.weight(.bold))
+                Text(sequence.title)
+                    .font(.subheadline.weight(.bold))
                     .foregroundStyle(FlowDesign.text)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.78)
-                Text(title)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.82)
+                Text(sequence.estimatedDuration.minutesText)
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(12)
-        .frame(maxWidth: .infinity)
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground).opacity(0.90))
         .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
         .shadow(color: .black.opacity(0.04), radius: 12, x: 0, y: 6)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(value) \(title)")
+        .accessibilityLabel("Recommended flow, \(sequence.title), \(sequence.estimatedDuration.minutesText)")
     }
 }
 

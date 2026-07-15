@@ -280,6 +280,100 @@ struct DailyFlowSelectorTests {
 }
 
 @MainActor
+struct RecommendedFlowSelectorTests {
+    @Test func prefersFlowsMatchingSelectedTagsAndExcludesDailyFlow() {
+        let recommendations = RecommendedFlowSelector.sequences(
+            for: date(year: 2026, month: 1, day: 1, hour: 10),
+            in: [
+                sequence(id: "daily", tags: ["Morning"]),
+                sequence(id: "hips", tags: ["Hips", "Flexibility"]),
+                sequence(id: "strength", tags: ["Strength"]),
+                sequence(id: "calm", tags: ["Stress Relief"])
+            ],
+            selectedTags: ["Hips"],
+            excluding: "daily",
+            calendar: calendar
+        )
+
+        #expect(recommendations.map(\.id) == ["hips", "strength"])
+    }
+
+    @Test func sameLocalDayKeepsRecommendationsStable() {
+        let morningRecommendations = RecommendedFlowSelector.sequences(
+            for: date(year: 2026, month: 7, day: 15, hour: 7),
+            in: sequences,
+            selectedTags: [],
+            calendar: calendar
+        )
+        let eveningRecommendations = RecommendedFlowSelector.sequences(
+            for: date(year: 2026, month: 7, day: 15, hour: 21),
+            in: sequences,
+            selectedTags: [],
+            calendar: calendar
+        )
+
+        #expect(morningRecommendations.map(\.id) == eveningRecommendations.map(\.id))
+    }
+
+    @Test func nextLocalCalendarDayRotatesFallbackRecommendations() {
+        let todayRecommendations = RecommendedFlowSelector.sequences(
+            for: date(year: 2026, month: 1, day: 1, hour: 10),
+            in: sequences,
+            selectedTags: [],
+            calendar: calendar
+        )
+        let tomorrowRecommendations = RecommendedFlowSelector.sequences(
+            for: date(year: 2026, month: 1, day: 2, hour: 10),
+            in: sequences,
+            selectedTags: [],
+            calendar: calendar
+        )
+
+        #expect(todayRecommendations.map(\.id) == ["flow-one", "flow-two"])
+        #expect(tomorrowRecommendations.map(\.id) == ["flow-two", "flow-three"])
+    }
+
+    private var sequences: [YogaSequence] {
+        [
+            sequence(id: "flow-one", tags: ["Morning"]),
+            sequence(id: "flow-two", tags: ["Evening"]),
+            sequence(id: "flow-three", tags: ["Core"])
+        ]
+    }
+
+    private var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        return calendar
+    }
+
+    private func date(year: Int, month: Int, day: Int, hour: Int) -> Date {
+        DateComponents(calendar: calendar, timeZone: calendar.timeZone, year: year, month: month, day: day, hour: hour).date!
+    }
+
+    private func sequence(id: String, tags: [String]) -> YogaSequence {
+        YogaSequence(
+            id: id,
+            title: id,
+            subtitle: "Test flow",
+            difficulty: "Beginner",
+            rounds: 1,
+            steps: [
+                PracticeStep(
+                    kind: .hold,
+                    title: "Mountain Pose",
+                    startPose: Pose(id: "mountain", name: "Mountain Pose", assetName: "mountain_pose"),
+                    duration: 10,
+                    breathCue: .natural,
+                    instruction: "Stand tall."
+                )
+            ],
+            tags: tags
+        )
+    }
+}
+
+@MainActor
 struct OnboardingPreferencesTests {
     @Test func selectedTagsRoundTripThroughStorageString() {
         let encodedTags = OnboardingPreferences.encodeTags(["Strength", "Morning", "Hips"])
