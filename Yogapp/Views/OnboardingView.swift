@@ -152,6 +152,8 @@ struct OnboardingView: View {
                 .font(.title3)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
+
+            SafetyNotice()
         }
     }
 

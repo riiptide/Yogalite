@@ -288,6 +288,8 @@ struct PracticePlayerView: View {
                 .background(Color(.systemBackground).opacity(0.86))
                 .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
 
+                SafetyNotice()
+
                 PrimaryButton("Begin Practice", systemImage: "play.fill") {
                     isShowingIntro = false
                     didRecordCurrentCompletion = false
