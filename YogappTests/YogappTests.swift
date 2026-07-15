@@ -177,3 +177,36 @@ struct PracticeNarrationCueBuilderTests {
         #expect(PracticeNarrationCueBuilder.narration(for: step) == "Exhale. Forward Fold")
     }
 }
+
+@MainActor
+struct TimeOfDayGreetingTests {
+    @Test func morningGreetingStartsAtFive() {
+        #expect(TimeOfDayGreeting.current(date: date(hour: 5), calendar: calendar) == .morning)
+        #expect(TimeOfDayGreeting.current(date: date(hour: 11), calendar: calendar) == .morning)
+    }
+
+    @Test func afternoonGreetingStartsAtNoon() {
+        #expect(TimeOfDayGreeting.current(date: date(hour: 12), calendar: calendar) == .afternoon)
+        #expect(TimeOfDayGreeting.current(date: date(hour: 16), calendar: calendar) == .afternoon)
+    }
+
+    @Test func eveningGreetingStartsAtFivePm() {
+        #expect(TimeOfDayGreeting.current(date: date(hour: 17), calendar: calendar) == .evening)
+        #expect(TimeOfDayGreeting.current(date: date(hour: 20), calendar: calendar) == .evening)
+    }
+
+    @Test func nightGreetingCoversLateAndEarlyHours() {
+        #expect(TimeOfDayGreeting.current(date: date(hour: 21), calendar: calendar) == .night)
+        #expect(TimeOfDayGreeting.current(date: date(hour: 4), calendar: calendar) == .night)
+    }
+
+    private var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        return calendar
+    }
+
+    private func date(hour: Int) -> Date {
+        DateComponents(calendar: calendar, timeZone: calendar.timeZone, year: 2026, month: 7, day: 15, hour: hour).date!
+    }
+}

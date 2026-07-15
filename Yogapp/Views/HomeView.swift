@@ -17,6 +17,10 @@ struct HomeView: View {
         }).count
     }
 
+    private var timeOfDayGreeting: TimeOfDayGreeting {
+        TimeOfDayGreeting.current()
+    }
+
     var body: some View {
         NavigationStack(path: $path) {
             ZStack {
@@ -48,12 +52,12 @@ struct HomeView: View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 8) {
-                    Text("Good morning")
+                    Text(timeOfDayGreeting.title)
                         .font(.largeTitle.weight(.bold))
                         .foregroundStyle(FlowDesign.text)
                         .lineLimit(1)
                         .minimumScaleFactor(0.82)
-                    Image(systemName: "sun.max.fill")
+                    Image(systemName: timeOfDayGreeting.systemImage)
                         .font(.title2.weight(.semibold))
                         .foregroundStyle(FlowDesign.teal)
                         .accessibilityHidden(true)
@@ -194,6 +198,54 @@ struct HomeView: View {
 
 private enum HomeRoute: Hashable {
     case sequence(String)
+}
+
+enum TimeOfDayGreeting {
+    case morning
+    case afternoon
+    case evening
+    case night
+
+    static func current(date: Date = Date(), calendar: Calendar = .autoupdatingCurrent) -> Self {
+        let hour = calendar.component(.hour, from: date)
+
+        switch hour {
+        case 5..<12:
+            return .morning
+        case 12..<17:
+            return .afternoon
+        case 17..<21:
+            return .evening
+        default:
+            return .night
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .morning:
+            return "Good morning"
+        case .afternoon:
+            return "Good afternoon"
+        case .evening:
+            return "Good evening"
+        case .night:
+            return "Good night"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .morning:
+            return "sun.max.fill"
+        case .afternoon:
+            return "sun.max.fill"
+        case .evening:
+            return "sunset.fill"
+        case .night:
+            return "moon.stars.fill"
+        }
+    }
 }
 
 private struct HomeMetricCard: View {
