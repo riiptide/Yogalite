@@ -3,10 +3,9 @@ import SwiftUI
 struct HomeView: View {
     private let sequences = SunSalutationData.allSequences
     @State private var path: [HomeRoute] = []
-    @State private var selectedDailySequenceID = SunSalutationData.sunSalutationB.id
 
     private var selectedDailySequence: YogaSequence {
-        sequences.first { $0.id == selectedDailySequenceID } ?? SunSalutationData.sunSalutationB
+        DailyFlowSelector.sequence(for: Date(), in: sequences) ?? SunSalutationData.sunSalutationB
     }
 
     private var totalPoseCount: Int {
@@ -245,6 +244,37 @@ enum TimeOfDayGreeting {
         case .night:
             return "moon.stars.fill"
         }
+    }
+}
+
+enum DailyFlowSelector {
+    static func sequence(
+        for date: Date = Date(),
+        in sequences: [YogaSequence],
+        calendar: Calendar = .autoupdatingCurrent
+    ) -> YogaSequence? {
+        guard !sequences.isEmpty else { return nil }
+        let dayIndex = localDayIndex(for: date, calendar: calendar)
+        return sequences[positiveModulo(dayIndex, sequences.count)]
+    }
+
+    private static func localDayIndex(for date: Date, calendar: Calendar) -> Int {
+        let referenceDate = DateComponents(
+            calendar: calendar,
+            timeZone: calendar.timeZone,
+            year: 2026,
+            month: 1,
+            day: 1
+        ).date ?? Date(timeIntervalSinceReferenceDate: 0)
+
+        let referenceDay = calendar.startOfDay(for: referenceDate)
+        let targetDay = calendar.startOfDay(for: date)
+        return calendar.dateComponents([.day], from: referenceDay, to: targetDay).day ?? 0
+    }
+
+    private static func positiveModulo(_ value: Int, _ divisor: Int) -> Int {
+        let remainder = value % divisor
+        return remainder >= 0 ? remainder : remainder + divisor
     }
 }
 

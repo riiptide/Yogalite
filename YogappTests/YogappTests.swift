@@ -210,3 +210,71 @@ struct TimeOfDayGreetingTests {
         DateComponents(calendar: calendar, timeZone: calendar.timeZone, year: 2026, month: 7, day: 15, hour: hour).date!
     }
 }
+
+@MainActor
+struct DailyFlowSelectorTests {
+    @Test func sameLocalCalendarDayKeepsTheSameFlow() {
+        let morning = date(year: 2026, month: 7, day: 15, hour: 7)
+        let evening = date(year: 2026, month: 7, day: 15, hour: 21)
+
+        let morningFlow = DailyFlowSelector.sequence(for: morning, in: sequences, calendar: calendar)
+        let eveningFlow = DailyFlowSelector.sequence(for: evening, in: sequences, calendar: calendar)
+
+        #expect(morningFlow?.id == eveningFlow?.id)
+    }
+
+    @Test func nextLocalCalendarDaySelectsAnotherFlow() {
+        let today = date(year: 2026, month: 1, day: 1, hour: 10)
+        let tomorrow = date(year: 2026, month: 1, day: 2, hour: 10)
+
+        let todayFlow = DailyFlowSelector.sequence(for: today, in: sequences, calendar: calendar)
+        let tomorrowFlow = DailyFlowSelector.sequence(for: tomorrow, in: sequences, calendar: calendar)
+
+        #expect(todayFlow?.id == "flow-one")
+        #expect(tomorrowFlow?.id == "flow-two")
+    }
+
+    @Test func emptyLibraryReturnsNil() {
+        let selectedFlow = DailyFlowSelector.sequence(for: date(year: 2026, month: 1, day: 1, hour: 10), in: [], calendar: calendar)
+
+        #expect(selectedFlow == nil)
+    }
+
+    private var sequences: [YogaSequence] {
+        [
+            sequence(id: "flow-one"),
+            sequence(id: "flow-two"),
+            sequence(id: "flow-three")
+        ]
+    }
+
+    private var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        return calendar
+    }
+
+    private func date(year: Int, month: Int, day: Int, hour: Int) -> Date {
+        DateComponents(calendar: calendar, timeZone: calendar.timeZone, year: year, month: month, day: day, hour: hour).date!
+    }
+
+    private func sequence(id: String) -> YogaSequence {
+        YogaSequence(
+            id: id,
+            title: id,
+            subtitle: "Test flow",
+            difficulty: "Beginner",
+            rounds: 1,
+            steps: [
+                PracticeStep(
+                    kind: .hold,
+                    title: "Mountain Pose",
+                    startPose: Pose(id: "mountain", name: "Mountain Pose", assetName: "mountain_pose"),
+                    duration: 10,
+                    breathCue: .natural,
+                    instruction: "Stand tall."
+                )
+            ]
+        )
+    }
+}
