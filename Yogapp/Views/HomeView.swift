@@ -36,13 +36,15 @@ struct HomeView: View {
             ZStack {
                 FlowDesign.background.ignoresSafeArea()
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 24) {
+                    VStack(alignment: .leading, spacing: 18) {
                         morningHeader
                         todayFlowCard
                         recommendedFlowsSection
                         allFlowsSection
                     }
-                    .padding(FlowDesign.spacing)
+                    .padding(.horizontal, FlowDesign.spacing)
+                    .padding(.top, 12)
+                    .padding(.bottom, FlowDesign.spacing)
                 }
             }
             .navigationTitle("Flow")
@@ -60,7 +62,7 @@ struct HomeView: View {
 
     private var morningHeader: some View {
         HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
                     Text(greetingTitle)
                         .font(.largeTitle.weight(.bold))
@@ -74,7 +76,7 @@ struct HomeView: View {
                 }
 
                 Text("Ready to move today?")
-                    .font(.title3)
+                    .font(.body)
                     .foregroundStyle(.secondary)
             }
 
@@ -103,8 +105,8 @@ struct HomeView: View {
 
     private var todayFlowCard: some View {
         NavigationLink(value: HomeRoute.sequence(selectedDailySequence.id)) {
-            HStack(alignment: .center, spacing: 12) {
-                VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .center, spacing: 10) {
+                VStack(alignment: .leading, spacing: 8) {
                     Text("Today's Flow")
                         .font(.caption.weight(.heavy))
                         .textCase(.uppercase)
@@ -119,7 +121,7 @@ struct HomeView: View {
                     Text(selectedDailySequence.subtitle)
                         .font(.callout)
                         .foregroundStyle(.secondary)
-                        .lineLimit(3)
+                        .lineLimit(2)
 
                     Label("Start Practice", systemImage: "play.fill")
                         .font(.headline.weight(.bold))
@@ -132,15 +134,15 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 PoseIllustrationView(pose: heroPose(for: selectedDailySequence))
-                    .frame(width: 116, height: 154)
+                    .frame(width: 104, height: 138)
                     .background(
                         Circle()
                             .fill(FlowDesign.paleAqua.opacity(0.76))
-                            .frame(width: 116, height: 116)
+                            .frame(width: 104, height: 104)
                     )
                     .accessibilityHidden(true)
             }
-            .padding(18)
+            .padding(16)
             .background(
                 LinearGradient(
                     colors: [
@@ -160,7 +162,7 @@ struct HomeView: View {
     }
 
     private var recommendedFlowsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text("Recommended for you")
                     .font(.headline.weight(.bold))
@@ -176,6 +178,7 @@ struct HomeView: View {
                     NavigationLink(value: HomeRoute.sequence(sequence.id)) {
                         HomeRecommendationCard(sequence: sequence)
                     }
+                    .frame(maxWidth: .infinity)
                     .buttonStyle(.plain)
                 }
             }
@@ -378,7 +381,7 @@ private struct HomeRecommendationCard: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 142, maxHeight: 142, alignment: .leading)
         .background(Color(.systemBackground).opacity(0.90))
         .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
         .shadow(color: .black.opacity(0.04), radius: 12, x: 0, y: 6)
