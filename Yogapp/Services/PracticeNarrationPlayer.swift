@@ -17,6 +17,9 @@ enum PracticeNarrationCueBuilder {
             if let breathCue = spokenBreathCue(for: step.breathCue) {
                 cues.append(breathCue)
             }
+            if let sideCue = spokenSideCue(for: step) {
+                cues.append(sideCue)
+            }
             cues.append(step.endPose?.name ?? step.title)
         }
 
@@ -31,6 +34,24 @@ enum PracticeNarrationCueBuilder {
             "Exhale"
         case .natural:
             nil
+        }
+    }
+
+    private static func spokenSideCue(for step: PracticeStep) -> String? {
+        guard step.endSide != .none, step.endSide != step.side else { return nil }
+        return step.endSide.spokenCue
+    }
+}
+
+private extension PracticeSide {
+    var spokenCue: String? {
+        switch self {
+        case .none:
+            nil
+        case .left:
+            "Left side"
+        case .right:
+            "Right side"
         }
     }
 }

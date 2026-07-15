@@ -176,6 +176,53 @@ struct PracticeNarrationCueBuilderTests {
 
         #expect(PracticeNarrationCueBuilder.narration(for: step) == "Exhale. Forward Fold")
     }
+
+    @Test func transitionSpeaksSideWhenMovingIntoOneSidedPose() {
+        let step = PracticeStep(
+            kind: .transition,
+            title: "Mountain Pose to Forward Fold",
+            startPose: mountain,
+            endPose: forwardFold,
+            duration: 4,
+            breathCue: .inhale,
+            instruction: "Fold forward.",
+            endSide: .right
+        )
+
+        #expect(PracticeNarrationCueBuilder.narration(for: step) == "Inhale. Right side. Forward Fold")
+    }
+
+    @Test func transitionSpeaksSideWhenSwitchingSides() {
+        let step = PracticeStep(
+            kind: .transition,
+            title: "Forward Fold to Forward Fold",
+            startPose: forwardFold,
+            endPose: forwardFold,
+            duration: 4,
+            breathCue: .natural,
+            instruction: "Switch sides.",
+            side: .right,
+            endSide: .left
+        )
+
+        #expect(PracticeNarrationCueBuilder.narration(for: step) == "Left side. Forward Fold")
+    }
+
+    @Test func transitionDoesNotRepeatSameSideCue() {
+        let step = PracticeStep(
+            kind: .transition,
+            title: "Forward Fold to Forward Fold",
+            startPose: forwardFold,
+            endPose: forwardFold,
+            duration: 4,
+            breathCue: .exhale,
+            instruction: "Stay on this side.",
+            side: .left,
+            endSide: .left
+        )
+
+        #expect(PracticeNarrationCueBuilder.narration(for: step) == "Exhale. Forward Fold")
+    }
 }
 
 @MainActor
