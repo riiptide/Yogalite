@@ -1,24 +1,22 @@
 import SwiftUI
 import SwiftData
+import PhotosUI
+import UIKit
 
 struct ProfileView: View {
     @Query(sort: \PracticeCompletionRecord.completedAt, order: .reverse) private var completionRecords: [PracticeCompletionRecord]
     @AppStorage("profileDisplayName") private var displayName = "Aaliyah"
     @AppStorage("selectedPracticeTags") private var selectedPracticeTags = ""
+    @AppStorage("profilePhotoData") private var profilePhotoData = Data()
     @State private var isEditingName = false
     @State private var draftDisplayName = ""
+    @State private var selectedPhotoItem: PhotosPickerItem?
 
     private var goals: [ProfileGoal] {
-        let savedGoals = OnboardingPreferences.decodeTags(selectedPracticeTags).map(ProfileGoal.init)
-        guard !savedGoals.isEmpty else {
-            return [
-                ProfileGoal(title: "Morning"),
-                ProfileGoal(title: "Flexibility"),
-                ProfileGoal(title: "Stress Relief"),
-                ProfileGoal(title: "Beginner")
-            ]
+        let selectedGoals = Set(OnboardingPreferences.decodeTags(selectedPracticeTags))
+        return OnboardingPreferences.interestTags.compactMap { tag in
+            selectedGoals.contains(tag) ? ProfileGoal(title: tag) : nil
         }
-        return savedGoals
     }
 
     private let settings = [
@@ -42,6 +40,11 @@ struct ProfileView: View {
 
     private var latestCompletion: PracticeCompletionRecord? {
         completionRecords.first
+    }
+
+    private var profileUIImage: UIImage? {
+        guard !profilePhotoData.isEmpty else { return nil }
+        return UIImage(data: profilePhotoData)
     }
 
     var body: some View {
@@ -70,6 +73,11 @@ struct ProfileView: View {
                     saveDisplayName()
                 }
                 .presentationDetents([.height(250)])
+            }
+            .onChange(of: selectedPhotoItem) { _, newItem in
+                Task {
+                    await loadProfilePhoto(from: newItem)
+                }
             }
         }
     }
@@ -102,19 +110,12 @@ struct ProfileView: View {
 
     private var profileSummary: some View {
         HStack(spacing: 18) {
-            ZStack {
-                Circle()
-                    .fill(FlowDesign.paleAqua.opacity(0.82))
-                PoseIllustrationView(pose: SunSalutationData.upwardSalute)
-                    .padding(18)
+            PhotosPicker(selection: $selectedPhotoItem, matching: .images, photoLibrary: .shared()) {
+                profileAvatar
             }
-            .frame(width: 118, height: 118)
-            .overlay {
-                Circle()
-                    .stroke(Color(.systemBackground), lineWidth: 4)
-            }
-            .shadow(color: FlowDesign.teal.opacity(0.12), radius: 16, x: 0, y: 8)
+            .buttonStyle(.plain)
             .accessibilityLabel("Profile avatar")
+            .accessibilityHint("Choose a profile photo")
 
             VStack(alignment: .leading, spacing: 8) {
                 Text(displayName)
@@ -134,6 +135,43 @@ struct ProfileView: View {
         }
     }
 
+    private var profileAvatar: some View {
+        ZStack(alignment: .bottomTrailing) {
+            ZStack {
+                Circle()
+                    .fill(FlowDesign.paleAqua.opacity(0.82))
+
+                if let profileUIImage {
+                    Image(uiImage: profileUIImage)
+                        .resizable()
+                        .scaledToFill()
+                } else {
+                    PoseIllustrationView(pose: SunSalutationData.upwardSalute)
+                        .padding(18)
+                }
+            }
+            .frame(width: 118, height: 118)
+            .clipShape(Circle())
+            .overlay {
+                Circle()
+                    .stroke(Color(.systemBackground), lineWidth: 4)
+            }
+            .shadow(color: FlowDesign.teal.opacity(0.12), radius: 16, x: 0, y: 8)
+
+            Image(systemName: "camera.fill")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(.white)
+                .frame(width: 30, height: 30)
+                .background(FlowDesign.teal)
+                .clipShape(Circle())
+                .overlay {
+                    Circle()
+                        .stroke(Color(.systemBackground), lineWidth: 2)
+                }
+                .offset(x: -4, y: -4)
+        }
+    }
+
     private var statsGrid: some View {
         HStack(spacing: 12) {
             ProfileStatCard(value: streakText, title: "day streak", systemImage: "flame.fill")
@@ -146,24 +184,44 @@ struct ProfileView: View {
         VStack(alignment: .leading, spacing: 14) {
             sectionTitle("Your goals")
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    ForEach(goals) { goal in
-                        Label(goal.title, systemImage: goal.systemImage)
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(FlowDesign.teal)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 12)
-                            .background(FlowDesign.paleAqua.opacity(0.76))
-                            .clipShape(Capsule())
-                            .accessibilityLabel(goal.title)
+            Group {
+                if goals.isEmpty {
+                    Text("Choose goals during onboarding to personalize recommendations.")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    FlowLayout(spacing: 10) {
+                        ForEach(goals) { goal in
+                            Label(goal.title, systemImage: goal.systemImage)
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(FlowDesign.teal)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 12)
+                                .background(FlowDesign.paleAqua.opacity(0.76))
+                                .clipShape(Capsule())
+                                .accessibilityLabel(goal.title)
+                        }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .padding(.vertical, 2)
             }
             .padding(14)
             .background(Color(.systemBackground).opacity(0.90))
             .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerLarge, style: .continuous))
+        }
+    }
+
+    private func loadProfilePhoto(from item: PhotosPickerItem?) async {
+        guard let item,
+              let data = try? await item.loadTransferable(type: Data.self),
+              let preparedData = ProfilePhotoProcessor.preparedImageData(from: data) else {
+            return
+        }
+
+        await MainActor.run {
+            profilePhotoData = preparedData
+            selectedPhotoItem = nil
         }
     }
 
@@ -427,6 +485,42 @@ private struct ProfileSetting: Identifiable {
     let title: String
     let systemImage: String
     var id: String { title }
+}
+
+private enum ProfilePhotoProcessor {
+    static func preparedImageData(from data: Data, sideLength: CGFloat = 512) -> Data? {
+        guard let image = UIImage(data: data) else { return nil }
+
+        let squareLength = min(image.size.width, image.size.height)
+        let cropOrigin = CGPoint(
+            x: (image.size.width - squareLength) / 2,
+            y: (image.size.height - squareLength) / 2
+        )
+        let cropRect = CGRect(origin: cropOrigin, size: CGSize(width: squareLength, height: squareLength))
+
+        guard let croppedImage = image.cgImage?.cropping(to: cropRect.scaled(by: image.scale)) else {
+            return nil
+        }
+
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: sideLength, height: sideLength))
+        let resizedImage = renderer.image { _ in
+            UIImage(cgImage: croppedImage, scale: image.scale, orientation: image.imageOrientation)
+                .draw(in: CGRect(origin: .zero, size: CGSize(width: sideLength, height: sideLength)))
+        }
+
+        return resizedImage.jpegData(compressionQuality: 0.82)
+    }
+}
+
+private extension CGRect {
+    func scaled(by scale: CGFloat) -> CGRect {
+        CGRect(
+            x: origin.x * scale,
+            y: origin.y * scale,
+            width: size.width * scale,
+            height: size.height * scale
+        )
+    }
 }
 
 #Preview("Profile") {
