@@ -23,7 +23,17 @@ struct ExploreView: View {
     ]
 
     private var difficulties: [String] {
-        ["All"] + Array(Set(sequences.map(\.difficulty))).sorted()
+        ["All"] + Array(Set(sequences.map(\.difficulty).filter { normalized($0) != "gentle" })).sorted()
+    }
+
+    private var timeRangeSummaries: [TimeRangeSummary] {
+        TimeRange.filterRanges.map { range in
+            TimeRangeSummary(
+                range: range,
+                count: sequences.filter { range.contains($0.estimatedMinutes) }.count,
+                total: sequences.count
+            )
+        }
     }
 
     private var filteredSequences: [YogaSequence] {
@@ -57,7 +67,6 @@ struct ExploreView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
                         searchField
-                        header
                         tagShelf
                         filters
                         results
@@ -104,16 +113,6 @@ struct ExploreView: View {
         .padding(.vertical, 13)
         .background(Color(.systemBackground).opacity(0.96))
         .clipShape(Capsule())
-    }
-
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 12) {
-                ExploreMetricCard(value: "\(sequences.count)", title: "flows", systemImage: "rectangle.stack")
-                ExploreMetricCard(value: "\(difficulties.count - 1)", title: "levels", systemImage: "chart.bar")
-                ExploreMetricCard(value: "\(featuredTags.count)", title: "tags", systemImage: "tag")
-            }
-        }
     }
 
     private var tagShelf: some View {
@@ -179,22 +178,46 @@ struct ExploreView: View {
                 .pickerStyle(.menu)
                 .buttonStyle(.bordered)
                 .accessibilityLabel("Difficulty filter")
-
-                Picker("Time", selection: $selectedTimeRange) {
-                    ForEach(TimeRange.allCases) { range in
-                        Text(range.title).tag(range)
-                    }
-                }
-                .pickerStyle(.menu)
-                .buttonStyle(.bordered)
-                .accessibilityLabel("Time filter")
             }
 
+            timeDistribution
             activeFilterSummary
         }
         .padding(16)
         .background(Color(.systemBackground).opacity(0.88))
         .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
+    }
+
+    private var timeDistribution: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Timing")
+                    .font(.caption.weight(.heavy))
+                    .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+
+                Spacer()
+
+                Button(selectedTimeRange == .any ? "Any time" : "Clear time") {
+                    selectedTimeRange = .any
+                }
+                .font(.caption.weight(.bold))
+                .foregroundStyle(FlowDesign.teal)
+                .disabled(selectedTimeRange == .any)
+                .opacity(selectedTimeRange == .any ? 0.58 : 1)
+            }
+
+            VStack(spacing: 8) {
+                ForEach(timeRangeSummaries) { summary in
+                    TimeRangeDistributionButton(
+                        summary: summary,
+                        isSelected: selectedTimeRange == summary.range
+                    ) {
+                        selectedTimeRange = selectedTimeRange == summary.range ? .any : summary.range
+                    }
+                }
+            }
+        }
     }
 
     @ViewBuilder
@@ -380,39 +403,6 @@ private struct ExploreTagButton: View {
     }
 }
 
-private struct ExploreMetricCard: View {
-    let value: String
-    let title: String
-    let systemImage: String
-
-    var body: some View {
-        HStack(spacing: 9) {
-            Image(systemName: systemImage)
-                .font(.subheadline.weight(.bold))
-                .foregroundStyle(FlowDesign.teal)
-                .frame(width: 30, height: 30)
-                .background(FlowDesign.paleAqua)
-                .clipShape(Circle())
-
-            VStack(alignment: .leading, spacing: 1) {
-                Text(value)
-                    .font(.headline.weight(.bold))
-                    .foregroundStyle(FlowDesign.text)
-                    .lineLimit(1)
-                Text(title)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
-        .background(Color(.systemBackground).opacity(0.88))
-        .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
-        .accessibilityElement(children: .combine)
-    }
-}
-
 private struct ActiveFilterChip: View {
     let title: String
     let systemImage: String
@@ -429,29 +419,97 @@ private struct ActiveFilterChip: View {
     }
 }
 
+private struct TimeRangeSummary: Identifiable {
+    let range: TimeRange
+    let count: Int
+    let total: Int
+
+    var id: TimeRange { range }
+
+    var fraction: CGFloat {
+        guard total > 0 else { return 0 }
+        return CGFloat(count) / CGFloat(total)
+    }
+}
+
+private struct TimeRangeDistributionButton: View {
+    let summary: TimeRangeSummary
+    let isSelected: Bool
+    let action: () -> Void
+
+    private var fillFraction: CGFloat {
+        summary.count > 0 ? max(summary.fraction, 0.04) : 0
+    }
+
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 7) {
+                HStack(spacing: 8) {
+                    Text(summary.range.title)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(isSelected ? FlowDesign.teal : FlowDesign.text)
+                        .lineLimit(1)
+
+                    Spacer()
+
+                    Text("\(summary.count)")
+                        .font(.caption.weight(.heavy))
+                        .foregroundStyle(isSelected ? FlowDesign.teal : .secondary)
+                }
+
+                GeometryReader { proxy in
+                    ZStack(alignment: .leading) {
+                        Capsule()
+                            .fill(Color(.secondarySystemBackground))
+                        Capsule()
+                            .fill(isSelected ? FlowDesign.teal : FlowDesign.teal.opacity(0.32))
+                            .frame(width: proxy.size.width * fillFraction)
+                    }
+                }
+                .frame(height: 5)
+            }
+            .padding(10)
+            .background(isSelected ? FlowDesign.paleAqua.opacity(0.88) : Color(.secondarySystemBackground).opacity(0.36))
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(isSelected ? FlowDesign.teal.opacity(0.24) : Color.clear, lineWidth: 1)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("\(summary.range.title), \(summary.count) flows")
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+}
+
 private enum TimeRange: String, CaseIterable, Identifiable {
     case any
-    case short
-    case medium
-    case long
+    case quick
+    case standard
+    case steady
+    case extended
+
+    static let filterRanges: [TimeRange] = [.quick, .standard, .steady, .extended]
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
         case .any: "Any time"
-        case .short: "5 min or less"
-        case .medium: "6-10 min"
-        case .long: "11+ min"
+        case .quick: "10 min or less"
+        case .standard: "11-15 min"
+        case .steady: "16-20 min"
+        case .extended: "21+ min"
         }
     }
 
     func contains(_ minutes: Int) -> Bool {
         switch self {
         case .any: true
-        case .short: minutes <= 5
-        case .medium: (6...10).contains(minutes)
-        case .long: minutes >= 11
+        case .quick: minutes <= 10
+        case .standard: (11...15).contains(minutes)
+        case .steady: (16...20).contains(minutes)
+        case .extended: minutes >= 21
         }
     }
 }
