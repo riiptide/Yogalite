@@ -9,7 +9,7 @@ enum SunSalutationData {
     static let chaturanga = Pose(id: "chaturanga", name: "Chaturanga", assetName: "chaturanga")
     static let upwardDog = Pose(id: "upward-facing-dog", name: "Upward-Facing Dog", assetName: "upward_dog")
     static let downwardDog = Pose(id: "downward-facing-dog", name: "Downward-Facing Dog", assetName: "downward_dog")
-    static let tabletop = Pose(id: "tabletop", name: "Tabletop", assetName: "tabletop")
+    static let tabletop = Pose(id: "tabletop", name: "Table Top", assetName: "tabletop")
     static let cow = Pose(id: "cow", name: "Cow Pose", assetName: "cow")
     static let cat = Pose(id: "cat", name: "Cat Pose", assetName: "cat")
     static let birdDog = Pose(id: "bird-dog", name: "Bird Dog", assetName: "birddog")
@@ -242,7 +242,7 @@ enum SunSalutationData {
             flowHold("Sukhasana — Easy Pose", easyPose, 45, .natural, "Sit tall and let your breath settle."),
             flowHold("Parsva Balasana — Thread the Needle", threadNeedle, 25, .exhale, "Thread your right arm under and soften the shoulder.", .right),
             flowHold("Parsva Balasana — Thread the Needle", threadNeedle, 25, .exhale, "Thread your left arm under and breathe across the upper back.", .left),
-            flowHold("Bharmanasana — Tabletop", tabletop, 10, .natural, "Stack shoulders over wrists and hips over knees."),
+            flowHold("Bharmanasana — Table Top", tabletop, 10, .natural, "Stack shoulders over wrists and hips over knees."),
             flowHold("Bitilasana — Cow Pose", cow, 5, .inhale, "Lift your chest and gently arch your spine."),
             flowHold("Marjaryasana — Cat Pose", cat, 5, .exhale, "Round your spine and press the floor away."),
             flowHold("Bitilasana — Cow Pose", cow, 5, .inhale, "Move smoothly with your inhale."),
@@ -286,7 +286,7 @@ enum SunSalutationData {
         rounds: 1,
         steps: flowSteps([
             flowHold("Sukhasana — Easy Pose", easyPose, 60, .natural, "Sit comfortably and let your breath slow."),
-            flowHold("Bharmanasana — Tabletop Pose", tabletop, 10, .natural, "Come to hands and knees with relaxed shoulders."),
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 10, .natural, "Come to hands and knees with relaxed shoulders."),
             flowHold("Bitilasana — Cow Pose", cow, 5, .inhale, "Lift your chest gently."),
             flowHold("Marjaryasana — Cat Pose", cat, 5, .exhale, "Round your spine slowly."),
             flowHold("Bitilasana — Cow Pose", cow, 5, .inhale, "Move with an easy inhale."),
@@ -328,7 +328,7 @@ enum SunSalutationData {
         rounds: 1,
         steps: flowSteps([
             flowHold("Sukhasana — Easy Pose", easyPose, 45, .natural, "Sit tall and arrive in your breath."),
-            flowHold("Bharmanasana — Tabletop Pose", tabletop, 10, .natural, "Set a steady base on hands and knees."),
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 10, .natural, "Set a steady base on hands and knees."),
             flowHold("Bitilasana — Cow Pose", cow, 5, .inhale, "Lift your chest."),
             flowHold("Marjaryasana — Cat Pose", cat, 5, .exhale, "Round your spine."),
             flowHold("Bitilasana — Cow Pose", cow, 5, .inhale, "Move smoothly."),
@@ -468,7 +468,7 @@ enum SunSalutationData {
         steps: flowSteps([
             flowHold("Sukhasana — Easy Pose", easyPose, 45, .natural, "Sit comfortably and breathe into your hips."),
             flowHold("Baddha Konasana — Bound Angle Pose", boundAngle, 45, .natural, "Bring soles together and sit tall."),
-            flowHold("Bharmanasana — Tabletop Pose", tabletop, 10, .natural, "Come to hands and knees."),
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 10, .natural, "Come to hands and knees."),
             flowHold("Bitilasana — Cow Pose", cow, 5, .inhale, "Arch gently."),
             flowHold("Marjaryasana — Cat Pose", cat, 5, .exhale, "Round gently."),
             flowHold("Bitilasana — Cow Pose", cow, 5, .inhale, "Open the chest."),
@@ -553,7 +553,7 @@ enum SunSalutationData {
         difficulty: "Intermediate",
         rounds: 1,
         steps: flowSteps([
-            flowHold("Bharmanasana — Tabletop Pose", tabletop, 10, .natural, "Set a stable base."),
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 10, .natural, "Set a stable base."),
             flowHold("Bitilasana — Cow Pose", cow, 5, .inhale, "Arch gently."),
             flowHold("Marjaryasana — Cat Pose", cat, 5, .exhale, "Round and engage."),
             flowHold("Bitilasana — Cow Pose", cow, 5, .inhale, "Move smoothly."),
@@ -596,7 +596,7 @@ enum SunSalutationData {
         rounds: 1,
         steps: flowSteps([
             flowHold("Sukhasana — Easy Pose", easyPose, 30, .natural, "Sit tall and settle into your breath."),
-            flowHold("Bharmanasana — Tabletop Pose", tabletop, 10, .natural, "Set hands under shoulders and knees under hips.")
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 10, .natural, "Set hands under shoulders and knees under hips.")
         ] + catCow(rounds: 6) + [
             flowHold("Uttana Shishosana — Extended Puppy Pose", extendedPuppy, 40, .natural, "Melt your chest forward and keep hips lifted."),
             flowHold("Anjaneyasana — Low Lunge", lowLunge, 30, .natural, "Release the front of the right hip.", .right),
@@ -722,7 +722,7 @@ enum SunSalutationData {
         rounds: 1,
         steps: flowSteps([
             flowHold("Sukhasana — Easy Pose", easyPose, 60, .natural, "Sit comfortably and lengthen your exhale."),
-            flowHold("Bharmanasana — Tabletop Pose", tabletop, 10, .natural, "Come to hands and knees.")
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 10, .natural, "Come to hands and knees.")
         ] + catCow(rounds: 6, pace: "slow") + [
             flowHold("Parsva Balasana — Thread the Needle", threadNeedle, 35, .exhale, "Thread to the right and relax the shoulder.", .right),
             flowHold("Parsva Balasana — Thread the Needle", threadNeedle, 35, .exhale, "Thread to the left and soften.", .left),
@@ -761,7 +761,7 @@ enum SunSalutationData {
             flowHold("Eka Hasta Parsvasana — One-Hand Side Stretch", oneHandSideStretch, 20, .natural, "Stretch to the left.", .left),
             flowHold("Uttanasana — Standing Forward Fold", forwardFold, 20, .exhale, "Fold forward."),
             flowHold("Ardha Uttanasana — Halfway Lift", halfwayLift, 15, .inhale, "Lengthen your spine."),
-            flowHold("Bharmanasana — Tabletop Pose", tabletop, 10, .natural, "Come to hands and knees.")
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 10, .natural, "Come to hands and knees.")
         ] + catCow(rounds: 5) + [
             flowHold("Parsva Balasana — Thread the Needle", threadNeedle, 30, .exhale, "Thread right and open the upper back.", .right),
             flowHold("Parsva Balasana — Thread the Needle", threadNeedle, 30, .exhale, "Thread left and open the upper back.", .left),
@@ -865,7 +865,7 @@ enum SunSalutationData {
         rounds: 1,
         steps: flowSteps([
             flowHold("Sukhasana — Easy Pose", easyPose, 45, .natural, "Sit comfortably and slow your breath."),
-            flowHold("Bharmanasana — Tabletop Pose", tabletop, 10, .natural, "Come to hands and knees.")
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 10, .natural, "Come to hands and knees.")
         ] + catCow(rounds: 4, pace: "slow") + [
             flowHold("Balasana — Child's Pose", childPose, 45, .natural, "Rest back."),
             flowHold("Baddha Konasana — Bound Angle Pose", boundAngle, 45, .natural, "Bring soles together."),
@@ -895,7 +895,7 @@ enum SunSalutationData {
         rounds: 1,
         steps: flowSteps([
             flowHold("Sukhasana — Easy Pose", easyPose, 60, .natural, "Sit and check in with your energy."),
-            flowHold("Bharmanasana — Tabletop Pose", tabletop, 15, .natural, "Come to hands and knees.")
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 15, .natural, "Come to hands and knees.")
         ] + catCow(rounds: 5, pace: "gentle") + [
             flowHold("Bird Dog", birdDog, 15, .natural, "Reach right arm and left leg lightly.", .right),
             flowHold("Bird Dog", birdDog, 15, .natural, "Reach left arm and right leg lightly.", .left),
@@ -1040,7 +1040,7 @@ enum SunSalutationData {
             flowHold("Sukhasana — Easy Pose", easyPose, 30, .natural, "Sit tall and arrive."),
             flowHold("Eka Hasta Parsvasana — One-Hand Side Stretch", oneHandSideStretch, 20, .natural, "Stretch to the right.", .right),
             flowHold("Eka Hasta Parsvasana — One-Hand Side Stretch", oneHandSideStretch, 20, .natural, "Stretch to the left.", .left),
-            flowHold("Bharmanasana — Tabletop Pose", tabletop, 10, .natural, "Come to hands and knees.")
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 10, .natural, "Come to hands and knees.")
         ] + catCow(rounds: 4) + [
             flowHold("Dandayamana Bharmanasana — Bird Dog", birdDog, 20, .natural, "Reach right arm and left leg.", .right),
             flowHold("Dandayamana Bharmanasana — Bird Dog", birdDog, 20, .natural, "Reach left arm and right leg.", .left),
@@ -1068,7 +1068,7 @@ enum SunSalutationData {
         rounds: 1,
         steps: flowSteps([
             flowHold("Sukhasana — Easy Pose", easyPose, 60, .natural, "Sit tall and settle."),
-            flowHold("Bharmanasana — Tabletop Pose", tabletop, 10, .natural, "Come to hands and knees.")
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 10, .natural, "Come to hands and knees.")
         ] + catCow(rounds: 6, pace: "slowly") + [
             flowHold("Parsva Balasana — Thread the Needle", threadNeedle, 35, .exhale, "Thread right and relax your shoulder.", .right),
             flowHold("Parsva Balasana — Thread the Needle", threadNeedle, 35, .exhale, "Thread left and relax.", .left),
@@ -1201,7 +1201,7 @@ enum SunSalutationData {
         difficulty: "Beginner",
         rounds: 1,
         steps: flowSteps([
-            flowHold("Bharmanasana — Tabletop Pose", tabletop, 15, .natural, "Set a steady base on hands and knees.")
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 15, .natural, "Set a steady base on hands and knees.")
         ] + catCow(rounds: 4) + [
             flowHold("Dandayamana Bharmanasana — Bird Dog", birdDog, 20, .natural, "Reach right arm and left leg.", .right),
             flowHold("Dandayamana Bharmanasana — Bird Dog", birdDog, 20, .natural, "Reach left arm and right leg.", .left),
@@ -1235,7 +1235,7 @@ enum SunSalutationData {
         difficulty: "Intermediate",
         rounds: 1,
         steps: flowSteps([
-            flowHold("Bharmanasana — Tabletop Pose", tabletop, 20, .natural, "Warm your wrists and set your shoulders.")
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 20, .natural, "Warm your wrists and set your shoulders.")
         ] + catCow(rounds: 5) + [
             flowHold("Dandayamana Bharmanasana — Bird Dog", birdDog, 20, .natural, "Reach right arm and left leg.", .right),
             flowHold("Dandayamana Bharmanasana — Bird Dog", birdDog, 20, .natural, "Reach left arm and right leg.", .left),
@@ -1275,7 +1275,7 @@ enum SunSalutationData {
         rounds: 1,
         steps: flowSteps([
             flowHold("Sukhasana — Easy Pose", easyPose, 30, .natural, "Sit tall and steady your breath."),
-            flowHold("Bharmanasana — Tabletop Pose", tabletop, 15, .natural, "Come to hands and knees.")
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 15, .natural, "Come to hands and knees.")
         ] + catCow(rounds: 5) + [
             flowHold("Uttana Shishosana — Extended Puppy Pose", extendedPuppy, 40, .natural, "Melt your chest toward the floor."),
             flowHold("Dandayamana Bharmanasana — Bird Dog", birdDog, 20, .natural, "Reach right arm and left leg.", .right),
@@ -1312,7 +1312,7 @@ enum SunSalutationData {
             flowHold("Sukhasana — Easy Pose", easyPose, 40, .natural, "Sit tall and soften your shoulders."),
             flowHold("Seated Gentle Twist", seatedTwist, 25, .exhale, "Twist to the right without forcing.", .right),
             flowHold("Seated Gentle Twist", seatedTwist, 25, .exhale, "Twist to the left without forcing.", .left),
-            flowHold("Bharmanasana — Tabletop Pose", tabletop, 10, .natural, "Come to hands and knees.")
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 10, .natural, "Come to hands and knees.")
         ] + catCow(rounds: 4) + [
             flowHold("Parsva Balasana — Thread the Needle", threadNeedle, 35, .exhale, "Thread right and breathe into the upper back.", .right),
             flowHold("Parsva Balasana — Thread the Needle", threadNeedle, 35, .exhale, "Thread left and breathe into the upper back.", .left),
@@ -1349,7 +1349,7 @@ enum SunSalutationData {
             flowHold("Sukhasana — Easy Pose", easyPose, 40, .natural, "Sit tall and soften your shoulders."),
             flowHold("Eka Hasta Parsvasana — One-Hand Side Stretch", oneHandSideStretch, 25, .natural, "Reach through the right side.", .right),
             flowHold("Eka Hasta Parsvasana — One-Hand Side Stretch", oneHandSideStretch, 25, .natural, "Reach through the left side.", .left),
-            flowHold("Bharmanasana — Tabletop Pose", tabletop, 10, .natural, "Come to hands and knees.")
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 10, .natural, "Come to hands and knees.")
         ] + catCow(rounds: 5) + [
             flowHold("Parsva Balasana — Thread the Needle", threadNeedle, 35, .exhale, "Thread right and breathe into your upper back.", .right),
             flowHold("Parsva Balasana — Thread the Needle", threadNeedle, 35, .exhale, "Thread left and breathe into your upper back.", .left),
@@ -1674,7 +1674,7 @@ enum SunSalutationData {
         rounds: 1,
         steps: flowSteps([
             flowHold("Sukhasana — Easy Pose", easyPose, 60, .natural, "Sit tall and arrive."),
-            flowHold("Bharmanasana — Tabletop Pose", tabletop, 10, .natural, "Come to hands and knees.")
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 10, .natural, "Come to hands and knees.")
         ] + catCow(rounds: 6) + [
             flowHold("Parsva Balasana — Thread the Needle", threadNeedle, 30, .exhale, "Thread right and breathe.", .right),
             flowHold("Parsva Balasana — Thread the Needle", threadNeedle, 30, .exhale, "Thread left and breathe.", .left),
@@ -1728,7 +1728,7 @@ enum SunSalutationData {
         rounds: 2,
         steps: [
             hold(tabletop, duration: 8, breath: .natural, "Set your hands and knees down and soften your shoulders."),
-            move("Tabletop to Cow Pose", tabletop, cow, duration: 3, breath: .inhale, "Lift your chest and lengthen the front body."),
+            move("Table Top to Cow Pose", tabletop, cow, duration: 3, breath: .inhale, "Lift your chest and lengthen the front body."),
             hold(cow, duration: 5, breath: .inhale, "Open across your collarbones without forcing the neck."),
             move("Cow Pose to Bird Dog", cow, birdDog, duration: 4, breath: .exhale, "Reach your right arm and left leg long.", endSide: .right),
             hold(birdDog, duration: 8, breath: .natural, "Steady your center and keep your hips level.", side: .right),
@@ -1775,7 +1775,7 @@ enum SunSalutationData {
         rounds: 3,
         steps: [
             hold(tabletop, duration: 6, breath: .natural, "Arrive on hands and knees with a steady base."),
-            move("Tabletop to Downward-Facing Dog", tabletop, downwardDog, duration: 4, breath: .exhale, "Lift your hips and press the floor away."),
+            move("Table Top to Downward-Facing Dog", tabletop, downwardDog, duration: 4, breath: .exhale, "Lift your hips and press the floor away."),
             hold(downwardDog, duration: 8, breath: .natural, "Lengthen through your spine before moving on."),
             move("Downward-Facing Dog to Three-Legged Dog", downwardDog, threeLeggedDog, duration: 3, breath: .inhale, "Float your right leg back and up.", endSide: .right),
             hold(threeLeggedDog, duration: 6, breath: .inhale, "Keep your hands grounded and hips steady.", side: .right),
