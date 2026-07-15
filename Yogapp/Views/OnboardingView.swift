@@ -128,7 +128,7 @@ struct OnboardingView: View {
 
     private var welcomeStep: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Text("Welcome to Yogalite! I am your companion on your Yoga Journey.")
+            Text("Welcome to Yogalite!")
                 .font(.system(.largeTitle, design: .rounded, weight: .bold))
                 .foregroundStyle(FlowDesign.text)
                 .fixedSize(horizontal: false, vertical: true)
