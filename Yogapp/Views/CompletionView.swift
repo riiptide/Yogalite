@@ -63,13 +63,15 @@ struct CompletionView: View {
     private var reflectionSection: some View {
         VStack(alignment: .leading, spacing: 14) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("How did that feel?")
+                Text("How do you feel?")
                     .font(.headline.weight(.bold))
                     .foregroundStyle(FlowDesign.text)
-                Text(selectedReflection?.responseText ?? "Tap one that matches your body right now.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                if let selectedReflection {
+                    Text(selectedReflection.responseText)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
 
             LazyVGrid(
