@@ -8,13 +8,13 @@ struct CompletionView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
+            VStack(spacing: 18) {
                 ZStack {
                     Circle()
                         .fill(FlowDesign.paleAqua)
-                        .frame(width: 150, height: 150)
+                        .frame(width: 108, height: 108)
                     Image(systemName: "checkmark")
-                        .font(.system(size: 52, weight: .bold))
+                        .font(.system(size: 36, weight: .bold))
                         .foregroundStyle(FlowDesign.teal)
                 }
                 .accessibilityHidden(true)
@@ -45,7 +45,7 @@ struct CompletionView: View {
                         Text("Back to Flow")
                             .font(.headline)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
+                            .padding(.vertical, 14)
                             .background(Color(.systemBackground))
                             .foregroundStyle(FlowDesign.teal)
                             .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerLarge, style: .continuous))
