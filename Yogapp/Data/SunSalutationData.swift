@@ -55,7 +55,7 @@ enum SunSalutationData {
     static let extendedPuppy = Pose(id: "extended-puppy", name: "Extended Puppy", assetName: "extended_puppy")
     static let highLunge = Pose(id: "high-lunge", name: "High Lunge", assetName: "high_lunge")
     static let boundAngle = Pose(id: "bound-angle", name: "Bound Angle Pose", assetName: "bound_angle_pose")
-    static let eyeOfNeedle = Pose(id: "eye-of-needle", name: "Eye-of-the-Needle Pose", assetName: "eye_of_the_needle")
+    static let eyeOfNeedle = Pose(id: "eye-of-needle", name: "Eye-of-the-Needle Pose", assetName: "reclining_figure_four")
     static let kneesToChest = Pose(id: "knees-to-chest", name: "Knees-to-Chest Pose", assetName: "knees_to_chest")
     static let supineTwist = Pose(id: "supine-twist", name: "Supine Spinal Twist", assetName: "supine_spinal_twist")
     static let staff = Pose(id: "staff", name: "Staff Pose", assetName: "staff")
