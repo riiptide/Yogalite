@@ -43,6 +43,11 @@ struct ProfileView: View {
         completionRecords.first
     }
 
+    private var recentActivitySequence: YogaSequence? {
+        guard let latestCompletion else { return nil }
+        return PracticePersistence.sequence(for: latestCompletion.sequenceID)
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -215,16 +220,17 @@ struct ProfileView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                Button {
-                } label: {
-                    Image(systemName: "play.fill")
-                        .font(.headline.weight(.bold))
-                        .foregroundStyle(.white)
-                        .frame(width: 48, height: 48)
-                        .background(FlowDesign.teal)
-                        .clipShape(Circle())
+                if let recentActivitySequence {
+                    NavigationLink {
+                        PracticePlayerView(viewModel: PracticePlayerViewModel(sequence: recentActivitySequence))
+                    } label: {
+                        recentActivityPlayIcon(isEnabled: true)
+                    }
+                    .accessibilityLabel("Replay \(recentActivitySequence.title)")
+                } else {
+                    recentActivityPlayIcon(isEnabled: false)
+                        .accessibilityLabel("Complete a practice to replay it")
                 }
-                .accessibilityLabel("Replay Gentle Evening Flow")
             }
             .padding(16)
             .background(Color(.systemBackground).opacity(0.94))
@@ -234,11 +240,19 @@ struct ProfileView: View {
     }
 
     private var recentActivityPose: Pose {
-        guard let latestCompletion,
-              let sequence = PracticePersistence.sequence(for: latestCompletion.sequenceID) else {
+        guard let sequence = recentActivitySequence else {
             return SunSalutationData.childPose
         }
         return sequence.steps.first?.startPose ?? SunSalutationData.mountain
+    }
+
+    private func recentActivityPlayIcon(isEnabled: Bool) -> some View {
+        Image(systemName: "play.fill")
+            .font(.headline.weight(.bold))
+            .foregroundStyle(.white)
+            .frame(width: 48, height: 48)
+            .background(isEnabled ? FlowDesign.teal : FlowDesign.secondaryText.opacity(0.35))
+            .clipShape(Circle())
     }
 
     private var recentActivityTitle: String {
