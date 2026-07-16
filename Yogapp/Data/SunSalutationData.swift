@@ -141,7 +141,17 @@ enum SunSalutationData {
         tagged(standingConfidenceFlow, ["Beginner", "15–20 Minutes", "Morning", "Standing Flow", "Balance", "Confidence", "Legs", "Stability"]),
         tagged(beginnerMorningStrength, ["Beginner–Intermediate", "20 Minutes", "Morning", "Strength", "Core", "Legs", "Full Body", "Build Strength"]),
         tagged(wakeUpFlexibilityFlow, ["Beginner", "20–30 Minutes", "Morning", "Flexibility", "Hips", "Hamstrings", "Stretching", "Mobility"]),
-        tagged(weekendMorningPractice, ["Beginner", "30 Minutes", "Morning", "Complete Practice", "Full Body", "Flexibility", "Restorative", "Weekend"])
+        tagged(weekendMorningPractice, ["Beginner", "30 Minutes", "Morning", "Complete Practice", "Full Body", "Flexibility", "Restorative", "Weekend"]),
+        tagged(fiveMinuteEveningReset, ["Beginner", "5 Minutes", "Evening", "Night", "Quick", "Relaxation", "Calming", "Stress Relief"]),
+        tagged(calmAfterWork, ["Beginner", "Under 10 Minutes", "Evening", "Shoulders", "Upper Back", "Calming", "After Work", "Stress Relief"]),
+        tagged(bedtimeStretch, ["Beginner", "10–15 Minutes", "Bedtime", "Night", "Better Sleep", "Stretching", "Restorative", "Calming"]),
+        tagged(unwindYourHips, ["Beginner", "10–15 Minutes", "Evening", "Hips", "Deep Stretch", "Floor Practice", "Restorative", "Calming"]),
+        tagged(gentleSpineRelease, ["Beginner", "15–20 Minutes", "Evening", "Back Care", "Spine", "Gentle", "Release Tension", "Calming"]),
+        tagged(calmBodyCalmMind, ["Beginner", "15–20 Minutes", "Evening", "Nervous System Reset", "Better Sleep", "Restorative", "Calming", "Floor Practice"]),
+        tagged(eveningRecoveryFlow, ["Beginner", "15–20 Minutes", "Evening", "Recovery", "Hips", "Hamstrings", "Low Impact", "Calming"]),
+        tagged(fullBodyEveningStretch, ["Beginner", "20 Minutes", "Evening", "Full Body", "Stretching", "Hips", "Restorative", "Wind Down"]),
+        tagged(restoreAndRecharge, ["Beginner", "20–30 Minutes", "Evening", "Deep Relaxation", "Restorative", "Better Sleep", "Calming", "Floor Practice"]),
+        tagged(longEveningWindDown, ["Beginner", "30 Minutes", "Evening", "Night", "Complete Relaxation", "Better Sleep", "Restorative", "Wind Down"])
     ]
 
     static let sunSalutationA = YogaSequence(
@@ -2116,6 +2126,271 @@ enum SunSalutationData {
             "Pause for extra rest anywhere in the practice."
         ],
         onboardingNote: "A longer weekend practice with warm-up, three Sun A rounds, standing work, and a restful finish."
+    )
+
+    static let fiveMinuteEveningReset = YogaSequence(
+        id: "five-minute-evening-reset",
+        title: "Five-Minute Evening Reset",
+        subtitle: "A short calming reset to release the day.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps([
+            flowHold("Balasana — Child's Pose", childPose, 45, .natural, "Rest your hips back and let your shoulders soften."),
+            flowHold("Marjaryasana — Cat Pose", cat, 15, .exhale, "Round your spine and breathe into the back body."),
+            flowHold("Bitilasana — Cow Pose", cow, 15, .inhale, "Lift your chest gently."),
+            flowHold("Marjaryasana — Cat Pose", cat, 15, .exhale, "Round again and release your neck."),
+            flowHold("Bitilasana — Cow Pose", cow, 15, .inhale, "Open across your collarbones."),
+            flowHold("Uttanasana — Standing Forward Fold", forwardFold, 40, .exhale, "Fold forward with soft knees and let the day drain away."),
+            flowHold("Sukhasana — Easy Pose", easyPose, 40, .natural, "Sit comfortably and slow your breath."),
+            flowHold("Savasana — Corpse Pose", corpse, 90, .natural, "Rest completely.")
+        ], transitionDuration: 4),
+        safetyNotes: [
+            "Keep forward folds soft and easy.",
+            "Pad your knees if Child's Pose or Cat-Cow needs support.",
+            "Let this stay quiet and low effort."
+        ],
+        onboardingNote: "A short evening reset with simple breath-led movement and a restful finish."
+    )
+
+    static let calmAfterWork = YogaSequence(
+        id: "calm-after-work",
+        title: "Calm After Work",
+        subtitle: "Unwind shoulders, chest, and upper back after a long day.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps([
+            flowHold("Balasana — Child's Pose", childPose, 60, .natural, "Fold back and let your shoulders settle."),
+            flowHold("Uttana Shishosana — Extended Puppy Pose", extendedPuppy, 60, .natural, "Walk your hands forward and soften your chest."),
+            flowHold("Parsva Balasana — Thread the Needle Pose", threadNeedle, 45, .exhale, "Thread your right arm under and breathe across the upper back.", .right),
+            flowHold("Parsva Balasana — Thread the Needle Pose", threadNeedle, 45, .exhale, "Thread your left arm under and soften the second side.", .left),
+            flowHold("Bhujangasana — Cobra Pose", cobra, 25, .inhale, "Lift your chest gently and keep your neck long."),
+            flowHold("Ardha Matsyendrasana — Half Lord of the Fishes", halfLordFishes, 40, .natural, "Sit tall and twist to the right without forcing.", .right),
+            flowHold("Ardha Matsyendrasana — Half Lord of the Fishes", halfLordFishes, 40, .natural, "Sit tall and twist to the left with easy breath.", .left),
+            flowHold("Savasana — Corpse Pose", corpse, 150, .natural, "Rest and let the shoulders release.")
+        ], transitionDuration: 5),
+        safetyNotes: [
+            "Keep Puppy Pose gentle through the shoulders.",
+            "Twist from a tall spine rather than pulling hard.",
+            "Lower Cobra if the low back feels compressed."
+        ],
+        onboardingNote: "A calm after-work sequence focused on shoulder and upper-back release."
+    )
+
+    static let bedtimeStretch = YogaSequence(
+        id: "bedtime-stretch",
+        title: "Bedtime Stretch",
+        subtitle: "A quiet floor practice to help the body prepare for sleep.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps([
+            flowHold("Baddha Konasana — Butterfly Pose", boundAngle, 60, .natural, "Bring the soles of your feet together and sit tall."),
+            flowHold("Paschimottanasana — Seated Forward Fold", seatedFold, 75, .exhale, "Fold forward gently and soften your jaw."),
+            flowHold("Ananda Balasana — Happy Baby Pose", happyBaby, 60, .natural, "Hold your feet or legs and release the low back."),
+            flowHold("Supta Matsyendrasana — Supine Spinal Twist", supineTwist, 45, .exhale, "Let your knees fall right and relax your shoulders.", .right),
+            flowHold("Supta Matsyendrasana — Supine Spinal Twist", supineTwist, 45, .exhale, "Let your knees fall left and breathe slowly.", .left),
+            flowHold("Viparita Karani — Legs Up the Wall", legsUpWall, 150, .natural, "Rest with your legs elevated."),
+            flowHold("Savasana — Corpse Pose", corpse, 165, .natural, "Let your whole body get heavy.")
+        ], transitionDuration: 5),
+        safetyNotes: [
+            "Support your knees in Butterfly Pose if needed.",
+            "Keep the twists mild and comfortable.",
+            "Come out of Legs Up the Wall slowly."
+        ],
+        onboardingNote: "A bedtime sequence with longer holds and a quiet nervous-system finish."
+    )
+
+    static let unwindYourHips = YogaSequence(
+        id: "unwind-your-hips",
+        title: "Unwind Your Hips",
+        subtitle: "A slow evening release for hips and low back.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps([
+            flowHold("Baddha Konasana — Butterfly Pose", boundAngle, 75, .natural, "Sit tall and let the inner thighs soften."),
+            flowHold("Eka Pada Rajakapotasana Prep — Pigeon Pose", pigeon, 60, .natural, "Settle into the right outer hip.", .right),
+            flowHold("Eka Pada Rajakapotasana Prep — Pigeon Pose", pigeon, 60, .natural, "Settle into the left outer hip.", .left),
+            flowHold("Mandukasana — Frog Pose", frog, 75, .natural, "Widen your knees only as far as feels supported."),
+            flowHold("Sucirandhrasana — Reclining Figure Four", eyeOfNeedle, 60, .natural, "Cross your right ankle and breathe into the hip.", .right),
+            flowHold("Sucirandhrasana — Reclining Figure Four", eyeOfNeedle, 60, .natural, "Cross your left ankle and let the hip release.", .left),
+            flowHold("Savasana — Corpse Pose", corpse, 240, .natural, "Rest and let the hips settle.")
+        ], transitionDuration: 5),
+        safetyNotes: [
+            "Keep Pigeon gentle and switch to Figure Four if knees need support.",
+            "Use padding under knees in Frog Pose.",
+            "Avoid pushing into sharp hip or knee sensation."
+        ],
+        onboardingNote: "A slow hip-focused practice with right and left releases and a long rest."
+    )
+
+    static let gentleSpineRelease = YogaSequence(
+        id: "gentle-spine-release",
+        title: "Gentle Spine Release",
+        subtitle: "Ease the back body with slow waves, twists, and rest.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps([
+            flowHold("Marjaryasana — Cat Pose", cat, 20, .exhale, "Round your spine and press the floor away."),
+            flowHold("Bitilasana — Cow Pose", cow, 20, .inhale, "Lift your chest and lengthen forward."),
+            flowHold("Marjaryasana — Cat Pose", cat, 20, .exhale, "Round smoothly with your exhale."),
+            flowHold("Bitilasana — Cow Pose", cow, 20, .inhale, "Open gently through the front body."),
+            flowHold("Marjaryasana — Cat Pose", cat, 20, .exhale, "Broaden the back body."),
+            flowHold("Bitilasana — Cow Pose", cow, 20, .inhale, "Move with ease and control."),
+            flowHold("Uttana Shishosana — Extended Puppy Pose", extendedPuppy, 60, .natural, "Walk your hands forward and melt your chest."),
+            flowHold("Bhujangasana — Cobra Pose", cobra, 30, .inhale, "Lift into a small, comfortable Cobra."),
+            flowHold("Balasana — Child's Pose", childPose, 75, .natural, "Rest back and breathe into your low ribs."),
+            flowHold("Supta Matsyendrasana — Supine Spinal Twist", supineTwist, 60, .exhale, "Twist to the right and soften your shoulders.", .right),
+            flowHold("Supta Matsyendrasana — Supine Spinal Twist", supineTwist, 60, .exhale, "Twist to the left and let the spine unwind.", .left),
+            flowHold("Apanasana — Knees-to-Chest Pose", kneesToChest, 60, .natural, "Hug your knees in and release your low back."),
+            flowHold("Savasana — Corpse Pose", corpse, 315, .natural, "Rest with the spine fully supported.")
+        ], transitionDuration: 5),
+        safetyNotes: [
+            "Keep Cat-Cow small if your back is sensitive.",
+            "Lower Cobra or skip it if it pinches.",
+            "Twist only within an easy range."
+        ],
+        onboardingNote: "A gentle back-care sequence with slow spinal movement, twists, and a long Savasana."
+    )
+
+    static let calmBodyCalmMind = YogaSequence(
+        id: "calm-body-calm-mind",
+        title: "Calm Body, Calm Mind",
+        subtitle: "A restorative nervous-system reset for quiet evenings.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps([
+            flowHold("Sukhasana — Easy Pose", easyPose, 90, .natural, "Sit comfortably and let your breath slow."),
+            flowHold("Balasana — Child's Pose", childPose, 90, .natural, "Fold back and soften your body."),
+            flowHold("Baddha Konasana — Butterfly Pose", boundAngle, 75, .natural, "Sit tall and let the knees relax outward."),
+            flowHold("Paschimottanasana — Seated Forward Fold", seatedFold, 75, .exhale, "Fold forward gently without pulling."),
+            flowHold("Viparita Karani — Legs Up the Wall", legsUpWall, 180, .natural, "Rest with legs elevated and breath steady."),
+            flowHold("Supta Baddha Konasana — Reclining Bound Angle Pose", suptaBoundAngle, 120, .natural, "Recline with the soles together and support your knees."),
+            flowHold("Savasana — Corpse Pose", corpse, 270, .natural, "Let your mind and body settle completely.")
+        ], transitionDuration: 5),
+        safetyNotes: [
+            "Use blankets or pillows anywhere that helps you relax.",
+            "Support the knees in Reclining Bound Angle.",
+            "Move slowly when coming out of long holds."
+        ],
+        onboardingNote: "A quiet restorative practice designed to calm the nervous system before sleep."
+    )
+
+    static let eveningRecoveryFlow = YogaSequence(
+        id: "evening-recovery-flow",
+        title: "Evening Recovery Flow",
+        subtitle: "Low-impact recovery for hips, hamstrings, and the back body.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps([
+            flowHold("Marjaryasana — Cat Pose", cat, 20, .exhale, "Round your spine and breathe into your back."),
+            flowHold("Bitilasana — Cow Pose", cow, 20, .inhale, "Lift your chest gently."),
+            flowHold("Marjaryasana — Cat Pose", cat, 20, .exhale, "Round again and soften your neck."),
+            flowHold("Bitilasana — Cow Pose", cow, 20, .inhale, "Move into a small arch."),
+            flowHold("Adho Mukha Svanasana — Downward-Facing Dog", downwardDog, 40, .natural, "Press back and lengthen the spine."),
+            flowHold("Anjaneyasana — Low Lunge", lowLunge, 45, .natural, "Release the right hip flexor.", .right),
+            flowHold("Anjaneyasana — Low Lunge", lowLunge, 45, .natural, "Release the left hip flexor.", .left),
+            flowHold("Ardha Hanumanasana — Half Splits Pose", halfSplit, 45, .exhale, "Lengthen the right leg and fold gently.", .right),
+            flowHold("Ardha Hanumanasana — Half Splits Pose", halfSplit, 45, .exhale, "Lengthen the left leg and keep the breath soft.", .left),
+            flowHold("Baddha Konasana — Butterfly Pose", boundAngle, 75, .natural, "Sit tall and relax your inner thighs."),
+            flowHold("Ananda Balasana — Happy Baby Pose", happyBaby, 60, .natural, "Release your low back."),
+            flowHold("Supta Matsyendrasana — Supine Spinal Twist", supineTwist, 60, .exhale, "Twist to the right and soften.", .right),
+            flowHold("Supta Matsyendrasana — Supine Spinal Twist", supineTwist, 60, .exhale, "Twist to the left and unwind.", .left),
+            flowHold("Savasana — Corpse Pose", corpse, 435, .natural, "Rest deeply and recover.")
+        ], transitionDuration: 5),
+        safetyNotes: [
+            "Pad your knees for lunges and Half Splits.",
+            "Keep Downward Dog optional if wrists are tired.",
+            "Let Savasana be long and unhurried."
+        ],
+        onboardingNote: "A recovery-focused evening flow with gentle mobility, leg release, twists, and deep rest."
+    )
+
+    static let fullBodyEveningStretch = YogaSequence(
+        id: "full-body-evening-stretch",
+        title: "Full-Body Evening Stretch",
+        subtitle: "A complete evening stretch for hips, legs, back, and breath.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps([
+            flowHold("Tadasana — Mountain Pose", mountain, 30, .natural, "Stand tall and settle after the day."),
+            flowHold("Uttanasana — Standing Forward Fold", forwardFold, 45, .exhale, "Fold forward and release your neck."),
+            flowHold("Adho Mukha Svanasana — Downward-Facing Dog", downwardDog, 45, .natural, "Press back and lengthen your back body."),
+            flowHold("Anjaneyasana — Low Lunge", lowLunge, 45, .natural, "Step your right foot forward and release the hip.", .right),
+            flowHold("Anjaneyasana — Low Lunge", lowLunge, 45, .natural, "Step your left foot forward and breathe into the second side.", .left),
+            flowHold("Utthan Pristhasana — Lizard Pose", lizard, 50, .natural, "Settle into Lizard on the right.", .right),
+            flowHold("Utthan Pristhasana — Lizard Pose", lizard, 50, .natural, "Settle into Lizard on the left.", .left),
+            flowHold("Eka Pada Rajakapotasana Prep — Pigeon Pose", pigeon, 60, .natural, "Release the right outer hip.", .right),
+            flowHold("Eka Pada Rajakapotasana Prep — Pigeon Pose", pigeon, 60, .natural, "Release the left outer hip.", .left),
+            flowHold("Setu Bandha Sarvangasana — Bridge Pose", bridge, 45, .natural, "Lift your hips and open your chest."),
+            flowHold("Ananda Balasana — Happy Baby Pose", happyBaby, 60, .natural, "Soften the low back."),
+            flowHold("Viparita Karani — Legs Up the Wall", legsUpWall, 180, .natural, "Rest with legs elevated."),
+            flowHold("Savasana — Corpse Pose", corpse, 435, .natural, "Let your whole body rest.")
+        ], transitionDuration: 5),
+        safetyNotes: [
+            "Use props for Lizard and Pigeon.",
+            "Choose a gentle hip variation if knees feel sensitive.",
+            "Take your time moving down from standing to the floor."
+        ],
+        onboardingNote: "A full-body evening stretch that starts standing and slowly winds down to long rest."
+    )
+
+    static let restoreAndRecharge = YogaSequence(
+        id: "restore-and-recharge",
+        title: "Restore and Recharge",
+        subtitle: "A deeply relaxing practice for spacious evening recovery.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps([
+            flowHold("Balasana — Child's Pose", childPose, 120, .natural, "Rest back and let your breathing slow."),
+            flowHold("Uttana Shishosana — Extended Puppy Pose", extendedPuppy, 90, .natural, "Melt your chest gently toward the floor."),
+            flowHold("Baddha Konasana — Butterfly Pose", boundAngle, 90, .natural, "Sit tall and let the hips soften."),
+            flowHold("Paschimottanasana — Seated Forward Fold", seatedFold, 120, .exhale, "Fold forward and release effort."),
+            flowHold("Supta Baddha Konasana — Reclining Bound Angle Pose", suptaBoundAngle, 180, .natural, "Recline with support under your knees."),
+            flowHold("Viparita Karani — Legs Up the Wall", legsUpWall, 240, .natural, "Let your legs rest and your breath become quiet."),
+            flowHold("Supta Matsyendrasana — Supine Spinal Twist", supineTwist, 60, .exhale, "Twist to the right and soften.", .right),
+            flowHold("Supta Matsyendrasana — Supine Spinal Twist", supineTwist, 60, .exhale, "Twist to the left and release.", .left),
+            flowHold("Savasana — Corpse Pose", corpse, 300, .natural, "Rest completely.")
+        ], transitionDuration: 6),
+        safetyNotes: [
+            "Use support generously in restorative poses.",
+            "Avoid deep stretching; aim for ease.",
+            "Come out of long holds slowly."
+        ],
+        onboardingNote: "A deep relaxation practice with long, quiet holds and supportive floor poses."
+    )
+
+    static let longEveningWindDown = YogaSequence(
+        id: "long-evening-wind-down",
+        title: "Long Evening Wind-Down",
+        subtitle: "A complete night practice for relaxation, sleep, and deep rest.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps([
+            flowHold("Sukhasana — Easy Pose", easyPose, 90, .natural, "Sit comfortably and arrive in the evening."),
+            flowHold("Marjaryasana — Cat Pose", cat, 20, .exhale, "Round your spine and soften your neck."),
+            flowHold("Bitilasana — Cow Pose", cow, 20, .inhale, "Lift your chest gently."),
+            flowHold("Marjaryasana — Cat Pose", cat, 20, .exhale, "Round again with slow breath."),
+            flowHold("Bitilasana — Cow Pose", cow, 20, .inhale, "Open the chest without strain."),
+            flowHold("Marjaryasana — Cat Pose", cat, 20, .exhale, "Broaden the back body."),
+            flowHold("Bitilasana — Cow Pose", cow, 20, .inhale, "Move into your final gentle arch."),
+            flowHold("Balasana — Child's Pose", childPose, 90, .natural, "Rest back and let your hips settle."),
+            flowHold("Uttana Shishosana — Extended Puppy Pose", extendedPuppy, 75, .natural, "Walk your hands forward and soften the shoulders."),
+            flowHold("Anjaneyasana — Low Lunge", lowLunge, 45, .natural, "Release the right hip flexor.", .right),
+            flowHold("Anjaneyasana — Low Lunge", lowLunge, 45, .natural, "Release the left hip flexor.", .left),
+            flowHold("Eka Pada Rajakapotasana Prep — Pigeon Pose", pigeon, 75, .natural, "Settle into the right outer hip.", .right),
+            flowHold("Eka Pada Rajakapotasana Prep — Pigeon Pose", pigeon, 75, .natural, "Settle into the left outer hip.", .left),
+            flowHold("Baddha Konasana — Butterfly Pose", boundAngle, 90, .natural, "Sit tall and let the knees soften outward."),
+            flowHold("Paschimottanasana — Seated Forward Fold", seatedFold, 90, .exhale, "Fold forward with no force."),
+            flowHold("Ananda Balasana — Happy Baby Pose", happyBaby, 60, .natural, "Release your hips and low back."),
+            flowHold("Viparita Karani — Legs Up the Wall", legsUpWall, 180, .natural, "Rest with legs elevated."),
+            flowHold("Supta Baddha Konasana — Reclining Bound Angle Pose", suptaBoundAngle, 120, .natural, "Recline and support your knees."),
+            flowHold("Savasana — Corpse Pose", corpse, 480, .natural, "Rest deeply and let the day end.")
+        ], transitionDuration: 6),
+        safetyNotes: [
+            "Keep every shape soft and sustainable.",
+            "Support knees in Pigeon, Butterfly, and Reclining Bound Angle.",
+            "Move slowly after the long final rest."
+        ],
+        onboardingNote: "A complete evening wind-down with gentle mobility, hip release, restorative shapes, and an extended Savasana."
     )
 
     private struct FlowHold {
