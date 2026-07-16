@@ -131,7 +131,17 @@ enum SunSalutationData {
         tagged(fiveMinuteCalmReset, ["Beginner", "Quick", "Anytime", "Calming", "Stress Relief", "Floor Practice", "Mental Reset", "Nervous System Reset"]),
         tagged(completeThirtyMinutePractice, ["Intermediate", "30 Minutes", "Anytime", "Full Practice", "Full Body", "Strength", "Balance", "Mobility"]),
         tagged(christmasStressRelief, ["Beginner", "20 Minutes", "Calming", "Stress Relief", "Gentle", "Full Body", "Release Tension", "Seasonal"]),
-        tagged(consciousTransitions, ["Intermediate", "10–15 Minutes", "Mindfulness", "Slow Flow", "Balance", "Coordination", "Stability", "Focus"])
+        tagged(consciousTransitions, ["Intermediate", "10–15 Minutes", "Mindfulness", "Slow Flow", "Balance", "Coordination", "Stability", "Focus"]),
+        tagged(fiveMinuteWakeUpStretch, ["Beginner", "5 Minutes", "Morning", "Quick", "Gentle Mobility", "Wake Up", "Mobility", "Full Body"]),
+        tagged(sunriseMobilityFlow, ["Beginner", "Under 10 Minutes", "Morning", "Mobility", "Spine", "Hips", "Gentle", "Wake Up"]),
+        tagged(gentleSunSalutationFlow, ["Beginner", "10–15 Minutes", "Morning", "Sun Salutation", "Full Body", "Energizing", "Beginner Basics", "Daily Practice"]),
+        tagged(morningEnergyBuilder, ["Beginner", "10–15 Minutes", "Morning", "Energizing", "Legs", "Posture", "Standing Flow", "Strength"]),
+        tagged(dailyBeginnerFlow, ["Beginner", "15–20 Minutes", "Morning", "Full Body", "Daily Practice", "Beginner Basics", "Flexibility", "Strength"]),
+        tagged(morningCoreActivation, ["Beginner", "15–20 Minutes", "Morning", "Core", "Strength", "Low Impact", "Floor Practice", "Stability"]),
+        tagged(standingConfidenceFlow, ["Beginner", "15–20 Minutes", "Morning", "Standing Flow", "Balance", "Confidence", "Legs", "Stability"]),
+        tagged(beginnerMorningStrength, ["Beginner–Intermediate", "20 Minutes", "Morning", "Strength", "Core", "Legs", "Full Body", "Build Strength"]),
+        tagged(wakeUpFlexibilityFlow, ["Beginner", "20–30 Minutes", "Morning", "Flexibility", "Hips", "Hamstrings", "Stretching", "Mobility"]),
+        tagged(weekendMorningPractice, ["Beginner", "30 Minutes", "Morning", "Complete Practice", "Full Body", "Flexibility", "Restorative", "Weekend"])
     ]
 
     static let sunSalutationA = YogaSequence(
@@ -1804,6 +1814,308 @@ enum SunSalutationData {
             "Pause before transitions that feel rushed."
         ],
         onboardingNote: "This flow emphasizes controlled transitions. Watch for right-side cues, then repeat mindfully across rounds."
+    )
+
+    static let fiveMinuteWakeUpStretch = YogaSequence(
+        id: "five-minute-wake-up-stretch",
+        title: "Five-Minute Wake-Up Stretch",
+        subtitle: "A quick morning stretch for gentle full-body mobility.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps([
+            flowHold("Tadasana — Mountain Pose", mountain, 20, .natural, "Stand tall and feel both feet grounded."),
+            flowHold("Urdhva Hastasana — Upward Salute", upwardSalute, 15, .inhale, "Reach overhead and lengthen through your sides."),
+            flowHold("Uttanasana — Standing Forward Fold", forwardFold, 30, .exhale, "Fold with soft knees and relax your neck."),
+            flowHold("Ardha Uttanasana — Halfway Lift", halfwayLift, 15, .inhale, "Lengthen your spine and broaden your chest."),
+            flowHold("Adho Mukha Svanasana — Downward-Facing Dog", downwardDog, 40, .natural, "Press the floor away and breathe into your back body."),
+            flowHold("Anjaneyasana — Low Lunge", lowLunge, 30, .natural, "Step your right foot forward and release the front of the back hip.", .right),
+            flowHold("Anjaneyasana — Low Lunge", lowLunge, 30, .natural, "Step your left foot forward and settle into the second side.", .left),
+            flowHold("Bhujangasana — Cobra Pose", cobra, 25, .inhale, "Lift your chest gently and keep the low back spacious."),
+            flowHold("Balasana — Child's Pose", childPose, 60, .natural, "Rest back and soften your shoulders."),
+            flowHold("Sukhasana — Easy Pose", easyPose, 55, .natural, "Sit tall and let the practice settle.")
+        ], transitionDuration: 4),
+        safetyNotes: [
+            "Bend your knees generously in forward folds.",
+            "Keep Cobra low if your low back feels compressed.",
+            "Use padding under the back knee in Low Lunge."
+        ],
+        onboardingNote: "A short wake-up stretch with simple holds and clear right-left lunge cues."
+    )
+
+    static let sunriseMobilityFlow = YogaSequence(
+        id: "sunrise-mobility-flow",
+        title: "Sunrise Mobility Flow",
+        subtitle: "Open the spine and hips with a soft morning pace.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps([
+            flowHold("Tadasana — Mountain Pose", mountain, 20, .natural, "Stand tall and arrive in your breath."),
+            flowHold("Urdhva Hastasana — Upward Salute", upwardSalute, 20, .inhale, "Reach overhead and gently lift your ribs."),
+            flowHold("Uttanasana — Standing Forward Fold", forwardFold, 35, .exhale, "Fold forward and let your head release."),
+            flowHold("Bharmanasana — Table Top Pose", tabletop, 30, .natural, "Stack your shoulders over wrists and hips over knees."),
+            flowHold("Marjaryasana — Cat Pose", cat, 20, .exhale, "Round your spine and press the floor away."),
+            flowHold("Bitilasana — Cow Pose", cow, 20, .inhale, "Lift your chest and broaden your collarbones."),
+            flowHold("Marjaryasana — Cat Pose", cat, 20, .exhale, "Round smoothly with the breath."),
+            flowHold("Bitilasana — Cow Pose", cow, 20, .inhale, "Arch gently and keep the neck easy."),
+            flowHold("Uttana Shishosana — Puppy Pose", extendedPuppy, 60, .natural, "Walk your hands forward and melt your chest."),
+            flowHold("Adho Mukha Svanasana — Downward-Facing Dog", downwardDog, 45, .natural, "Lift your hips and lengthen the spine."),
+            flowHold("Malasana — Garland Pose", garland, 45, .natural, "Sink into a comfortable squat and lift your chest."),
+            flowHold("Sukhasana — Easy Pose", easyPose, 90, .natural, "Sit comfortably and breathe slowly.")
+        ], transitionDuration: 5),
+        safetyNotes: [
+            "Pad your knees in Table Top if needed.",
+            "Keep Puppy Pose gentle through the shoulders.",
+            "Sit on a blanket in Easy Pose if your hips feel tight."
+        ],
+        onboardingNote: "This mobility flow uses simple spine and hip shapes to wake the body gradually."
+    )
+
+    static let gentleSunSalutationFlow = YogaSequence(
+        id: "gentle-sun-salutation-flow",
+        title: "Gentle Sun Salutation Flow",
+        subtitle: "A beginner-friendly Sun Salutation pattern repeated at an easy pace.",
+        difficulty: "Beginner",
+        rounds: 2,
+        steps: flowSteps([
+            flowHold("Tadasana — Mountain Pose", mountain, 10, .natural, "Stand tall and ground through both feet."),
+            flowHold("Urdhva Hastasana — Upward Salute", upwardSalute, 10, .inhale, "Sweep your arms overhead."),
+            flowHold("Uttanasana — Standing Forward Fold", forwardFold, 20, .exhale, "Fold forward with soft knees."),
+            flowHold("Ardha Uttanasana — Halfway Lift", halfwayLift, 10, .inhale, "Lengthen your chest forward."),
+            flowHold("Phalakasana — Plank Pose", plank, 15, .natural, "Step back and press the floor away."),
+            flowHold("Ashtanga Namaskara — Knees-Chest-Chin", kneesChestChin, 10, .exhale, "Lower knees, chest, and chin with control."),
+            flowHold("Bhujangasana — Cobra Pose", cobra, 20, .inhale, "Lift your chest into a gentle backbend."),
+            flowHold("Adho Mukha Svanasana — Downward-Facing Dog", downwardDog, 30, .natural, "Press back and take steady breaths."),
+            flowHold("Anjaneyasana — Low Lunge", lowLunge, 20, .natural, "Step your right foot forward and lift your chest.", .right),
+            flowHold("Adho Mukha Svanasana — Downward-Facing Dog", downwardDog, 20, .natural, "Return to Downward Dog and reset."),
+            flowHold("Anjaneyasana — Low Lunge", lowLunge, 20, .natural, "Step your left foot forward and soften the hips.", .left),
+            flowHold("Tadasana — Mountain Pose", mountain, 15, .natural, "Rise to stand and complete the round.")
+        ], transitionDuration: 4),
+        safetyNotes: [
+            "Use knees-chest-chin instead of a low push-up.",
+            "Keep Cobra small and comfortable.",
+            "Step slowly between Downward Dog and Low Lunge."
+        ],
+        onboardingNote: "This flow repeats for two rounds and keeps the Sun Salutation pattern approachable."
+    )
+
+    static let morningEnergyBuilder = YogaSequence(
+        id: "morning-energy-builder",
+        title: "Morning Energy Builder",
+        subtitle: "Build warmth through steady legs and upright posture.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps([
+            flowHold("Tadasana — Mountain Pose", mountain, 20, .natural, "Stand tall and root through your feet."),
+            flowHold("Utkatasana — Chair Pose", chair, 30, .inhale, "Sit back and lift through your chest."),
+            flowHold("Virabhadrasana I — Warrior I", warriorOne, 30, .natural, "Step your right foot forward and rise.", .right),
+            flowHold("Virabhadrasana II — Warrior II", warriorTwo, 30, .natural, "Open your hips and reach through both arms.", .right),
+            flowHold("Viparita Virabhadrasana — Reverse Warrior", reverseWarrior, 20, .inhale, "Reach your right arm up and lengthen your side body.", .right),
+            flowHold("Trikonasana — Triangle Pose", triangle, 30, .natural, "Straighten the front leg and rotate your chest open.", .right),
+            flowHold("Adho Mukha Svanasana — Downward Dog", downwardDog, 30, .natural, "Press back and steady your breath."),
+            flowHold("Virabhadrasana I — Warrior I", warriorOne, 30, .natural, "Step your left foot forward and rise.", .left),
+            flowHold("Virabhadrasana II — Warrior II", warriorTwo, 30, .natural, "Open into the second side.", .left),
+            flowHold("Viparita Virabhadrasana — Reverse Warrior", reverseWarrior, 20, .inhale, "Reach your left arm up and keep the front knee steady.", .left),
+            flowHold("Trikonasana — Triangle Pose", triangle, 30, .natural, "Lengthen through both sides of your waist.", .left),
+            flowHold("Balasana — Child's Pose", childPose, 60, .natural, "Rest back and let the legs soften."),
+            flowHold("Sukhasana — Easy Pose", easyPose, 90, .natural, "Sit tall and notice your morning energy.")
+        ], transitionDuration: 5),
+        safetyNotes: [
+            "Shorten your stance if the hips or knees feel strained.",
+            "Keep the front knee tracking over the toes.",
+            "Use a block under the lower hand in Triangle Pose."
+        ],
+        onboardingNote: "A steady morning builder with a complete right and left standing sequence."
+    )
+
+    static let dailyBeginnerFlow = YogaSequence(
+        id: "daily-beginner-flow",
+        title: "Daily Beginner Flow",
+        subtitle: "A balanced full-body practice for everyday movement.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps(
+            sunAOneRoundHolds() + [
+                flowHold("Utkatasana — Chair Pose", chair, 30, .inhale, "Sit back and lift through your chest."),
+                flowHold("Virabhadrasana I — Warrior I", warriorOne, 30, .natural, "Step your right foot forward and rise.", .right),
+                flowHold("Virabhadrasana I — Warrior I", warriorOne, 30, .natural, "Step your left foot forward and rise.", .left),
+                flowHold("Virabhadrasana II — Warrior II", warriorTwo, 30, .natural, "Open to the right side and reach wide.", .right),
+                flowHold("Virabhadrasana II — Warrior II", warriorTwo, 30, .natural, "Open to the left side and steady your gaze.", .left),
+                flowHold("Utthita Parsvakonasana — Extended Side Angle", extendedSideAngle, 25, .exhale, "Lean over your right thigh and lengthen.", .right),
+                flowHold("Utthita Parsvakonasana — Extended Side Angle", extendedSideAngle, 25, .exhale, "Lean over your left thigh and lengthen.", .left),
+                flowHold("Adho Mukha Svanasana — Downward Dog", downwardDog, 40, .natural, "Press back and breathe evenly."),
+                flowHold("Anjaneyasana — Low Lunge", lowLunge, 30, .natural, "Release the right hip flexor.", .right),
+                flowHold("Anjaneyasana — Low Lunge", lowLunge, 30, .natural, "Release the left hip flexor.", .left),
+                flowHold("Eka Pada Rajakapotasana Prep — Pigeon Pose", pigeon, 45, .natural, "Settle into the right outer hip.", .right),
+                flowHold("Eka Pada Rajakapotasana Prep — Pigeon Pose", pigeon, 45, .natural, "Settle into the left outer hip.", .left),
+                flowHold("Setu Bandha Sarvangasana — Bridge Pose", bridge, 40, .natural, "Lift your hips and broaden the chest."),
+                flowHold("Ananda Balasana — Happy Baby Pose", happyBaby, 60, .natural, "Release the low back and hips."),
+                flowHold("Savasana — Corpse Pose", corpse, 120, .natural, "Rest completely.")
+            ],
+            transitionDuration: 5
+        ),
+        safetyNotes: [
+            "Take a shorter stance in standing poses whenever needed.",
+            "Pad your knees in Low Lunge.",
+            "Keep Pigeon gentle and choose Eye-of-the-Needle if your knees need support."
+        ],
+        onboardingNote: "A full-body daily flow with Sun A, standing poses, hip opening, back release, and rest."
+    )
+
+    static let morningCoreActivation = YogaSequence(
+        id: "morning-core-activation",
+        title: "Morning Core Activation",
+        subtitle: "Wake up your center with steady, beginner-friendly core work.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps([
+            flowHold("Bharmanasana — Table Top", tabletop, 20, .natural, "Stack your joints and draw your belly gently in."),
+            flowHold("Dandayamana Bharmanasana — Bird Dog", birdDog, 30, .natural, "Reach your right arm and left leg long.", .right),
+            flowHold("Dandayamana Bharmanasana — Bird Dog", birdDog, 30, .natural, "Reach your left arm and right leg long.", .left),
+            flowHold("Phalakasana — Plank", plank, 30, .natural, "Press the floor away and keep your body long."),
+            flowHold("Forearm Plank", forearmPlank, 30, .natural, "Lower to forearms and breathe steadily."),
+            flowHold("Bhujangasana — Cobra Pose", cobra, 20, .inhale, "Open your chest and release the front body."),
+            flowHold("Navasana — Boat Pose", boat, 30, .natural, "Sit tall and lift through your chest."),
+            flowHold("Ardha Navasana — Half Boat", halfBoat, 30, .natural, "Lower with control and keep the breath easy."),
+            flowHold("Setu Bandha Sarvangasana — Bridge Pose", bridge, 40, .natural, "Lift your hips and connect to the back body."),
+            flowHold("Apanasana — Knees-to-Chest", kneesToChest, 45, .natural, "Hug your knees in and soften your back."),
+            flowHold("Supta Matsyendrasana — Supine Twist", supineTwist, 45, .exhale, "Twist to the right and relax your shoulders.", .right),
+            flowHold("Supta Matsyendrasana — Supine Twist", supineTwist, 45, .exhale, "Twist to the left and breathe slowly.", .left),
+            flowHold("Savasana — Corpse Pose", corpse, 120, .natural, "Rest and let the core work settle.")
+        ], transitionDuration: 5),
+        safetyNotes: [
+            "Lower knees in Plank whenever needed.",
+            "Keep the low back comfortable in Boat and Half Boat.",
+            "Move slowly between core shapes."
+        ],
+        onboardingNote: "A core-focused morning practice with right-left Bird Dog and a calming finish."
+    )
+
+    static let standingConfidenceFlow = YogaSequence(
+        id: "standing-confidence-flow",
+        title: "Standing Confidence Flow",
+        subtitle: "Build steadiness with simple standing balance shapes.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps([
+            flowHold("Tadasana — Mountain Pose", mountain, 20, .natural, "Stand tall and find a steady gaze."),
+            flowHold("Vrikshasana — Tree Pose", tree, 45, .natural, "Balance on your right leg and keep the breath soft.", .right),
+            flowHold("Vrikshasana — Tree Pose", tree, 45, .natural, "Balance on your left leg and stay relaxed.", .left),
+            flowHold("Virabhadrasana I — Warrior I", warriorOne, 30, .natural, "Step your right foot forward and rise.", .right),
+            flowHold("Virabhadrasana I — Warrior I", warriorOne, 30, .natural, "Step your left foot forward and rise.", .left),
+            flowHold("Virabhadrasana II — Warrior II", warriorTwo, 30, .natural, "Open to the right side with steady legs.", .right),
+            flowHold("Virabhadrasana II — Warrior II", warriorTwo, 30, .natural, "Open to the left side with steady legs.", .left),
+            flowHold("Trikonasana — Triangle Pose", triangle, 30, .natural, "Lengthen into Triangle on the right.", .right),
+            flowHold("Trikonasana — Triangle Pose", triangle, 30, .natural, "Lengthen into Triangle on the left.", .left),
+            flowHold("Ardha Chandrasana — Half Moon", halfMoon, 25, .natural, "Use support and float into Half Moon on the right.", .right),
+            flowHold("Ardha Chandrasana — Half Moon", halfMoon, 25, .natural, "Use support and float into Half Moon on the left.", .left),
+            flowHold("Utkatasana — Chair Pose", chair, 30, .inhale, "Sit back into a strong chair."),
+            flowHold("Malasana — Garland Pose", garland, 45, .natural, "Lower into a comfortable squat."),
+            flowHold("Uttanasana — Standing Forward Fold", forwardFold, 45, .exhale, "Fold forward and release the back body."),
+            flowHold("Balasana — Child's Pose", childPose, 90, .natural, "Rest back and soften completely.")
+        ], transitionDuration: 5),
+        safetyNotes: [
+            "Use a wall or chair for Tree and Half Moon.",
+            "Keep standing knees soft and responsive.",
+            "Skip any balance that feels unstable today."
+        ],
+        onboardingNote: "A beginner standing sequence that builds confidence through repeated right-left balance work."
+    )
+
+    static let beginnerMorningStrength = YogaSequence(
+        id: "beginner-morning-strength",
+        title: "Beginner Morning Strength",
+        subtitle: "Build warmth with beginner-friendly strength and core shapes.",
+        difficulty: "Beginner-intermediate",
+        rounds: 1,
+        steps: flowSteps(
+            sunAOneRoundHolds() + sunAOneRoundHolds() + [
+                flowHold("Utkatasana — Chair Pose", chair, 40, .inhale, "Sit back and stay tall through your spine."),
+                flowHold("Virabhadrasana I — Warrior I", warriorOne, 35, .natural, "Ground your right foot forward and lift your chest.", .right),
+                flowHold("Virabhadrasana I — Warrior I", warriorOne, 35, .natural, "Ground your left foot forward and lift your chest.", .left),
+                flowHold("Virabhadrasana II — Warrior II", warriorTwo, 35, .natural, "Open into Warrior II on the right.", .right),
+                flowHold("Virabhadrasana II — Warrior II", warriorTwo, 35, .natural, "Open into Warrior II on the left.", .left),
+                flowHold("Vasisthasana — Side Plank", sidePlank, 25, .natural, "Rotate into a modified Side Plank on the right.", .right),
+                flowHold("Vasisthasana — Side Plank", sidePlank, 25, .natural, "Rotate into a modified Side Plank on the left.", .left),
+                flowHold("Setu Bandha Sarvangasana — Bridge Pose", bridge, 45, .natural, "Lift your hips and strengthen the back body."),
+                flowHold("Navasana — Boat Pose", boat, 40, .natural, "Balance tall and breathe steadily."),
+                flowHold("Ananda Balasana — Happy Baby", happyBaby, 60, .natural, "Release your hips and low back."),
+                flowHold("Savasana — Corpse Pose", corpse, 180, .natural, "Rest fully after the strength work.")
+            ],
+            transitionDuration: 5
+        ),
+        safetyNotes: [
+            "Lower knees in Plank or Side Plank whenever needed.",
+            "Keep Chair Pose comfortable in the knees.",
+            "Take breaks between strength holds."
+        ],
+        onboardingNote: "A warmer morning flow with two Sun A rounds, standing strength, side planks, and rest."
+    )
+
+    static let wakeUpFlexibilityFlow = YogaSequence(
+        id: "wake-up-flexibility-flow",
+        title: "Wake-Up Flexibility Flow",
+        subtitle: "Lengthen hips, hamstrings, and the back body for the day ahead.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps([
+            flowHold("Marjaryasana — Cat Pose", cat, 20, .exhale, "Round your spine and breathe into your back."),
+            flowHold("Bitilasana — Cow Pose", cow, 20, .inhale, "Lift your chest and open the front body."),
+            flowHold("Uttana Shishosana — Puppy Pose", extendedPuppy, 60, .natural, "Walk your hands forward and release your chest."),
+            flowHold("Adho Mukha Svanasana — Downward Dog", downwardDog, 45, .natural, "Press back and lengthen your hamstrings."),
+            flowHold("Anjaneyasana — Low Lunge", lowLunge, 40, .natural, "Release the right hip flexor.", .right),
+            flowHold("Anjaneyasana — Low Lunge", lowLunge, 40, .natural, "Release the left hip flexor.", .left),
+            flowHold("Utthan Pristhasana — Lizard Pose", lizard, 45, .natural, "Settle into Lizard on the right.", .right),
+            flowHold("Utthan Pristhasana — Lizard Pose", lizard, 45, .natural, "Settle into Lizard on the left.", .left),
+            flowHold("Ardha Hanumanasana — Half Splits", halfSplit, 45, .exhale, "Lengthen the right leg and fold gently.", .right),
+            flowHold("Ardha Hanumanasana — Half Splits", halfSplit, 45, .exhale, "Lengthen the left leg and fold gently.", .left),
+            flowHold("Paschimottanasana — Seated Forward Fold", seatedFold, 90, .exhale, "Fold over both legs with a soft spine."),
+            flowHold("Baddha Konasana — Butterfly Pose", boundAngle, 75, .natural, "Bring soles together and let the hips soften."),
+            flowHold("Supta Matsyendrasana — Supine Twist", supineTwist, 60, .exhale, "Twist to the right and relax your shoulders.", .right),
+            flowHold("Supta Matsyendrasana — Supine Twist", supineTwist, 60, .exhale, "Twist to the left and breathe slowly.", .left),
+            flowHold("Viparita Karani — Legs Up the Wall", legsUpWall, 180, .natural, "Rest with your legs elevated and breath easy.")
+        ], transitionDuration: 5),
+        safetyNotes: [
+            "Use props in Lizard, Half Splits, and forward folds.",
+            "Keep knees soft and never force hamstring range.",
+            "Choose a gentler hip stretch if Lizard is too intense."
+        ],
+        onboardingNote: "A longer beginner flexibility practice focused on hips, hamstrings, twists, and supported rest."
+    )
+
+    static let weekendMorningPractice = YogaSequence(
+        id: "weekend-morning-practice",
+        title: "Weekend Morning Practice",
+        subtitle: "A spacious beginner practice for a full weekend reset.",
+        difficulty: "Beginner",
+        rounds: 1,
+        steps: flowSteps(
+            [
+                flowHold("Sukhasana — Easy Pose", easyPose, 60, .natural, "Sit tall and arrive slowly."),
+                flowHold("Bharmanasana — Table Top Pose", tabletop, 20, .natural, "Come to hands and knees and set a steady base.")
+            ] + catCow(rounds: 5) + [
+                flowHold("Balasana — Child's Pose", childPose, 60, .natural, "Rest back and breathe into the ribs.")
+            ] + sunAOneRoundHolds() + sunAOneRoundHolds() + sunAOneRoundHolds() + [
+                flowHold("Virabhadrasana I — Warrior I", warriorOne, 35, .natural, "Rise into Warrior I on the right.", .right),
+                flowHold("Virabhadrasana I — Warrior I", warriorOne, 35, .natural, "Rise into Warrior I on the left.", .left),
+                flowHold("Virabhadrasana II — Warrior II", warriorTwo, 35, .natural, "Open into Warrior II on the right.", .right),
+                flowHold("Virabhadrasana II — Warrior II", warriorTwo, 35, .natural, "Open into Warrior II on the left.", .left),
+                flowHold("Trikonasana — Triangle Pose", triangle, 35, .natural, "Lengthen into Triangle on the right.", .right),
+                flowHold("Trikonasana — Triangle Pose", triangle, 35, .natural, "Lengthen into Triangle on the left.", .left),
+                flowHold("Vrikshasana — Tree Pose", tree, 45, .natural, "Balance in Tree on the right.", .right),
+                flowHold("Vrikshasana — Tree Pose", tree, 45, .natural, "Balance in Tree on the left.", .left),
+                flowHold("Setu Bandha Sarvangasana — Bridge Pose", bridge, 60, .natural, "Lift your hips and open the chest."),
+                flowHold("Ananda Balasana — Happy Baby", happyBaby, 75, .natural, "Release your hips and low back."),
+                flowHold("Supta Baddha Konasana — Reclining Bound Angle", suptaBoundAngle, 120, .natural, "Rest with the soles of your feet together."),
+                flowHold("Savasana — Corpse Pose", corpse, 300, .natural, "Rest completely and let the practice integrate.")
+            ],
+            transitionDuration: 6
+        ),
+        safetyNotes: [
+            "Treat the longer holds as invitations, not requirements.",
+            "Use support under knees in Reclining Bound Angle.",
+            "Pause for extra rest anywhere in the practice."
+        ],
+        onboardingNote: "A longer weekend practice with warm-up, three Sun A rounds, standing work, and a restful finish."
     )
 
     private struct FlowHold {
