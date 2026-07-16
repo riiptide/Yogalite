@@ -138,16 +138,21 @@ struct SequenceDetailView: View {
     }
 
     private var difficultyBadge: some View {
-        Label(sequence.difficulty, systemImage: difficultyIcon)
-            .font(.caption.weight(.bold))
-            .lineLimit(1)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 7)
-            .background(FlowDesign.paleAqua)
-            .foregroundStyle(FlowDesign.teal)
-            .clipShape(Capsule())
-            .fixedSize(horizontal: true, vertical: false)
-            .accessibilityLabel("Difficulty: \(sequence.difficulty)")
+        NavigationLink {
+            TagFlowsView(tag: sequence.difficulty, endWorkoutAction: endWorkoutAction)
+        } label: {
+            Label(sequence.difficulty, systemImage: difficultyIcon)
+                .font(.caption.weight(.bold))
+                .lineLimit(1)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 7)
+                .background(FlowDesign.paleAqua)
+                .foregroundStyle(FlowDesign.teal)
+                .clipShape(Capsule())
+                .fixedSize(horizontal: true, vertical: false)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("View \(sequence.difficulty) flows")
     }
 
     private var metadataSummary: some View {
@@ -165,7 +170,13 @@ struct SequenceDetailView: View {
         FlowLayout(spacing: 8) {
             difficultyBadge
             ForEach(visibleTags, id: \.self) { tag in
-                SequenceTagBadge(tag: tag)
+                NavigationLink {
+                    TagFlowsView(tag: tag, endWorkoutAction: endWorkoutAction)
+                } label: {
+                    SequenceTagBadge(tag: tag)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("View \(tag) flows")
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
