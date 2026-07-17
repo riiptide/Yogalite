@@ -5,6 +5,7 @@ struct YogaProgram: Identifiable {
     let title: String
     let subtitle: String
     let systemImage: String
+    let thumbnailPose: Pose
     let flows: [ProgramFlow]
 
     var dayCountText: String {
@@ -15,20 +16,6 @@ struct YogaProgram: Identifiable {
         flows.reduce(0) { $0 + $1.sequence.estimatedMinutes }
     }
 
-    var thumbnailPose: Pose {
-        let poses = flows.reduce(into: [Pose]()) { poses, flow in
-            let pose = flow.sequence.thumbnailPose
-            guard !poses.contains(where: { $0.id == pose.id }) else { return }
-            poses.append(pose)
-        }
-
-        guard !poses.isEmpty else {
-            return SunSalutationData.mountain
-        }
-
-        let seed = id.unicodeScalars.reduce(0) { $0 + Int($1.value) }
-        return poses[seed % poses.count]
-    }
 }
 
 struct ProgramFlow: Identifiable {
@@ -47,6 +34,7 @@ enum YogaProgramData {
             title: "7-Day Intro to Yoga",
             subtitle: "A gentle first week that builds comfort with foundational poses.",
             systemImage: "sparkles",
+            thumbnailPose: SunSalutationData.easyPose,
             flows: days([
                 SunSalutationData.fiveMinuteWakeUpStretch,
                 SunSalutationData.quickMorningMobility,
@@ -62,6 +50,7 @@ enum YogaProgramData {
             title: "7-Day Power Yoga",
             subtitle: "A stronger week for heat, core, balance, and full-body stamina.",
             systemImage: "flame",
+            thumbnailPose: SunSalutationData.warriorOne,
             flows: days([
                 SunSalutationData.standingStrengthFlow,
                 SunSalutationData.coreStrengthFlow,
@@ -77,6 +66,7 @@ enum YogaProgramData {
             title: "10-Day Morning Sunrise Pack",
             subtitle: "A bright morning path from quick mobility to a full weekend practice.",
             systemImage: "sun.max",
+            thumbnailPose: SunSalutationData.upwardSalute,
             flows: days([
                 SunSalutationData.fiveMinuteWakeUpStretch,
                 SunSalutationData.sunriseMobilityFlow,
@@ -95,6 +85,7 @@ enum YogaProgramData {
             title: "10-Day Evening Wind-Down Pack",
             subtitle: "A calming evening progression for hips, spine, sleep, and rest.",
             systemImage: "moon.stars",
+            thumbnailPose: SunSalutationData.eyeOfNeedle,
             flows: days([
                 SunSalutationData.fiveMinuteEveningReset,
                 SunSalutationData.calmAfterWork,
@@ -113,6 +104,7 @@ enum YogaProgramData {
             title: "15-Day Yoga Mind",
             subtitle: "A quiet path for stress relief, posture, recovery, and deep rest.",
             systemImage: "leaf",
+            thumbnailPose: SunSalutationData.seatedRest,
             flows: days([
                 SunSalutationData.fiveMinuteCalmReset,
                 SunSalutationData.gentleMoonFlow,
@@ -136,6 +128,7 @@ enum YogaProgramData {
             title: "30-Day Yoga Glow",
             subtitle: "A month-long progression from beginner foundations to energizing strength.",
             systemImage: "calendar.badge.checkmark",
+            thumbnailPose: SunSalutationData.dancer,
             flows: days([
                 SunSalutationData.fiveMinuteWakeUpStretch,
                 SunSalutationData.sunriseMobilityFlow,
@@ -174,6 +167,7 @@ enum YogaProgramData {
             title: "7-Day Yin Yoga",
             subtitle: "A slow, floor-based week for deep release and evening calm.",
             systemImage: "circle.lefthalf.filled",
+            thumbnailPose: SunSalutationData.seatedFold,
             flows: days([
                 SunSalutationData.fiveMinuteCalmReset,
                 SunSalutationData.unwindYourHips,

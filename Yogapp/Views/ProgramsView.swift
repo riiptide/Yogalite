@@ -18,7 +18,6 @@ struct ProgramsView: View {
                     .padding(.bottom, 24)
                 }
             }
-            .navigationTitle("Programs")
             .navigationDestination(for: ProgramsRoute.self) { route in
                 switch route {
                 case .program(let id):
@@ -31,7 +30,12 @@ struct ProgramsView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Programs")
+                .font(.largeTitle.weight(.bold))
+                .foregroundStyle(FlowDesign.text)
+                .fixedSize(horizontal: false, vertical: true)
+
             Text("Follow a guided path")
                 .font(.system(.largeTitle, design: .serif, weight: .bold))
                 .foregroundStyle(FlowDesign.text)
@@ -188,6 +192,11 @@ private struct ProgramFlowCard: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 12) {
                 VStack(spacing: 4) {
+                    
+                    Text("Day")
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(.secondary)
+                    
                     Text("\(flow.day)")
                         .font(.headline.weight(.bold))
                         .foregroundStyle(FlowDesign.teal)
@@ -195,9 +204,7 @@ private struct ProgramFlowCard: View {
                         .background(FlowDesign.paleAqua)
                         .clipShape(Circle())
 
-                    Text("Day")
-                        .font(.caption2.weight(.bold))
-                        .foregroundStyle(.secondary)
+                    
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Day \(flow.day)")

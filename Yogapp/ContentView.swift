@@ -48,7 +48,7 @@ struct ContentView: View {
 
             ProgramsView()
                 .tabItem {
-                    Label("Programs", systemImage: "calendar")
+                    Label("Programs", systemImage: "checkmark.square")
                 }
 
             LibraryView()
