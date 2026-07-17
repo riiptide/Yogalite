@@ -46,6 +46,11 @@ struct ContentView: View {
                     Label("Explore", systemImage: "magnifyingglass")
                 }
 
+            ProgramsView()
+                .tabItem {
+                    Label("Programs", systemImage: "calendar")
+                }
+
             LibraryView()
                 .tabItem {
                     Label("Library", systemImage: "bookmark")
