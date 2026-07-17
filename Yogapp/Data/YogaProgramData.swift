@@ -14,6 +14,21 @@ struct YogaProgram: Identifiable {
     var totalMinutes: Int {
         flows.reduce(0) { $0 + $1.sequence.estimatedMinutes }
     }
+
+    var thumbnailPose: Pose {
+        let poses = flows.reduce(into: [Pose]()) { poses, flow in
+            let pose = flow.sequence.thumbnailPose
+            guard !poses.contains(where: { $0.id == pose.id }) else { return }
+            poses.append(pose)
+        }
+
+        guard !poses.isEmpty else {
+            return SunSalutationData.mountain
+        }
+
+        let seed = id.unicodeScalars.reduce(0) { $0 + Int($1.value) }
+        return poses[seed % poses.count]
+    }
 }
 
 struct ProgramFlow: Identifiable {

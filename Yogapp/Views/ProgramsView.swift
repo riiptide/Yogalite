@@ -69,12 +69,11 @@ private struct ProgramCard: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            Image(systemName: program.systemImage)
-                .font(.title2.weight(.bold))
-                .foregroundStyle(FlowDesign.teal)
+            PoseIllustrationView(pose: program.thumbnailPose)
                 .frame(width: 58, height: 58)
                 .background(FlowDesign.paleAqua)
                 .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 8) {
                 Text(program.title)
