@@ -115,6 +115,7 @@ private struct ProgramDetailView: View {
     let program: YogaProgram
     let endWorkoutAction: () -> Void
     @Environment(\.dismiss) private var dismiss
+    private let horizontalPadding: CGFloat = 28
 
     var body: some View {
         ZStack {
@@ -125,7 +126,8 @@ private struct ProgramDetailView: View {
                     header
                     flowList
                 }
-                .padding(FlowDesign.spacing)
+                .padding(.horizontal, horizontalPadding)
+                .padding(.vertical, FlowDesign.spacing)
                 .padding(.bottom, 24)
             }
         }
@@ -192,19 +194,16 @@ private struct ProgramFlowCard: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 12) {
                 VStack(spacing: 4) {
-                    
                     Text("Day")
                         .font(.caption2.weight(.bold))
                         .foregroundStyle(.secondary)
-                    
+
                     Text("\(flow.day)")
                         .font(.headline.weight(.bold))
                         .foregroundStyle(FlowDesign.teal)
                         .frame(width: 38, height: 38)
                         .background(FlowDesign.paleAqua)
                         .clipShape(Circle())
-
-                    
                 }
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Day \(flow.day)")
