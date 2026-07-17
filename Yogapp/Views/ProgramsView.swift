@@ -115,7 +115,7 @@ private struct ProgramDetailView: View {
     let program: YogaProgram
     let endWorkoutAction: () -> Void
     @Environment(\.dismiss) private var dismiss
-    private let horizontalPadding: CGFloat = 28
+    private let horizontalPadding: CGFloat = 32
 
     var body: some View {
         ZStack {
@@ -126,10 +126,10 @@ private struct ProgramDetailView: View {
                     header
                     flowList
                 }
-                .padding(.horizontal, horizontalPadding)
                 .padding(.vertical, FlowDesign.spacing)
                 .padding(.bottom, 24)
             }
+            .safeAreaPadding(.horizontal, horizontalPadding)
         }
         .navigationBarBackButtonHidden()
         .toolbar(.hidden, for: .navigationBar)
@@ -192,29 +192,27 @@ private struct ProgramFlowCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top, spacing: 12) {
-                VStack(spacing: 4) {
-                    Text("Day")
-                        .font(.caption2.weight(.bold))
-                        .foregroundStyle(.secondary)
+            HStack(spacing: 10) {
+                Text("\(flow.day)")
+                    .font(.headline.weight(.bold))
+                    .foregroundStyle(FlowDesign.teal)
+                    .frame(width: 38, height: 38)
+                    .background(FlowDesign.paleAqua)
+                    .clipShape(Circle())
 
-                    Text("\(flow.day)")
-                        .font(.headline.weight(.bold))
-                        .foregroundStyle(FlowDesign.teal)
-                        .frame(width: 38, height: 38)
-                        .background(FlowDesign.paleAqua)
-                        .clipShape(Circle())
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Day \(flow.day)")
-
-                NavigationLink {
-                    SequenceDetailView(sequence: flow.sequence, endWorkoutAction: endWorkoutAction)
-                } label: {
-                    SequenceCard(sequence: flow.sequence)
-                }
-                .buttonStyle(.plain)
+                Text("Day \(flow.day)")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.secondary)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Day \(flow.day)")
+
+            NavigationLink {
+                SequenceDetailView(sequence: flow.sequence, endWorkoutAction: endWorkoutAction)
+            } label: {
+                SequenceCard(sequence: flow.sequence)
+            }
+            .buttonStyle(.plain)
 
             NavigationLink {
                 PracticePlayerView(
