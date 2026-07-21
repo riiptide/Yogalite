@@ -20,13 +20,6 @@ struct ProfileView: View {
         }
     }
 
-    private let settings = [
-        ProfileSetting(title: "Notifications", systemImage: "bell"),
-        ProfileSetting(title: "Reminders", systemImage: "clock"),
-        ProfileSetting(title: "Download flows", systemImage: "arrow.down.to.line"),
-        ProfileSetting(title: "Help & Support", systemImage: "questionmark.circle")
-    ]
-
     private var completedFlowsText: String {
         "\(completionRecords.count)"
     }
@@ -60,7 +53,7 @@ struct ProfileView: View {
                         statsGrid
                         goalsSection
                         recentActivity
-                        settingsSection
+                        profileLinks
                     }
                     .padding(FlowDesign.spacing)
                     .padding(.bottom, 18)
@@ -228,8 +221,12 @@ struct ProfileView: View {
                     }
                     .accessibilityLabel("Replay \(recentActivitySequence.title)")
                 } else {
-                    recentActivityPlayIcon(isEnabled: false)
-                        .accessibilityLabel("Complete a practice to replay it")
+                    Button {} label: {
+                        recentActivityPlayIcon(isEnabled: false)
+                    }
+                    .disabled(true)
+                    .accessibilityLabel("Replay unavailable")
+                    .accessibilityHint("Complete a practice to enable replay")
                 }
             }
             .padding(16)
@@ -249,9 +246,10 @@ struct ProfileView: View {
     private func recentActivityPlayIcon(isEnabled: Bool) -> some View {
         Image(systemName: "play.fill")
             .font(.headline.weight(.bold))
-            .foregroundStyle(.white)
+            .foregroundStyle(isEnabled ? .white : FlowDesign.secondaryText.opacity(0.55))
             .frame(width: 48, height: 48)
-            .background(isEnabled ? FlowDesign.teal : FlowDesign.secondaryText.opacity(0.35))
+            .background(isEnabled ? FlowDesign.teal : FlowDesign.softLine.opacity(0.70))
+            .opacity(isEnabled ? 1 : 0.62)
             .clipShape(Circle())
     }
 
@@ -270,23 +268,26 @@ struct ProfileView: View {
         return "Completed \(dayText) · \(latestCompletion.duration.minutesText)"
     }
 
-    private var settingsSection: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            sectionTitle("Settings")
+    private var privacyPolicyLink: some View {
+        Link(destination: URL(string: "https://splendorous-cobbler-3fd633.netlify.app/")!) {
+            Label("Privacy Policy", systemImage: "lock.shield")
+                .profileLinkStyle()
+        }
+        .accessibilityHint("Opens the Yogalite privacy policy")
+    }
 
-            VStack(spacing: 0) {
-                ForEach(settings) { setting in
-                    ProfileSettingsRow(setting: setting)
-                    if setting.id != settings.last?.id {
-                        Divider()
-                            .padding(.leading, 48)
-                    }
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(Color(.systemBackground).opacity(0.94))
-            .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerLarge, style: .continuous))
+    private var supportLink: some View {
+        Link(destination: URL(string: "https://papaya-buttercream-fe4631.netlify.app/")!) {
+            Label("Support", systemImage: "questionmark.circle")
+                .profileLinkStyle()
+        }
+        .accessibilityHint("Opens Yogalite support")
+    }
+
+    private var profileLinks: some View {
+        VStack(spacing: 10) {
+            privacyPolicyLink
+            supportLink
         }
     }
 
@@ -624,34 +625,6 @@ private struct ProfileStatCard: View {
     }
 }
 
-private struct ProfileSettingsRow: View {
-    let setting: ProfileSetting
-
-    var body: some View {
-        Button {
-        } label: {
-            HStack(spacing: 14) {
-                Image(systemName: setting.systemImage)
-                    .font(.headline.weight(.semibold))
-                    .foregroundStyle(FlowDesign.teal)
-                    .frame(width: 32, height: 32)
-
-                Text(setting.title)
-                    .font(.body)
-                    .foregroundStyle(FlowDesign.text)
-
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.vertical, 13)
-        }
-        .accessibilityLabel(setting.title)
-    }
-}
-
 private struct ProfileGoal: Identifiable {
     let title: String
     var systemImage: String {
@@ -691,12 +664,6 @@ private struct ProfileGoal: Identifiable {
     var id: String { title }
 }
 
-private struct ProfileSetting: Identifiable {
-    let title: String
-    let systemImage: String
-    var id: String { title }
-}
-
 private enum ProfilePhotoProcessor {
     static func preparedImageData(from image: UIImage, cropRect: CGRect, sideLength: CGFloat = 512) -> Data? {
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: sideLength, height: sideLength))
@@ -713,6 +680,18 @@ private enum ProfilePhotoProcessor {
         }
 
         return resizedImage.jpegData(compressionQuality: 0.82)
+    }
+}
+
+private extension View {
+    func profileLinkStyle() -> some View {
+        self
+            .font(.subheadline.weight(.bold))
+            .foregroundStyle(FlowDesign.teal)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(Color(.systemBackground).opacity(0.90))
+            .clipShape(RoundedRectangle(cornerRadius: FlowDesign.cornerMedium, style: .continuous))
     }
 }
 

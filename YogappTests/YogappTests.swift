@@ -108,6 +108,30 @@ struct PracticePlayerViewModelTests {
         #expect(viewModel.remainingTime == 1)
     }
 
+    @Test func previousIsUnavailableAtTheFirstStep() {
+        let now = Date(timeIntervalSinceReferenceDate: 575)
+        let viewModel = PracticePlayerViewModel(sequence: sequence)
+
+        viewModel.start(now: now)
+        viewModel.tick(now: now.addingTimeInterval(1))
+        viewModel.previous(now: now.addingTimeInterval(1.5))
+
+        #expect(!viewModel.canGoToPreviousStep)
+        #expect(viewModel.currentStepIndex == 0)
+        #expect(viewModel.currentRound == 1)
+        #expect(viewModel.remainingTime == 1)
+    }
+
+    @Test func previousBecomesAvailableAfterAdvancing() {
+        let now = Date(timeIntervalSinceReferenceDate: 585)
+        let viewModel = PracticePlayerViewModel(sequence: sequence)
+
+        viewModel.start(now: now)
+        viewModel.next(now: now.addingTimeInterval(0.5))
+
+        #expect(viewModel.canGoToPreviousStep)
+    }
+
     @Test func overallProgressCalculation() {
         let now = Date(timeIntervalSinceReferenceDate: 600)
         let viewModel = PracticePlayerViewModel(sequence: sequence)

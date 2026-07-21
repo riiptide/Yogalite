@@ -37,6 +37,10 @@ final class PracticePlayerViewModel {
         return currentRound < sequence.rounds ? sequence.steps.first : nil
     }
 
+    var canGoToPreviousStep: Bool {
+        currentStepIndex > 0 || currentRound > 1
+    }
+
     var overallProgress: Double {
         if isComplete { return 1 }
         guard totalDuration > 0 else { return 0 }
@@ -91,7 +95,7 @@ final class PracticePlayerViewModel {
     }
 
     func previous(now: Date = Date()) {
-        guard isPlaying, !isComplete else { return }
+        guard isPlaying, !isComplete, canGoToPreviousStep else { return }
         if currentStepIndex > 0 {
             currentStepIndex -= 1
         } else if currentRound > 1 {

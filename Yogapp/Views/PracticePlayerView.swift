@@ -217,9 +217,13 @@ struct PracticePlayerView: View {
                     .font(.title3.weight(.bold))
                     .frame(width: 58, height: 58)
                     .background(Color(.systemBackground))
+                    .foregroundStyle(viewModel.canGoToPreviousStep ? FlowDesign.teal : FlowDesign.secondaryText.opacity(0.42))
+                    .opacity(viewModel.canGoToPreviousStep ? 1 : 0.55)
                     .clipShape(Circle())
             }
+            .disabled(!viewModel.canGoToPreviousStep)
             .accessibilityLabel("Previous step")
+            .accessibilityHint(viewModel.canGoToPreviousStep ? "" : "Unavailable on the first pose")
 
             Button {
                 viewModel.togglePause()

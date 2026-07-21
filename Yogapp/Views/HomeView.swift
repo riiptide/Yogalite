@@ -79,27 +79,6 @@ struct HomeView: View {
                     .font(.body)
                     .foregroundStyle(.secondary)
             }
-
-            Spacer()
-
-            Button {
-            } label: {
-                ZStack(alignment: .topTrailing) {
-                    Image(systemName: "bell")
-                        .font(.headline.weight(.semibold))
-                        .foregroundStyle(FlowDesign.teal)
-                        .frame(width: 48, height: 48)
-                        .background(Color(.systemBackground).opacity(0.88))
-                        .clipShape(Circle())
-                        .shadow(color: .black.opacity(0.06), radius: 12, x: 0, y: 6)
-
-                    Circle()
-                        .fill(FlowDesign.teal)
-                        .frame(width: 9, height: 9)
-                        .offset(x: -8, y: 8)
-                }
-            }
-            .accessibilityLabel("Notifications")
         }
     }
 

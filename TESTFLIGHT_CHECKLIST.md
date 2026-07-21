@@ -11,16 +11,17 @@
 ## App Store Connect
 - Beta app name: `Yogalite`
 - Beta description: `A light, approachable yoga companion with guided flows, timers, audio cues, saved practices, and personalized recommendations.`
-- Feedback email: add the account you want testers to use.
-- Support URL: add a simple public support page before external beta review.
+- Feedback email: `a71gtr@gmail.com`
+- Support URL: `https://papaya-buttercream-fe4631.netlify.app/`
+- Privacy Policy URL: `https://splendorous-cobbler-3fd633.netlify.app/`
 - Marketing URL: optional for TestFlight, useful before public release.
 
 ## Privacy
 - Local profile name and onboarding preferences are stored on-device.
 - Profile photos are selected with the system photo picker and stored on-device.
-- Anonymous product analytics are stored locally on-device and are not linked to identity.
+- Product interaction events are stored locally on-device and are not uploaded.
 - No tracking domains or third-party analytics SDKs are used.
-- Suggested App Privacy data type: Product Interaction, Analytics, not linked to the user, not used for tracking.
+- Suggested App Privacy answer: No, this app does not collect data.
 
 ## Review Notes
 - Yogalite is a general wellness yoga app and does not provide medical advice.
