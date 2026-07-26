@@ -1,0 +1,669 @@
+# Yogalite Project Plan and Product Roadmap
+
+Prepared as a 2021-era product plan, before AI assistants and generative features became common consumer-app expectations.
+
+## 1. Executive Summary
+
+Yogalite is a lightweight iOS yoga companion designed to help people build a gentle, consistent home practice without the pressure, subscriptions, video fatigue, or account-heavy onboarding common in many fitness apps. The product centers on illustrated yoga flows, timed pose guidance, simple audio cues, saved practices, and progress tracking.
+
+The 2021 opportunity is straightforward: many wellness apps are either content-heavy video libraries or habit trackers with limited practice depth. Yogalite can sit between those categories by offering structured, timer-based yoga routines that feel calm, personal, and easy to start.
+
+The first public release should focus on a polished core loop:
+
+- Choose a yoga flow.
+- Review safety notes and sequence steps.
+- Start a guided timer practice.
+- Complete the flow.
+- Save favorites and build lightweight progress history.
+
+Yogalite should avoid scope creep at launch. The app does not need accounts, subscriptions, social sharing, livestreams, or instructor video content to prove its value. The initial product should win on clarity, privacy, speed, and emotional tone.
+
+## 2. Product Vision
+
+Yogalite helps users practice yoga in a way that feels approachable, private, and repeatable. It should feel like opening a calm daily companion rather than entering a marketplace of content.
+
+### Product Principles
+
+1. **Start quickly.** A user should be able to begin a practice within seconds.
+2. **Stay lightweight.** Avoid heavy video downloads, forced accounts, complicated dashboards, and aggressive monetization.
+3. **Respect privacy.** Store preferences and progress locally unless there is a clear user benefit to cloud features later.
+4. **Guide without overwhelming.** Provide enough information to practice safely, but keep screens calm and scannable.
+5. **Support consistency.** Encourage short daily practice, not perfection.
+
+## 3. Target Users
+
+### Primary User: The Gentle Habit Builder
+
+This user wants to stretch, breathe, and move regularly, but does not want a demanding fitness app. They may be newer to yoga or returning after time away.
+
+Needs:
+
+- Short beginner-friendly routines
+- Clear pose timing
+- Low-pressure progress tracking
+- Safety reminders
+- Simple recommendations
+
+Pain points:
+
+- Video classes feel too long
+- Subscription apps feel expensive
+- Social fitness apps feel performative
+- Search-heavy content libraries feel overwhelming
+
+### Secondary User: The Busy At-Home Practitioner
+
+This user has some yoga experience and wants quick flows for specific needs: morning energy, evening wind-down, hips, hamstrings, back care, mobility, and strength.
+
+Needs:
+
+- Filterable flow library
+- Saved favorite practices
+- Multi-day programs
+- Reliable timer and audio cues
+
+Pain points:
+
+- Hard to find the same flow again
+- Videos require too much attention
+- Generic timers lack pose context
+
+## 4. Market Context In 2021
+
+In 2021, the wellness app market is crowded but still has room for focused products. Meditation apps have trained users to expect calm design and guided routines. Fitness apps have trained users to expect large libraries and subscriptions. Yoga apps often depend on instructor videos, which can be effective but also make the product heavier, more expensive to produce, and less private-feeling.
+
+Yogalite should differentiate by being:
+
+- **Illustration-led instead of video-led**
+- **Timer-based instead of class-based**
+- **Local-first instead of account-first**
+- **General wellness focused instead of performance focused**
+- **Simple paid/free app ready instead of subscription-dependent at launch**
+
+## 5. MVP Scope
+
+The MVP should include only the features required to deliver the core practice loop and pass App Store review with a polished experience.
+
+### Required MVP Features
+
+1. **Onboarding**
+   - Ask for display name.
+   - Ask preferred practice time.
+   - Ask yoga experience level.
+   - Ask up to three goals or focus areas.
+   - Store answers locally.
+
+2. **Home**
+   - Time-of-day greeting.
+   - Daily recommended flow.
+   - Two personalized recommendations.
+   - Full flow list.
+
+3. **Explore**
+   - Search flows.
+   - Filter by difficulty.
+   - Filter by duration.
+   - Browse by tags.
+
+4. **Sequence Detail**
+   - Flow title and description.
+   - Difficulty, duration, rounds.
+   - Safety notes.
+   - Step-by-step breakdown.
+   - Favorite/save control.
+   - Start Practice button.
+
+5. **Practice Player**
+   - Intro safety screen.
+   - Countdown before start.
+   - Current pose illustration.
+   - Pose title and instruction.
+   - Breath cue.
+   - Timer circle.
+   - Pause/resume.
+   - Previous and next step.
+   - Round progress.
+   - Completion screen.
+
+6. **Library**
+   - Saved favorite practices.
+   - Empty state.
+   - Navigation back to sequence detail.
+
+7. **Profile**
+   - Display name editing.
+   - Optional profile photo.
+   - Practice stats.
+   - Recent activity.
+   - Privacy Policy link.
+   - Support link.
+
+8. **Privacy And Support**
+   - Hosted privacy policy.
+   - Hosted support page.
+   - App privacy manifest.
+   - App Store Connect privacy answers.
+
+### Explicitly Out Of Scope For MVP
+
+- User accounts
+- Cloud sync
+- Payments or subscriptions
+- Instructor video library
+- Social sharing
+- Community features
+- Push notifications
+- HealthKit integration
+- Apple Watch companion app
+- Personalized algorithmic coaching
+
+## 6. Product Requirements
+
+### Onboarding Requirements
+
+Onboarding should feel short and reassuring. It should not block users with medical questions or ask for unnecessary personal information.
+
+Acceptance criteria:
+
+- User can complete onboarding in under one minute.
+- Name field cannot be empty.
+- Interest selection is optional.
+- Interest selection is limited to three choices.
+- Preferences persist after app restart.
+
+### Practice Player Requirements
+
+The practice player is the most important product surface. It must be stable, predictable, and review-safe.
+
+Acceptance criteria:
+
+- Timer starts only after countdown.
+- Pause stops timer progression.
+- Resume continues from the same remaining time.
+- Previous is disabled on the first pose.
+- Next advances to the next step or completion.
+- End exits cleanly.
+- Completion is recorded once per completed practice.
+- Screen remains awake during active practice.
+- Audio narration stops when practice ends or app backgrounds.
+
+### Profile Requirements
+
+The profile screen should contain only working, review-safe controls.
+
+Acceptance criteria:
+
+- Edit name opens editable sheet.
+- Profile photo picker opens system picker.
+- Recent activity replay is enabled only when a completed practice exists.
+- Privacy Policy link opens hosted privacy policy.
+- Support link opens hosted support page.
+- No decorative element should appear tappable unless it has a real action or is clearly disabled.
+
+## 7. Technical Architecture
+
+Yogalite should use a simple native iOS architecture:
+
+- SwiftUI for UI
+- SwiftData for saved/completed practice records
+- AppStorage/UserDefaults for lightweight preferences
+- Static Swift data files for yoga content
+- Asset catalog for pose illustrations
+- AVSpeechSynthesizer for local narration
+- Local file storage for product interaction events
+
+### Architectural Goals
+
+1. Keep the app offline-capable.
+2. Keep data ownership local.
+3. Keep the content model easy to expand.
+4. Keep the practice player testable.
+5. Avoid dependencies unless they clearly reduce risk.
+
+### Key Modules
+
+| Area | Responsibility |
+|---|---|
+| Models | Core types such as poses, sequences, steps, programs |
+| Data | Static yoga flows and program definitions |
+| Views | Screens and navigation |
+| Components | Reusable UI pieces |
+| ViewModels | Practice player state and timing logic |
+| Persistence | Saved practices, completion records, local analytics |
+| Services | Speech narration and countdown sounds |
+| DesignSystem | Shared colors, spacing, corner radius |
+
+## 8. Development Plan
+
+### Phase 1: Foundation
+
+Duration: 1-2 weeks
+
+Goals:
+
+- Establish project structure.
+- Define yoga data models.
+- Build design system.
+- Add first set of pose assets.
+- Create initial static sequence data.
+
+Deliverables:
+
+- App shell
+- Tab navigation
+- Design tokens
+- Core model types
+- Starter flow library
+
+Risks:
+
+- Pose content may grow messy without consistent naming.
+- Asset naming must stay aligned with model data.
+
+### Phase 2: Browse And Detail Experience
+
+Duration: 1-2 weeks
+
+Goals:
+
+- Build Home, Explore, Library, Programs, and Sequence Detail screens.
+- Implement search and filtering.
+- Implement favorite/save behavior.
+
+Deliverables:
+
+- Home recommendations
+- Explore filters
+- Sequence detail tabs
+- Favorite persistence
+- Empty states
+
+Risks:
+
+- Too many decorative cards could make the app feel busy.
+- Navigation paths need to return users cleanly after practice.
+
+### Phase 3: Practice Player
+
+Duration: 2-3 weeks
+
+Goals:
+
+- Implement the timed practice engine.
+- Add pause/resume/previous/next.
+- Add countdown and completion.
+- Add narration.
+- Record completed practices.
+
+Deliverables:
+
+- Practice player view model
+- Practice player UI
+- Completion screen
+- Local completion history
+- Unit tests for timing and navigation behavior
+
+Risks:
+
+- Timer bugs are easy to miss.
+- Background/foreground behavior can cause state drift.
+- Disabled controls must be visually clear.
+
+### Phase 4: Profile And Personalization
+
+Duration: 1-2 weeks
+
+Goals:
+
+- Build onboarding.
+- Store user preferences.
+- Show profile stats.
+- Add profile photo picker/crop.
+- Add privacy and support links.
+
+Deliverables:
+
+- Onboarding flow
+- Profile screen
+- Stats cards
+- Recent activity
+- Privacy/support links
+
+Risks:
+
+- Profile photo behavior must use system-safe APIs.
+- App Review may reject any unresponsive settings-like controls.
+
+### Phase 5: App Store Readiness
+
+Duration: 1 week
+
+Goals:
+
+- Run QA pass.
+- Remove placeholder or nonfunctional UI.
+- Confirm privacy policy and support URL.
+- Prepare App Store metadata.
+- Run tests and Release build.
+
+Deliverables:
+
+- App Store screenshots
+- Privacy policy
+- Support page
+- App privacy answers
+- TestFlight checklist
+- Review notes
+
+Risks:
+
+- Stale screenshots may show removed UI.
+- Privacy answers must match app behavior exactly.
+- App Review may tap every visible button.
+
+## 9. Quality Assurance Plan
+
+### Functional QA Checklist
+
+- Complete onboarding from fresh install.
+- Start practice from Home.
+- Start practice from Explore.
+- Start practice from Program detail.
+- Save and unsave a practice.
+- Verify Library updates.
+- Complete a practice.
+- Verify Profile stats update.
+- Replay recent activity.
+- Test empty Profile recent activity state.
+- Test pause/resume.
+- Test previous on first pose.
+- Test next through final step.
+- Test ending a workout.
+- Test app backgrounding during practice.
+- Test Privacy Policy link.
+- Test Support link.
+
+### App Review QA Checklist
+
+- No dead buttons.
+- No placeholder settings.
+- No broken external links.
+- No hidden account requirement.
+- No misleading privacy copy.
+- No medical claims.
+- No subscription copy if no purchase flow exists.
+- No notification controls unless notifications are implemented.
+- No support/download/reminder controls unless they work.
+
+### Automated Testing Priorities
+
+- Practice player step advancement.
+- Pause/resume timing.
+- Round advancement.
+- Completion state.
+- Previous unavailable at first step.
+- Recommendation stability.
+- Daily flow rotation.
+- Preference encoding.
+- Local analytics day-key calculation.
+
+## 10. Launch Plan
+
+### TestFlight Launch
+
+Audience:
+
+- 5-15 friendly testers
+- People with different yoga experience levels
+- At least one reviewer focused on accessibility/readability
+
+Goals:
+
+- Confirm onboarding clarity.
+- Confirm practice player timing.
+- Find confusing navigation.
+- Check whether safety notes feel adequate.
+- Validate App Store metadata before public release.
+
+### Public App Store Launch
+
+Required assets:
+
+- App icon
+- Screenshots
+- Subtitle
+- Description
+- Keywords
+- Support URL
+- Privacy Policy URL
+- Review notes
+- App privacy answers
+
+Launch messaging:
+
+- Gentle daily yoga
+- Timer-based illustrated flows
+- No account required
+- Private and lightweight
+- Beginner-friendly routines
+
+## 11. Product Roadmap
+
+### Version 1.0: Launch
+
+Theme: Core practice loop
+
+Features:
+
+- Onboarding
+- Home recommendations
+- Explore and filtering
+- Programs
+- Saved practices
+- Practice player
+- Completion tracking
+- Profile stats
+- Privacy/support pages
+
+Success criteria:
+
+- App approved by App Review.
+- No major crashes.
+- Users can complete a practice without confusion.
+- Testers understand the value proposition within one session.
+
+### Version 1.1: Polish And Retention
+
+Theme: Make daily practice easier to return to
+
+Candidate features:
+
+- Program progress tracking
+- Continue next program day
+- More explicit streak UI
+- Recently viewed flows
+- Improved empty states
+- Better iPad layout
+- More beginner flows
+
+Success criteria:
+
+- More users complete a second practice.
+- Library and Programs feel more useful.
+- Fewer users abandon before starting practice.
+
+### Version 1.2: Personalization
+
+Theme: Better matching without accounts or cloud data
+
+Candidate features:
+
+- Preference editing after onboarding
+- Goal-based shelves on Home
+- Duration-based quick-start chips
+- Better local recommendation logic
+- Favorite tag shortcuts
+- Practice time suggestions
+
+Success criteria:
+
+- Users find relevant flows faster.
+- Explore search/filter usage decreases because Home is more useful.
+
+### Version 1.3: Accessibility And Inclusivity
+
+Theme: Make the app usable for more bodies and contexts
+
+Candidate features:
+
+- Larger text layout refinements
+- VoiceOver pass
+- More chair-friendly flows
+- More restorative alternatives
+- Pose modification notes
+- High-contrast improvements
+
+Success criteria:
+
+- Better accessibility QA results.
+- Fewer support requests about unclear poses.
+
+### Version 1.4: Content Expansion
+
+Theme: More reasons to return
+
+Candidate features:
+
+- Additional programs
+- More 5-minute flows
+- More evening wind-down flows
+- Back care collection
+- Desk mobility collection
+- Strength and balance collections
+
+Success criteria:
+
+- Higher repeat practice rate.
+- More saved flows per user.
+
+### Version 2.0: Optional Premium Direction
+
+Theme: Monetization without harming trust
+
+Possible approaches:
+
+- One-time paid upgrade for expanded programs
+- Tip jar
+- Paid content packs
+- No forced account for purchase
+
+Avoid:
+
+- Aggressive subscriptions
+- Locking basic safety or core practice features
+- Dark-pattern paywalls
+
+Success criteria:
+
+- Revenue path exists.
+- Free experience remains honest and useful.
+
+## 12. Metrics
+
+Because Yogalite is local-first, metrics should be lightweight and privacy-conscious.
+
+### Product Metrics
+
+- Completed practices
+- Favorite adds/removes
+- Days active
+- Seven-day retention marker
+- Thirty-day retention marker
+- Possible crash indicator
+
+### Qualitative Metrics
+
+- TestFlight feedback
+- App Store reviews
+- Support emails
+- User comments about clarity, calmness, and usefulness
+
+### Launch Health Targets
+
+- First practice completion rate: 50% or higher among testers
+- Crash-free usage: no known launch blockers
+- App Store rating after first reviews: 4.0+
+- Support response time: within 48 hours
+
+## 13. Risks And Mitigations
+
+| Risk | Impact | Mitigation |
+|---|---:|---|
+| App Review rejects dead controls | High | Remove or disable all nonfunctional UI |
+| Timer state bugs | High | Unit test practice player state transitions |
+| Privacy mismatch | High | Keep manifest, policy, and App Store answers aligned |
+| Medical claims concern | Medium | Use general wellness language and safety notes |
+| Content feels too thin | Medium | Launch with enough varied flows and programs |
+| Users miss support/privacy links | Medium | Place both in Profile and App Store metadata |
+| Profile photo permission concern | Low | Use system photo picker and store image locally |
+
+## 14. Staffing And Roles
+
+For a small 2021 indie build, Yogalite can be produced by a compact team:
+
+- Product/design owner
+- iOS engineer
+- Yoga content reviewer
+- QA tester
+- App Store submission owner
+
+If solo-built, the minimum outside review should include:
+
+- One yoga-knowledgeable reviewer
+- One nontechnical tester
+- One accessibility/readability tester
+
+## 15. Timeline
+
+### Eight-Week MVP Timeline
+
+| Week | Focus | Output |
+|---|---|---|
+| 1 | Models, design system, app shell | Core structure |
+| 2 | Static flow data and assets | First usable content |
+| 3 | Home, Explore, Detail | Browsing experience |
+| 4 | Practice player engine | Timed practice loop |
+| 5 | Player polish and tests | Stable workout flow |
+| 6 | Onboarding, Profile, Library | Personal/local state |
+| 7 | Programs, support/privacy, QA | App Store readiness |
+| 8 | TestFlight, fixes, submission | Public release candidate |
+
+## 16. Definition Of Done
+
+Yogalite 1.0 is ready to submit when:
+
+- A fresh user can complete onboarding.
+- A fresh user can start and complete a practice.
+- All visible controls either work or are clearly disabled.
+- Tests pass.
+- Release build succeeds.
+- Support URL works.
+- Privacy Policy URL works.
+- Privacy manifest matches actual app behavior.
+- App Store privacy answers match the policy.
+- No screenshots show outdated UI.
+- Review notes are accurate.
+
+## 17. Long-Term Vision
+
+Yogalite should become a calm daily yoga companion for people who want movement without noise. It does not need to become a social network, a video platform, or a data-heavy coaching product. The strongest version of Yogalite is focused, private, and habit-forming.
+
+The roadmap should continue to prioritize:
+
+- Better routines
+- Better timing
+- Better accessibility
+- Better local personalization
+- Better trust
+
+If Yogalite grows, it should grow by becoming more useful, not heavier.
