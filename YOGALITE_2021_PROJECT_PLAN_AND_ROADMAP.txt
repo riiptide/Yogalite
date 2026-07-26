@@ -1,669 +1,1527 @@
-# Yogalite Project Plan and Product Roadmap
+YOGALITE 2021 CODING PROJECT PLAN
+Detailed implementation plan for building all Yogalite features in a pre-AI iOS product environment.
 
-Prepared as a 2021-era product plan, before AI assistants and generative features became common consumer-app expectations.
+Document purpose:
+This is a developer-facing implementation roadmap. It describes what to code, in what order, which modules/files to create, which data structures to define, how screens should connect, and what tests should exist before release.
 
-## 1. Executive Summary
+Target platform:
+- iOS app
+- Swift
+- SwiftUI
+- Local-first storage
+- No backend for version 1.0
+- No AI or generative features
 
-Yogalite is a lightweight iOS yoga companion designed to help people build a gentle, consistent home practice without the pressure, subscriptions, video fatigue, or account-heavy onboarding common in many fitness apps. The product centers on illustrated yoga flows, timed pose guidance, simple audio cues, saved practices, and progress tracking.
 
-The 2021 opportunity is straightforward: many wellness apps are either content-heavy video libraries or habit trackers with limited practice depth. Yogalite can sit between those categories by offering structured, timer-based yoga routines that feel calm, personal, and easy to start.
+1. PROJECT SETUP
+================
 
-The first public release should focus on a polished core loop:
+Goal:
+Create a clean native iOS project foundation that can support a complete yoga practice app without needing server infrastructure.
 
-- Choose a yoga flow.
-- Review safety notes and sequence steps.
-- Start a guided timer practice.
-- Complete the flow.
-- Save favorites and build lightweight progress history.
+Implementation tasks:
 
-Yogalite should avoid scope creep at launch. The app does not need accounts, subscriptions, social sharing, livestreams, or instructor video content to prove its value. The initial product should win on clarity, privacy, speed, and emotional tone.
+1. Create Xcode project.
+   - App name: Yogalite
+   - Internal target name may remain Yogapp if already created.
+   - Bundle identifier: com.riiptide.Yogapp
+   - Deployment target: iOS 18 or chosen minimum iOS version.
+   - Interface: SwiftUI.
+   - Language: Swift.
 
-## 2. Product Vision
+2. Create folder structure.
+   - Yogapp/
+     - Components/
+     - Data/
+     - DesignSystem/
+     - Models/
+     - Persistence/
+     - Services/
+     - ViewModels/
+     - Views/
+     - Assets.xcassets/
+   - YogappTests/
+   - YogappUITests/
 
-Yogalite helps users practice yoga in a way that feels approachable, private, and repeatable. It should feel like opening a calm daily companion rather than entering a marketplace of content.
+3. Create design system file.
+   - File: Yogapp/DesignSystem/FlowDesign.swift
+   - Define core colors.
+   - Define spacing constants.
+   - Define corner radius constants.
+   - Keep color palette calm, warm, and readable.
 
-### Product Principles
+4. Set app shell.
+   - File: Yogapp/YogappApp.swift
+   - Add WindowGroup.
+   - Load ContentView.
+   - Configure SwiftData model container.
+   - Prefer light mode for first release if dark mode is not fully polished.
 
-1. **Start quickly.** A user should be able to begin a practice within seconds.
-2. **Stay lightweight.** Avoid heavy video downloads, forced accounts, complicated dashboards, and aggressive monetization.
-3. **Respect privacy.** Store preferences and progress locally unless there is a clear user benefit to cloud features later.
-4. **Guide without overwhelming.** Provide enough information to practice safely, but keep screens calm and scannable.
-5. **Support consistency.** Encourage short daily practice, not perfection.
+5. Add root view.
+   - File: Yogapp/ContentView.swift
+   - Decide between onboarding and main tabs.
+   - Use @AppStorage("didCompleteOnboarding").
+   - Add TabView after onboarding.
 
-## 3. Target Users
+Acceptance criteria:
+- App launches successfully.
+- App can show onboarding or tab UI based on local state.
+- Folder structure is clear and stable.
+- Tests target can import app module.
 
-### Primary User: The Gentle Habit Builder
 
-This user wants to stretch, breathe, and move regularly, but does not want a demanding fitness app. They may be newer to yoga or returning after time away.
+2. CORE MODELS
+==============
 
-Needs:
+Goal:
+Define the domain model for yoga content and practice playback.
 
-- Short beginner-friendly routines
-- Clear pose timing
-- Low-pressure progress tracking
-- Safety reminders
-- Simple recommendations
+Implementation file:
+- Yogapp/Models/YogaModels.swift
 
-Pain points:
+Data types to create:
 
-- Video classes feel too long
-- Subscription apps feel expensive
-- Social fitness apps feel performative
-- Search-heavy content libraries feel overwhelming
+1. Pose
+   Fields:
+   - id: String
+   - name: String
+   - assetName: String
 
-### Secondary User: The Busy At-Home Practitioner
+   Purpose:
+   Represents a yoga pose and points to its illustration in the asset catalog.
 
-This user has some yoga experience and wants quick flows for specific needs: morning energy, evening wind-down, hips, hamstrings, back care, mobility, and strength.
+2. YogaSequence
+   Fields:
+   - id: String
+   - title: String
+   - subtitle: String
+   - difficulty: String
+   - rounds: Int
+   - tags: [String]
+   - safetyNotes: [String]
+   - onboardingNote: String
+   - steps: [PracticeStep]
 
-Needs:
+   Computed values:
+   - estimatedDuration: TimeInterval
+   - estimatedMinutes: Int
 
-- Filterable flow library
-- Saved favorite practices
-- Multi-day programs
-- Reliable timer and audio cues
+   Purpose:
+   Represents one complete yoga routine.
 
-Pain points:
+3. PracticeStep
+   Fields:
+   - id: String
+   - kind: PracticeStepKind
+   - title: String
+   - startPose: Pose
+   - endPose: Pose?
+   - duration: TimeInterval
+   - breathCue: BreathCue
+   - instruction: String
+   - side: PracticeSide
+   - endSide: PracticeSide
 
-- Hard to find the same flow again
-- Videos require too much attention
-- Generic timers lack pose context
+   Purpose:
+   Represents either a timed hold or a transition from one pose to another.
 
-## 4. Market Context In 2021
+4. PracticeStepKind
+   Cases:
+   - hold
+   - transition
 
-In 2021, the wellness app market is crowded but still has room for focused products. Meditation apps have trained users to expect calm design and guided routines. Fitness apps have trained users to expect large libraries and subscriptions. Yoga apps often depend on instructor videos, which can be effective but also make the product heavier, more expensive to produce, and less private-feeling.
+5. BreathCue
+   Cases:
+   - inhale
+   - exhale
+   - natural
 
-Yogalite should differentiate by being:
+6. PracticeSide
+   Cases:
+   - none
+   - left
+   - right
 
-- **Illustration-led instead of video-led**
-- **Timer-based instead of class-based**
-- **Local-first instead of account-first**
-- **General wellness focused instead of performance focused**
-- **Simple paid/free app ready instead of subscription-dependent at launch**
+7. YogaProgram
+   Fields:
+   - id: String
+   - title: String
+   - subtitle: String
+   - systemImage: String
+   - flows: [ProgramFlow]
 
-## 5. MVP Scope
+8. ProgramFlow
+   Fields:
+   - id: String
+   - day: Int
+   - sequence: YogaSequence
 
-The MVP should include only the features required to deliver the core practice loop and pass App Store review with a polished experience.
+Acceptance criteria:
+- Models compile without depending on UI code.
+- Sequence duration can be calculated from steps and rounds.
+- Models are Identifiable where needed by SwiftUI ForEach.
 
-### Required MVP Features
+Tests:
+- Round text formatting.
+- Duration/minutes formatting.
+- PracticeSide display text.
 
-1. **Onboarding**
-   - Ask for display name.
-   - Ask preferred practice time.
-   - Ask yoga experience level.
-   - Ask up to three goals or focus areas.
-   - Store answers locally.
 
-2. **Home**
-   - Time-of-day greeting.
-   - Daily recommended flow.
-   - Two personalized recommendations.
-   - Full flow list.
+3. STATIC YOGA CONTENT LIBRARY
+==============================
 
-3. **Explore**
-   - Search flows.
-   - Filter by difficulty.
-   - Filter by duration.
-   - Browse by tags.
+Goal:
+Build the app's complete offline yoga flow library.
 
-4. **Sequence Detail**
-   - Flow title and description.
-   - Difficulty, duration, rounds.
-   - Safety notes.
-   - Step-by-step breakdown.
-   - Favorite/save control.
-   - Start Practice button.
+Implementation files:
+- Yogapp/Data/SunSalutationData.swift
+- Yogapp/Data/YogaProgramData.swift
 
-5. **Practice Player**
-   - Intro safety screen.
-   - Countdown before start.
-   - Current pose illustration.
-   - Pose title and instruction.
-   - Breath cue.
-   - Timer circle.
-   - Pause/resume.
-   - Previous and next step.
-   - Round progress.
-   - Completion screen.
+Implementation tasks:
 
-6. **Library**
-   - Saved favorite practices.
+1. Define reusable poses.
+   - Create static Pose constants.
+   - Ensure each pose has a matching image asset name.
+   - Examples:
+     - mountain
+     - upwardSalute
+     - forwardFold
+     - downwardDog
+     - childPose
+     - easyPose
+     - warriorOne
+     - warriorTwo
+     - bridge
+     - corpse
+
+2. Define helper constructors.
+   - flowHold(...)
+   - move(...)
+   - Any helper should reduce repetitive PracticeStep construction.
+
+3. Define YogaSequence values.
+   Each sequence should include:
+   - id
+   - title
+   - subtitle
+   - difficulty
+   - rounds
+   - tags
+   - safety notes
+   - onboarding note
+   - steps
+
+4. Create allSequences array.
+   - This is the source of truth for the app library.
+   - Used by Home, Explore, Library, Programs, TagFlows, and persistence lookups.
+
+5. Define programs.
+   - File: YogaProgramData.swift
+   - Create program groupings by goal.
+   - Examples:
+     - 7-Day Gentle Reset
+     - Morning Mobility
+     - Better Sleep
+     - Beginner Strength
+
+Acceptance criteria:
+- Every sequence has at least one step.
+- Every sequence has at least one safety note.
+- Every pose assetName matches an asset in Assets.xcassets.
+- allSequences contains no duplicate IDs.
+- Program flows point to sequences that exist.
+
+Tests:
+- allSequences IDs are unique.
+- allSequences is not empty.
+- each sequence has steps.
+- each sequence has positive estimated duration.
+- each program has at least one flow.
+
+
+4. ASSET SYSTEM AND POSE ILLUSTRATIONS
+======================================
+
+Goal:
+Render pose illustrations consistently throughout the app.
+
+Implementation files:
+- Yogapp/Assets.xcassets
+- Yogapp/Components/PoseIllustrationView.swift
+
+Implementation tasks:
+
+1. Add pose images to asset catalog.
+   - Use lowercase snake_case names.
+   - Match model assetName values exactly.
+
+2. Create PoseIllustrationView.
+   Inputs:
+   - pose: Pose
+   - side: PracticeSide, default .none
+   - isBreathing: Bool, default false
+
+3. Render image by asset name.
+   - Use Image(pose.assetName)
+   - Make resizable and scaled to fit.
+
+4. Support side-aware display.
+   - If side is left/right and the artwork supports mirroring, horizontally flip when needed.
+
+5. Support subtle breathing animation.
+   - Only animate during active practice.
+   - Keep animation gentle.
+
+Acceptance criteria:
+- Pose images render in Home cards.
+- Pose images render in Sequence Detail step rows.
+- Pose images render in Practice Player.
+- Missing assets are found during QA, not hidden behind blank UI.
+
+Tests:
+- Optional static validation script can compare asset names against pose references.
+
+
+5. DESIGN SYSTEM AND REUSABLE COMPONENTS
+========================================
+
+Goal:
+Create reusable UI building blocks so screens feel consistent and code stays maintainable.
+
+Implementation files:
+- Yogapp/DesignSystem/FlowDesign.swift
+- Yogapp/Components/PrimaryButton.swift
+- Yogapp/Components/SequenceCard.swift
+- Yogapp/Components/SequenceTagBadge.swift
+- Yogapp/Components/MetadataLabel.swift
+- Yogapp/Components/BreathBadge.swift
+- Yogapp/Components/CircularCountdownView.swift
+- Yogapp/Components/SafetyNotice.swift
+- Yogapp/Components/StepRow.swift
+- Yogapp/Components/FlowLayout.swift
+
+Component tasks:
+
+1. FlowDesign
+   - Define background color.
+   - Define text color.
+   - Define secondary text color.
+   - Define teal/accent color.
+   - Define pale aqua color.
+   - Define soft line color.
+   - Define spacing.
+   - Define corner radii.
+
+2. PrimaryButton
+   - Reusable high-emphasis button.
+   - Supports title, system image, and action.
+   - Supports disabled visual state.
+
+3. SequenceCard
+   - Shows pose thumbnail, title, subtitle, metadata.
+   - Used in Home, Explore, Library, Programs, TagFlows.
+   - Should not contain navigation itself; parent decides navigation.
+
+4. SequenceTagBadge
+   - Displays tag text with consistent capsule styling.
+
+5. MetadataLabel
+   - Small icon + text used for duration, rounds, difficulty.
+
+6. BreathBadge
+   - Displays inhale/exhale/natural cue.
+
+7. CircularCountdownView
+   - Renders timer ring and remaining seconds.
+   - Handles zero-duration edge cases.
+
+8. SafetyNotice
+   - General wellness reminder.
+   - Used in onboarding and practice intro.
+
+9. StepRow
+   - Displays sequence step number, pose title, duration, breath cue.
+
+10. FlowLayout
+   - Wraps tags/goals into multiple rows.
+
+Acceptance criteria:
+- Components are generic enough to reuse.
+- No component directly depends on global screen navigation.
+- Text scales or wraps without clipping on small phones.
+
+
+6. LOCAL PERSISTENCE
+====================
+
+Goal:
+Store user preferences, saved practices, and completed practice history locally.
+
+Implementation files:
+- Yogapp/Persistence/PersistentModels.swift
+- Yogapp/Persistence/ProductAnalytics.swift
+- Yogapp/YogappApp.swift
+
+SwiftData models:
+
+1. SavedPracticeRecord
+   Fields:
+   - sequenceID: String
+   - savedAt: Date
+
+2. PracticeCompletionRecord
+   Fields:
+   - sequenceID: String
+   - sequenceTitle: String
+   - completedAt: Date
+   - duration: TimeInterval
+   - rounds: Int
+
+Computed collection helpers:
+   - totalMinutesPracticed
+   - dayStreak
+
+AppStorage keys:
+- didCompleteOnboarding
+- profileDisplayName
+- preferredPracticeTime
+- yogaExperienceLevel
+- selectedPracticeTags
+- profilePhotoData
+- didSeedSavedPractices
+
+ProductAnalytics:
+Local-only event recording.
+
+Events:
+- dailyActiveUser
+- practiceCompleted
+- favoriteFlowAdded
+- favoriteFlowRemoved
+- retainedAfterSevenDays
+- retainedAfterThirtyDays
+- possibleCrash
+
+Storage:
+- JSONL file in Application Support.
+- Do not upload data.
+- Do not add third-party analytics SDK.
+
+Acceptance criteria:
+- Saved practices persist after app restart.
+- Completed practices persist after app restart.
+- Profile stats calculate from completion records.
+- Local analytics do not require network access.
+
+Tests:
+- dayKey uses supplied calendar.
+- retention milestones appear after 7 and 30 local days.
+- streak calculation handles consecutive days.
+- total minutes calculation works.
+
+
+7. ONBOARDING
+=============
+
+Goal:
+Collect minimal local preferences and personalize first-run experience.
+
+Implementation file:
+- Yogapp/Views/OnboardingView.swift
+
+Supporting type:
+- OnboardingPreferences, likely in OnboardingView.swift or a separate model file.
+
+Screens:
+
+1. Welcome
+   - Introduce Yogalite.
+   - Continue button.
+
+2. Name
+   - TextField for display name.
+   - User cannot continue with empty name.
+   - Store in profileDisplayName.
+
+3. Practice Time
+   - Morning, Afternoon, Evening, Night.
+   - Store selected preference.
+
+4. Experience
+   - Beginner, Some Experience, Experienced.
+   - Store selected experience.
+
+5. Goals/Interests
+   - Select up to 3.
+   - Continue allowed with zero selections.
+   - Store encoded tags.
+
+Implementation tasks:
+- Build progress indicator.
+- Build reusable choice button.
+- Scroll focused name field into view.
+- Add bottom safe-area footer with Continue/Back.
+- Complete onboarding by setting didCompleteOnboarding true.
+
+Acceptance criteria:
+- Fresh install opens onboarding.
+- Completed onboarding opens main tabs.
+- Restarting app keeps onboarding complete.
+- Selected interests affect recommendations.
+
+Tests:
+- selected tags round-trip through storage string.
+- can select no more than 3 tags.
+
+
+8. MAIN TAB SHELL
+=================
+
+Goal:
+Provide five primary app destinations.
+
+Implementation file:
+- Yogapp/ContentView.swift
+
+Tabs:
+1. Home
+2. Explore
+3. Programs
+4. Library
+5. Profile
+
+Implementation tasks:
+- Use TabView.
+- Use Label for each tab.
+- Apply FlowDesign.teal tint.
+- Each tab owns its own NavigationStack.
+
+Acceptance criteria:
+- All tabs load.
+- Deep navigation inside one tab does not break other tabs.
+- Practice completion returns to the correct root when needed.
+
+
+9. HOME SCREEN
+==============
+
+Goal:
+Give the user a fast path into today's practice and personalized recommendations.
+
+Implementation file:
+- Yogapp/Views/HomeView.swift
+
+Supporting types:
+- TimeOfDayGreeting
+- DailyFlowSelector
+- RecommendedFlowSelector
+- HomeRoute
+
+UI sections:
+1. Greeting
+   - "Good morning", "Good afternoon", etc.
+   - Include stored display name if present.
+   - Use time-of-day icon.
+
+2. Today's Flow Card
+   - Shows selectedDailySequence.
+   - NavigationLink to SequenceDetailView.
+   - Contains Start Practice visual label.
+
+3. Recommended For You
+   - Two recommended sequences.
+   - Based on selected onboarding tags.
+   - Exclude daily sequence.
+
+4. All Flows
+   - Full list of sequences.
+   - NavigationLink to SequenceDetailView.
+
+Implementation tasks:
+- Remove any notification button until notifications are real.
+- Make whole card tappable where appropriate.
+- Avoid decorative controls that look tappable.
+
+Acceptance criteria:
+- Tapping daily flow opens detail.
+- Tapping recommendation opens detail.
+- Tapping all flow opens detail.
+- No dead notification button exists.
+
+Tests:
+- Morning starts at 5.
+- Afternoon starts at noon.
+- Evening starts at 5 PM.
+- Night covers late and early hours.
+- Daily flow stable for same local day.
+- Daily flow changes on next local day.
+- Recommendations prefer selected tags and exclude daily flow.
+
+
+10. EXPLORE SCREEN
+==================
+
+Goal:
+Allow users to search and filter the flow library.
+
+Implementation file:
+- Yogapp/Views/ExploreView.swift
+
+Supporting types:
+- ExploreRoute
+- ExploreTag
+- ExploreTagType
+- TimeRange
+- FilterMenuButton
+- ExploreTagButton
+
+UI sections:
+1. Search field
+   - Search title, subtitle, tags, difficulty, duration.
+   - Clear search button appears only when text is nonempty.
+
+2. Tag shelf
+   - Featured tags.
+   - Tag counts.
+   - Clear tag button appears only when selected.
+
+3. Filters
+   - Difficulty menu.
+   - Duration menu.
+
+4. Results
+   - Show matching count.
+   - Show SequenceCard rows.
+   - Empty state when no match.
+
+Implementation tasks:
+- Normalize search strings.
+- Normalize em/en dashes.
+- Avoid duplicate difficulty options.
+- Exclude "Gentle" from difficulty menu if product language wants Beginner/Intermediate style.
+
+Acceptance criteria:
+- Search filters instantly.
+- Clear search works.
+- Tag select/toggle works.
+- Difficulty filter works.
+- Duration filter works.
+- Empty state is clear.
+
+Tests:
+- Filtering by tag returns expected flows.
+- Empty library returns empty results.
+
+
+11. SEQUENCE DETAIL SCREEN
+==========================
+
+Goal:
+Let users inspect a flow before starting.
+
+Implementation file:
+- Yogapp/Views/SequenceDetailView.swift
+
+Supporting types:
+- DetailTab
+
+UI sections:
+1. Header
+   - Back button.
+   - Favorite button.
+   - Title and subtitle.
+   - Metadata and tags.
+
+2. Tabs
+   - Overview
+   - Sequence
+   - Benefits
+
+3. Overview
+   - Onboarding note.
+   - Safety notes panel.
+
+4. Sequence
+   - Step breakdown.
+   - Round count.
+
+5. Benefits
+   - Short static benefits text.
+
+6. Sticky Start Practice button
+   - NavigationLink to PracticePlayerView.
+
+Implementation tasks:
+- Use SwiftData @Query for saved records.
+- Implement toggleFavorite.
+- Record local analytics on favorite add/remove.
+- Tags navigate to TagFlowsView.
+- Hide default navigation bar if custom back button is used.
+
+Acceptance criteria:
+- Back button dismisses.
+- Favorite toggles and persists.
+- Tag tap opens matching tag view.
+- Start Practice opens practice player.
+- Sticky button does not cover content.
+
+Tests:
+- Favorite add inserts record.
+- Favorite remove deletes record.
+- Sequence detail can resolve saved state.
+
+
+12. TAG FLOWS SCREEN
+====================
+
+Goal:
+Show all flows matching a selected difficulty or tag.
+
+Implementation file:
+- Yogapp/Views/TagFlowsView.swift
+
+UI sections:
+1. Header
+   - Back button.
+   - Selected tag badge.
+   - Title.
+   - Count subtitle.
+
+2. Results
+   - Matching SequenceCards.
+   - Start Practice button for each card.
+   - Empty state if no matches.
+
+Implementation tasks:
+- Match against difficulty and tags.
+- Normalize case and dash characters.
+- Pass endWorkoutAction into nested detail/player screens.
+
+Acceptance criteria:
+- Back button dismisses.
+- Matching flows render.
+- Detail navigation works.
+- Start Practice navigation works.
+
+
+13. PROGRAMS SCREEN
+===================
+
+Goal:
+Offer multi-day guided paths made from existing flows.
+
+Implementation file:
+- Yogapp/Views/ProgramsView.swift
+
+Supporting views:
+- ProgramCard
+- ProgramDetailView
+- ProgramFlowCard
+
+UI sections:
+1. Programs list
+   - Header.
+   - Program cards.
+
+2. Program detail
+   - Back button.
+   - Program metadata.
+   - List of day flows.
+   - Detail link for each flow.
+   - Start Practice button for each flow.
+
+Implementation tasks:
+- Use NavigationStack with ProgramsRoute.
+- Use static YogaProgramData.
+- Return to programs root after workout completion if needed.
+
+Acceptance criteria:
+- Tapping program opens detail.
+- Tapping day flow card opens sequence detail.
+- Tapping start practice opens player.
+- End workout returns predictably.
+
+Future enhancement:
+- Track program day completion.
+- Add "Continue Day X" CTA.
+
+
+14. LIBRARY SCREEN
+==================
+
+Goal:
+Show saved practices and let users return to them quickly.
+
+Implementation file:
+- Yogapp/Views/LibraryView.swift
+
+Supporting types:
+- LibraryRoute
+- SavedPractice
+- LibraryStatCard
+- SavedPracticeCard
+
+UI sections:
+1. Header
+2. Summary stats
+   - Saved count.
+   - Total minutes.
+3. Saved list
+   - Sequence cards.
    - Empty state.
-   - Navigation back to sequence detail.
 
-7. **Profile**
-   - Display name editing.
-   - Optional profile photo.
-   - Practice stats.
-   - Recent activity.
-   - Privacy Policy link.
-   - Support link.
-
-8. **Privacy And Support**
-   - Hosted privacy policy.
-   - Hosted support page.
-   - App privacy manifest.
-   - App Store Connect privacy answers.
-
-### Explicitly Out Of Scope For MVP
-
-- User accounts
-- Cloud sync
-- Payments or subscriptions
-- Instructor video library
-- Social sharing
-- Community features
-- Push notifications
-- HealthKit integration
-- Apple Watch companion app
-- Personalized algorithmic coaching
-
-## 6. Product Requirements
-
-### Onboarding Requirements
-
-Onboarding should feel short and reassuring. It should not block users with medical questions or ask for unnecessary personal information.
+Implementation tasks:
+- Query SavedPracticeRecord.
+- Resolve sequenceID back to YogaSequence.
+- Seed initial saved practices if desired.
+- Navigate to SequenceDetailView.
 
 Acceptance criteria:
+- Saved practices appear after favoriting.
+- Removing favorite removes it from Library.
+- Empty state appears when no saved practices exist.
+- Saved labels display "Saved today" or date.
 
-- User can complete onboarding in under one minute.
-- Name field cannot be empty.
-- Interest selection is optional.
-- Interest selection is limited to three choices.
-- Preferences persist after app restart.
 
-### Practice Player Requirements
+15. PROFILE SCREEN
+==================
 
-The practice player is the most important product surface. It must be stable, predictable, and review-safe.
+Goal:
+Show personal progress and app support links without any dead controls.
+
+Implementation file:
+- Yogapp/Views/ProfileView.swift
+
+Supporting types:
+- ProfileAvatar
+- ProfilePhotoCropItem
+- ProfilePhotoCropSheet
+- EditProfileNameSheet
+- ProfileStatCard
+- ProfileGoal
+- ProfilePhotoProcessor
+
+UI sections:
+1. Header
+   - Title.
+   - Edit profile button.
+
+2. Profile summary
+   - Profile photo.
+   - Display name.
+   - Journey subtitle.
+
+3. Stats grid
+   - Day streak.
+   - Flows done.
+   - Minutes practiced.
+
+4. Goals
+   - Goals from onboarding selected tags.
+   - Empty message if no selected tags.
+
+5. Recent activity
+   - Latest completed practice.
+   - Replay button if a valid sequence exists.
+   - Disabled replay button when empty.
+
+6. Links
+   - Privacy Policy.
+   - Support.
+
+Implementation tasks:
+- Use @Query for completion records.
+- Use @AppStorage for profile fields.
+- Use PhotosPicker for image selection.
+- Crop selected image locally.
+- Store cropped image data locally.
+- Remove all settings rows until they are real features.
+- Add Link views for privacy and support.
 
 Acceptance criteria:
-
-- Timer starts only after countdown.
-- Pause stops timer progression.
-- Resume continues from the same remaining time.
-- Previous is disabled on the first pose.
-- Next advances to the next step or completion.
-- End exits cleanly.
-- Completion is recorded once per completed practice.
-- Screen remains awake during active practice.
-- Audio narration stops when practice ends or app backgrounds.
-
-### Profile Requirements
-
-The profile screen should contain only working, review-safe controls.
-
-Acceptance criteria:
-
-- Edit name opens editable sheet.
-- Profile photo picker opens system picker.
-- Recent activity replay is enabled only when a completed practice exists.
-- Privacy Policy link opens hosted privacy policy.
+- Edit profile opens name sheet.
+- Empty name cannot save.
+- Profile photo picker opens.
+- Cropping sheet saves local image data.
+- Recent activity replay works only after completion.
+- Empty recent activity replay is disabled and gray.
+- Privacy Policy link opens hosted policy.
 - Support link opens hosted support page.
-- No decorative element should appear tappable unless it has a real action or is clearly disabled.
-
-## 7. Technical Architecture
-
-Yogalite should use a simple native iOS architecture:
-
-- SwiftUI for UI
-- SwiftData for saved/completed practice records
-- AppStorage/UserDefaults for lightweight preferences
-- Static Swift data files for yoga content
-- Asset catalog for pose illustrations
-- AVSpeechSynthesizer for local narration
-- Local file storage for product interaction events
-
-### Architectural Goals
-
-1. Keep the app offline-capable.
-2. Keep data ownership local.
-3. Keep the content model easy to expand.
-4. Keep the practice player testable.
-5. Avoid dependencies unless they clearly reduce risk.
-
-### Key Modules
-
-| Area | Responsibility |
-|---|---|
-| Models | Core types such as poses, sequences, steps, programs |
-| Data | Static yoga flows and program definitions |
-| Views | Screens and navigation |
-| Components | Reusable UI pieces |
-| ViewModels | Practice player state and timing logic |
-| Persistence | Saved practices, completion records, local analytics |
-| Services | Speech narration and countdown sounds |
-| DesignSystem | Shared colors, spacing, corner radius |
-
-## 8. Development Plan
-
-### Phase 1: Foundation
-
-Duration: 1-2 weeks
-
-Goals:
-
-- Establish project structure.
-- Define yoga data models.
-- Build design system.
-- Add first set of pose assets.
-- Create initial static sequence data.
-
-Deliverables:
-
-- App shell
-- Tab navigation
-- Design tokens
-- Core model types
-- Starter flow library
-
-Risks:
-
-- Pose content may grow messy without consistent naming.
-- Asset naming must stay aligned with model data.
-
-### Phase 2: Browse And Detail Experience
-
-Duration: 1-2 weeks
-
-Goals:
-
-- Build Home, Explore, Library, Programs, and Sequence Detail screens.
-- Implement search and filtering.
-- Implement favorite/save behavior.
-
-Deliverables:
-
-- Home recommendations
-- Explore filters
-- Sequence detail tabs
-- Favorite persistence
-- Empty states
-
-Risks:
-
-- Too many decorative cards could make the app feel busy.
-- Navigation paths need to return users cleanly after practice.
-
-### Phase 3: Practice Player
-
-Duration: 2-3 weeks
-
-Goals:
-
-- Implement the timed practice engine.
-- Add pause/resume/previous/next.
-- Add countdown and completion.
-- Add narration.
-- Record completed practices.
-
-Deliverables:
-
-- Practice player view model
-- Practice player UI
-- Completion screen
-- Local completion history
-- Unit tests for timing and navigation behavior
-
-Risks:
-
-- Timer bugs are easy to miss.
-- Background/foreground behavior can cause state drift.
-- Disabled controls must be visually clear.
-
-### Phase 4: Profile And Personalization
-
-Duration: 1-2 weeks
-
-Goals:
-
-- Build onboarding.
-- Store user preferences.
-- Show profile stats.
-- Add profile photo picker/crop.
-- Add privacy and support links.
-
-Deliverables:
-
-- Onboarding flow
-- Profile screen
-- Stats cards
-- Recent activity
-- Privacy/support links
-
-Risks:
-
-- Profile photo behavior must use system-safe APIs.
-- App Review may reject any unresponsive settings-like controls.
-
-### Phase 5: App Store Readiness
-
-Duration: 1 week
-
-Goals:
-
-- Run QA pass.
-- Remove placeholder or nonfunctional UI.
-- Confirm privacy policy and support URL.
-- Prepare App Store metadata.
-- Run tests and Release build.
-
-Deliverables:
-
-- App Store screenshots
-- Privacy policy
-- Support page
-- App privacy answers
-- TestFlight checklist
-- Review notes
-
-Risks:
-
-- Stale screenshots may show removed UI.
-- Privacy answers must match app behavior exactly.
-- App Review may tap every visible button.
-
-## 9. Quality Assurance Plan
-
-### Functional QA Checklist
-
-- Complete onboarding from fresh install.
-- Start practice from Home.
-- Start practice from Explore.
-- Start practice from Program detail.
-- Save and unsave a practice.
-- Verify Library updates.
-- Complete a practice.
-- Verify Profile stats update.
-- Replay recent activity.
-- Test empty Profile recent activity state.
-- Test pause/resume.
-- Test previous on first pose.
-- Test next through final step.
-- Test ending a workout.
-- Test app backgrounding during practice.
-- Test Privacy Policy link.
-- Test Support link.
-
-### App Review QA Checklist
-
-- No dead buttons.
-- No placeholder settings.
-- No broken external links.
-- No hidden account requirement.
-- No misleading privacy copy.
-- No medical claims.
-- No subscription copy if no purchase flow exists.
-- No notification controls unless notifications are implemented.
-- No support/download/reminder controls unless they work.
-
-### Automated Testing Priorities
-
-- Practice player step advancement.
-- Pause/resume timing.
-- Round advancement.
-- Completion state.
-- Previous unavailable at first step.
-- Recommendation stability.
-- Daily flow rotation.
-- Preference encoding.
-- Local analytics day-key calculation.
-
-## 10. Launch Plan
-
-### TestFlight Launch
-
-Audience:
-
-- 5-15 friendly testers
-- People with different yoga experience levels
-- At least one reviewer focused on accessibility/readability
-
-Goals:
-
-- Confirm onboarding clarity.
-- Confirm practice player timing.
-- Find confusing navigation.
-- Check whether safety notes feel adequate.
-- Validate App Store metadata before public release.
-
-### Public App Store Launch
-
-Required assets:
-
-- App icon
-- Screenshots
-- Subtitle
-- Description
-- Keywords
-- Support URL
-- Privacy Policy URL
-- Review notes
-- App privacy answers
-
-Launch messaging:
-
-- Gentle daily yoga
-- Timer-based illustrated flows
-- No account required
-- Private and lightweight
-- Beginner-friendly routines
-
-## 11. Product Roadmap
-
-### Version 1.0: Launch
-
-Theme: Core practice loop
-
-Features:
-
-- Onboarding
-- Home recommendations
-- Explore and filtering
-- Programs
-- Saved practices
-- Practice player
-- Completion tracking
-- Profile stats
-- Privacy/support pages
-
-Success criteria:
-
-- App approved by App Review.
-- No major crashes.
-- Users can complete a practice without confusion.
-- Testers understand the value proposition within one session.
-
-### Version 1.1: Polish And Retention
-
-Theme: Make daily practice easier to return to
-
-Candidate features:
-
-- Program progress tracking
-- Continue next program day
-- More explicit streak UI
-- Recently viewed flows
-- Improved empty states
-- Better iPad layout
-- More beginner flows
-
-Success criteria:
-
-- More users complete a second practice.
-- Library and Programs feel more useful.
-- Fewer users abandon before starting practice.
-
-### Version 1.2: Personalization
-
-Theme: Better matching without accounts or cloud data
-
-Candidate features:
-
-- Preference editing after onboarding
-- Goal-based shelves on Home
-- Duration-based quick-start chips
-- Better local recommendation logic
-- Favorite tag shortcuts
-- Practice time suggestions
-
-Success criteria:
-
-- Users find relevant flows faster.
-- Explore search/filter usage decreases because Home is more useful.
-
-### Version 1.3: Accessibility And Inclusivity
-
-Theme: Make the app usable for more bodies and contexts
-
-Candidate features:
-
-- Larger text layout refinements
-- VoiceOver pass
-- More chair-friendly flows
-- More restorative alternatives
-- Pose modification notes
-- High-contrast improvements
-
-Success criteria:
-
-- Better accessibility QA results.
-- Fewer support requests about unclear poses.
-
-### Version 1.4: Content Expansion
-
-Theme: More reasons to return
-
-Candidate features:
-
-- Additional programs
-- More 5-minute flows
-- More evening wind-down flows
-- Back care collection
-- Desk mobility collection
-- Strength and balance collections
-
-Success criteria:
-
-- Higher repeat practice rate.
-- More saved flows per user.
-
-### Version 2.0: Optional Premium Direction
-
-Theme: Monetization without harming trust
-
-Possible approaches:
-
-- One-time paid upgrade for expanded programs
-- Tip jar
-- Paid content packs
-- No forced account for purchase
-
-Avoid:
-
-- Aggressive subscriptions
-- Locking basic safety or core practice features
-- Dark-pattern paywalls
-
-Success criteria:
-
-- Revenue path exists.
-- Free experience remains honest and useful.
-
-## 12. Metrics
-
-Because Yogalite is local-first, metrics should be lightweight and privacy-conscious.
-
-### Product Metrics
-
-- Completed practices
-- Favorite adds/removes
-- Days active
-- Seven-day retention marker
-- Thirty-day retention marker
-- Possible crash indicator
-
-### Qualitative Metrics
-
-- TestFlight feedback
-- App Store reviews
-- Support emails
-- User comments about clarity, calmness, and usefulness
-
-### Launch Health Targets
-
-- First practice completion rate: 50% or higher among testers
-- Crash-free usage: no known launch blockers
-- App Store rating after first reviews: 4.0+
-- Support response time: within 48 hours
-
-## 13. Risks And Mitigations
-
-| Risk | Impact | Mitigation |
-|---|---:|---|
-| App Review rejects dead controls | High | Remove or disable all nonfunctional UI |
-| Timer state bugs | High | Unit test practice player state transitions |
-| Privacy mismatch | High | Keep manifest, policy, and App Store answers aligned |
-| Medical claims concern | Medium | Use general wellness language and safety notes |
-| Content feels too thin | Medium | Launch with enough varied flows and programs |
-| Users miss support/privacy links | Medium | Place both in Profile and App Store metadata |
-| Profile photo permission concern | Low | Use system photo picker and store image locally |
-
-## 14. Staffing And Roles
-
-For a small 2021 indie build, Yogalite can be produced by a compact team:
-
-- Product/design owner
-- iOS engineer
-- Yoga content reviewer
-- QA tester
-- App Store submission owner
-
-If solo-built, the minimum outside review should include:
-
-- One yoga-knowledgeable reviewer
-- One nontechnical tester
-- One accessibility/readability tester
-
-## 15. Timeline
-
-### Eight-Week MVP Timeline
-
-| Week | Focus | Output |
-|---|---|---|
-| 1 | Models, design system, app shell | Core structure |
-| 2 | Static flow data and assets | First usable content |
-| 3 | Home, Explore, Detail | Browsing experience |
-| 4 | Practice player engine | Timed practice loop |
-| 5 | Player polish and tests | Stable workout flow |
-| 6 | Onboarding, Profile, Library | Personal/local state |
-| 7 | Programs, support/privacy, QA | App Store readiness |
-| 8 | TestFlight, fixes, submission | Public release candidate |
-
-## 16. Definition Of Done
-
-Yogalite 1.0 is ready to submit when:
-
-- A fresh user can complete onboarding.
-- A fresh user can start and complete a practice.
-- All visible controls either work or are clearly disabled.
-- Tests pass.
-- Release build succeeds.
-- Support URL works.
-- Privacy Policy URL works.
-- Privacy manifest matches actual app behavior.
-- App Store privacy answers match the policy.
-- No screenshots show outdated UI.
-- Review notes are accurate.
-
-## 17. Long-Term Vision
-
-Yogalite should become a calm daily yoga companion for people who want movement without noise. It does not need to become a social network, a video platform, or a data-heavy coaching product. The strongest version of Yogalite is focused, private, and habit-forming.
-
-The roadmap should continue to prioritize:
-
-- Better routines
-- Better timing
-- Better accessibility
-- Better local personalization
-- Better trust
-
-If Yogalite grows, it should grow by becoming more useful, not heavier.
+- No untappable Settings rows exist.
+
+Tests:
+- Profile stats from records.
+- Streak calculation.
+- Photo processing returns image data for valid crop.
+
+
+16. PRACTICE PLAYER VIEW MODEL
+==============================
+
+Goal:
+Implement the practice state machine independent of UI layout.
+
+Implementation file:
+- Yogapp/ViewModels/PracticePlayerViewModel.swift
+
+State:
+- sequence
+- currentStepIndex
+- currentRound
+- remainingTime
+- elapsedTime
+- transitionProgress
+- isPlaying
+- isPaused
+- isComplete
+- stepStartedAt
+- stepElapsedBeforePause
+- timerTask
+
+Computed values:
+- currentStep
+- nextStep
+- canGoToPreviousStep
+- overallProgress
+- stepProgress
+
+Methods:
+
+1. start(now:)
+   - Reset to first step.
+   - Set current round to 1.
+   - Mark playing.
+   - Initialize timer.
+
+2. pause(now:)
+   - Tick first.
+   - Save elapsed time.
+   - Clear stepStartedAt.
+   - Mark paused.
+
+3. resume(now:)
+   - Mark unpaused.
+   - Restart timer loop from now.
+
+4. togglePause(now:)
+   - Switch pause/resume.
+
+5. restart(now:)
+   - Call start.
+
+6. previous(now:)
+   - Guard isPlaying and not complete.
+   - Guard canGoToPreviousStep.
+   - Move to previous step or previous round.
+   - Reset current step.
+
+7. next(now:)
+   - Advance step.
+   - Complete if last step of last round.
+   - Reset current step when not complete.
+
+8. stop()
+   - Cancel timer.
+   - Mark not playing.
+
+9. tick(now:)
+   - Calculate elapsed time.
+   - Advance through one or multiple steps if time exceeded.
+   - Update remainingTime and transitionProgress.
+
+10. complete()
+   - Mark complete.
+   - Stop timer.
+
+Acceptance criteria:
+- State transitions are deterministic.
+- Tests can pass custom dates.
+- Timer does not drift badly during pause/resume.
+- Previous at first step does nothing.
+- Completion happens exactly once.
+
+Tests:
+- advancingFromOneStepToTheNext
+- pausingAndResumingKeepsElapsedTimeStableWhilePaused
+- movingToTheNextRound
+- completingAfterAllRounds
+- restartingThePractice
+- skippingToNextStep
+- previousIsUnavailableAtTheFirstStep
+- previousBecomesAvailableAfterAdvancing
+- overallProgressCalculation
+
+
+17. PRACTICE PLAYER UI
+======================
+
+Goal:
+Render the timed yoga practice experience.
+
+Implementation file:
+- Yogapp/Views/PracticePlayerView.swift
+
+UI sections:
+1. Top bar
+   - End button.
+   - Round label.
+   - Restart button.
+
+2. Progress area
+   - Progress bar.
+   - Percent complete.
+
+3. Figure area
+   - Current pose illustration.
+   - Transition view when moving between poses.
+
+4. Current step area
+   - Pose title.
+   - Breath badge.
+   - Side badge if needed.
+   - Instruction text.
+
+5. Countdown timer
+   - CircularCountdownView.
+
+6. Controls
+   - Previous.
+   - Pause/resume.
+   - Next.
+
+7. Intro overlay
+   - Sequence title.
+   - Safety notes.
+   - Begin Practice.
+
+8. Countdown overlay
+   - 3, 2, 1, Begin.
+
+9. Completion
+   - CompletionView after isComplete.
+
+Implementation tasks:
+- Hide navigation/tab bars while practicing.
+- Disable idle timer during active practice.
+- Stop idle timer on disappear or completion.
+- Stop audio when paused/backgrounded.
+- Record completion once.
+- Use modelContext to insert PracticeCompletionRecord.
+- Keep layout responsive to safe areas.
+
+Acceptance criteria:
+- Practice starts only after countdown.
+- Controls are large and tappable.
+- Previous button gray/disabled on first pose.
+- Pause button toggles icon and behavior.
+- End button returns to appropriate root.
+- Completion screen appears at end.
+- Completion is saved.
+
+QA edge cases:
+- Start, immediately pause.
+- Start, background app, return.
+- Start, press next repeatedly to completion.
+- Restart from completion.
+- End workout mid-countdown.
+
+
+18. AUDIO SERVICES
+==================
+
+Goal:
+Provide local speech and countdown cues without external assets or services.
+
+Implementation files:
+- Yogapp/Services/PracticeNarrationPlayer.swift
+- Yogapp/Services/PracticeCountdownSoundPlayer.swift
+
+PracticeNarrationCueBuilder:
+- Build spoken phrase for each step.
+- Hold step:
+  - optionally speak pose name at opening.
+  - speak hold duration for longer holds.
+- Transition step:
+  - speak breath cue if inhale/exhale.
+  - speak side cue when side changes.
+  - speak target pose.
+
+PracticeNarrationPlayer:
+- Use AVSpeechSynthesizer.
+- Stop existing speech before new cue.
+- Use en-US voice.
+- Keep rate calm and understandable.
+
+PracticeCountdownSoundPlayer:
+- Use system sound for count beep.
+- Use system alert sound for begin cue.
+
+Acceptance criteria:
+- Speech does not overlap.
+- Speech stops on pause.
+- Speech stops on disappear.
+- Speech stops when app backgrounds.
+
+Tests:
+- longHoldStepSpeaksOnlyHoldDuration
+- openingHoldStepSpeaksPoseNameAndHoldDuration
+- shortHoldDoesNotRepeatBreathOrPoseName
+- transitionSpeaksBreathAndTargetPose
+- transitionSpeaksSideWhenMovingIntoOneSidedPose
+- transitionSpeaksSideWhenSwitchingSides
+- transitionDoesNotRepeatSameSideCue
+
+
+19. COMPLETION EXPERIENCE
+=========================
+
+Goal:
+Give users a clear end state and a path back or restart.
+
+Implementation file:
+- Yogapp/Views/CompletionView.swift
+
+UI sections:
+1. Success visual.
+2. Completion message.
+3. Summary tiles.
+   - Time practiced.
+   - Difficulty.
+4. Reflection section.
+   - Calm.
+   - Energized.
+   - Sore.
+   - Strong.
+5. Actions.
+   - Practice Again.
+   - Back to Flow.
+
+Implementation tasks:
+- Keep reflection local UI state only for MVP.
+- Restart action should reset current completion record guard.
+- Exit action should return home/detail as intended.
+
+Acceptance criteria:
+- Practice Again restarts countdown/practice.
+- Back to Flow exits cleanly.
+- Reflection buttons select visually.
+- No reflection data is uploaded.
+
+
+20. PRIVACY POLICY, SUPPORT, AND APP STORE FILES
+================================================
+
+Goal:
+Prepare required App Store support materials and make the app review-safe.
+
+Implementation files:
+- Yogapp/PrivacyInfo.xcprivacy
+- privacy-policy.html
+- support.html
+- APP_STORE_PRIVACY_NOTES.md
+- TESTFLIGHT_CHECKLIST.md
+
+Privacy manifest:
+- NSPrivacyTracking: false
+- NSPrivacyTrackingDomains: empty
+- NSPrivacyCollectedDataTypes: empty
+- NSPrivacyAccessedAPITypes:
+  - NSPrivacyAccessedAPICategoryUserDefaults
+  - reason CA92.1
+
+Privacy policy page:
+- State no account required.
+- State no ads.
+- State no third-party analytics SDKs.
+- State no tracking.
+- State local data stays on device.
+- State profile photo remains local.
+- State local product interaction events are not uploaded.
+- Include contact email.
+
+Support page:
+- Include support email.
+- Include helpful support request details.
+- Include privacy link.
+- Include wellness notice.
+
+App Store Connect checklist:
+- Support URL.
+- Privacy Policy URL.
+- Feedback email.
+- Privacy answer: No data collected, as long as no off-device upload exists.
+
+Acceptance criteria:
+- Both hosted pages return HTTP 200.
+- In-app Profile links open both pages.
+- Privacy manifest lints.
+- Policy text matches App Store Connect answers.
+
+Commands:
+- plutil -lint Yogapp/PrivacyInfo.xcprivacy
+- curl -I <privacy-url>
+- curl -I <support-url>
+
+
+21. APP REVIEW HARDENING
+========================
+
+Goal:
+Avoid App Store rejection for bugs, dead controls, broken links, or misleading metadata.
+
+Checklist:
+
+1. Remove or disable all nonfunctional controls.
+   - No Settings rows unless settings work.
+   - No notification bell unless notifications work.
+   - No reminders/downloads/support rows unless they work.
+
+2. Disable unavailable controls.
+   - Previous button disabled on first practice step.
+   - Recent activity replay disabled before any completed practice.
+
+3. Confirm external links.
+   - Privacy Policy.
+   - Support.
+
+4. Confirm privacy story.
+   - Manifest.
+   - Policy.
+   - Support page.
+   - App Store Connect answers.
+
+5. Confirm no medical claims.
+   - General wellness language only.
+   - Safety notes are visible.
+   - App does not claim to treat health conditions.
+
+6. Confirm no account mismatch.
+   - If App Store says no account, app must not require login.
+
+7. Confirm screenshots.
+   - Screenshots should not show removed Settings section.
+   - Screenshots should not show nonfunctional notification button.
+
+Acceptance criteria:
+- A reviewer can tap every visible button without finding a broken action.
+- A fresh install is complete and usable.
+- App has enough content to be more than a shell.
+
+
+22. TEST PLAN
+=============
+
+Unit tests:
+- Practice player state transitions.
+- Time-of-day greeting.
+- Daily flow selector.
+- Recommendation selector.
+- Onboarding preference encoding.
+- Product analytics day key and retention.
+- Narration cue builder.
+- Round/duration formatting.
+
+Manual tests:
+
+Fresh install:
+- Launch app.
+- Complete onboarding.
+- Confirm main tabs appear.
+
+Home:
+- Tap today's flow.
+- Tap recommendation.
+- Tap all flow.
+
+Explore:
+- Search.
+- Clear search.
+- Select tag.
+- Clear tag.
+- Change difficulty.
+- Change duration.
+- Open result.
+
+Programs:
+- Open program.
+- Open flow detail.
+- Start day practice.
+
+Library:
+- Favorite a sequence.
+- Confirm it appears in Library.
+- Unfavorite.
+- Confirm it disappears.
+
+Practice:
+- Begin from detail.
+- Let countdown finish.
+- Pause.
+- Resume.
+- Next.
+- Previous.
+- Complete.
+- Practice again.
+- Exit.
+
+Profile:
+- Edit name.
+- Pick profile photo.
+- View stats.
+- Tap Privacy Policy.
+- Tap Support.
+- Confirm empty recent activity state on fresh install.
+
+Build commands:
+- xcodebuild test -scheme Yogapp -destination 'platform=iOS Simulator,OS=18.2,name=iPhone 16'
+- xcodebuild build -scheme Yogapp -configuration Release -destination 'generic/platform=iOS Simulator'
+
+
+23. IMPLEMENTATION ORDER
+========================
+
+Recommended build order:
+
+1. Project shell and design system.
+2. Core models.
+3. Static pose and sequence data.
+4. Reusable components.
+5. Onboarding.
+6. Main tabs.
+7. Home.
+8. Sequence Detail.
+9. PracticePlayerViewModel.
+10. PracticePlayerView.
+11. CompletionView.
+12. Persistence for saved and completed practices.
+13. Library.
+14. Explore.
+15. Programs.
+16. Profile.
+17. Audio narration.
+18. Privacy/support pages.
+19. App Review hardening.
+20. Tests and release build validation.
+
+Why this order:
+- The app needs models and data before screens.
+- Home/detail/player prove the main loop first.
+- Persistence becomes useful after the main loop exists.
+- Explore/programs/library/profile are easier once sequence detail and player are stable.
+- Privacy and review hardening should happen before TestFlight and again before release.
+
+
+24. FILE-BY-FILE IMPLEMENTATION MAP
+===================================
+
+Yogapp/YogappApp.swift
+- App entry.
+- SwiftData model container.
+- Preferred color scheme.
+
+Yogapp/ContentView.swift
+- Onboarding switch.
+- TabView.
+- App lifecycle local analytics.
+
+Yogapp/Models/YogaModels.swift
+- Pose.
+- YogaSequence.
+- PracticeStep.
+- BreathCue.
+- PracticeSide.
+- YogaProgram.
+
+Yogapp/Data/SunSalutationData.swift
+- All poses.
+- All standalone flows.
+- Helper constructors.
+- allSequences array.
+
+Yogapp/Data/YogaProgramData.swift
+- Program definitions.
+- program lookup helpers.
+
+Yogapp/DesignSystem/FlowDesign.swift
+- Colors.
+- Spacing.
+- Corner radii.
+
+Yogapp/Components/*
+- Shared UI components.
+
+Yogapp/Persistence/PersistentModels.swift
+- SwiftData models.
+- Collection helpers.
+- Sequence lookup helpers if needed.
+
+Yogapp/Persistence/ProductAnalytics.swift
+- Local-only analytics.
+- Daily activity.
+- Practice completion.
+- Favorite events.
+- Retention markers.
+
+Yogapp/ViewModels/PracticePlayerViewModel.swift
+- Practice timer engine.
+- State machine.
+- Timer loop.
+- Step/round/progress logic.
+
+Yogapp/Services/PracticeNarrationPlayer.swift
+- Speech cue construction.
+- AVSpeechSynthesizer wrapper.
+
+Yogapp/Services/PracticeCountdownSoundPlayer.swift
+- Countdown beeps.
+
+Yogapp/Views/OnboardingView.swift
+- First-run preference flow.
+
+Yogapp/Views/HomeView.swift
+- Daily flow.
+- Recommendations.
+- All flows.
+
+Yogapp/Views/ExploreView.swift
+- Search.
+- Filters.
+- Tag browsing.
+
+Yogapp/Views/SequenceDetailView.swift
+- Flow overview.
+- Safety.
+- Steps.
+- Favorite.
+- Start.
+
+Yogapp/Views/PracticePlayerView.swift
+- Active practice UI.
+- Countdown.
+- Controls.
+- Completion recording.
+
+Yogapp/Views/CompletionView.swift
+- Practice completed UI.
+
+Yogapp/Views/ProgramsView.swift
+- Multi-day program browsing.
+
+Yogapp/Views/LibraryView.swift
+- Saved practices.
+
+Yogapp/Views/ProfileView.swift
+- Profile.
+- Stats.
+- Recent activity.
+- Photo picker/crop.
+- Privacy/support.
+
+Yogapp/PrivacyInfo.xcprivacy
+- Privacy manifest.
+
+privacy-policy.html
+- Hosted privacy page.
+
+support.html
+- Hosted support page.
+
+APP_STORE_PRIVACY_NOTES.md
+- Submission privacy source of truth.
+
+TESTFLIGHT_CHECKLIST.md
+- Release checklist.
+
+
+25. RELEASE CRITERIA
+====================
+
+Version 1.0 can be submitted when:
+
+- Fresh install onboarding works.
+- Home, Explore, Programs, Library, and Profile all load.
+- Every visible button works or is clearly disabled.
+- Practice player handles pause/resume/previous/next/restart/end.
+- Completion records persist.
+- Favorite practices persist.
+- Profile stats update.
+- Privacy Policy link works.
+- Support link works.
+- Privacy manifest is valid.
+- App Store privacy answers match app behavior.
+- Unit tests pass.
+- Release simulator build succeeds.
+- No screenshots show old or dead UI.
+
+
+26. POST-LAUNCH CODING ROADMAP
+==============================
+
+Version 1.1: Program Progress
+- Add ProgramProgressRecord SwiftData model.
+- Track completed program day.
+- Add Continue Program CTA.
+- Add progress indicator to ProgramCard.
+- Tests for program completion state.
+
+Version 1.2: Preference Editing
+- Add editable Goals/Experience/Practice Time screen.
+- Expose from Profile.
+- Ensure all controls are functional.
+- Update recommendations immediately after changes.
+
+Version 1.3: Search and Library Improvements
+- Add recently completed flows.
+- Add recently viewed flows.
+- Add Library sections.
+- Add sort by saved date/duration/difficulty.
+
+Version 1.4: Accessibility Improvements
+- Audit VoiceOver labels.
+- Improve Dynamic Type layouts.
+- Add larger timer option.
+- Add reduced motion support.
+- Add high contrast polish.
+
+Version 1.5: Content Expansion
+- Add more flows.
+- Add more programs.
+- Add chair-friendly routines.
+- Add more restorative routines.
+- Add QA checks for duplicate IDs and missing assets.
+
+Version 2.0: Optional Monetization
+- Add StoreKit if monetizing.
+- Keep free core practice useful.
+- Add content pack purchase if needed.
+- Update privacy policy and review notes if any data flow changes.
+
+
+27. ENGINEERING NOTES FOR 2021 BUILD
+====================================
+
+- Do not assume cloud sync.
+- Do not depend on experimental frameworks.
+- Avoid unnecessary package dependencies.
+- Keep the app usable offline.
+- Keep data static and local for launch.
+- Add automated tests around time-based logic.
+- Treat App Review as a product surface.
+- Do not ship decorative buttons.
+- Do not ship placeholder settings.
+- Do not add privacy-sensitive features unless metadata is updated.
+
+
+28. FINAL DEVELOPER HANDOFF SUMMARY
+===================================
+
+The highest-risk code is the practice player timer engine. Build and test it carefully.
+
+The highest-risk App Review area is visible but nonfunctional UI. Remove it or disable it clearly.
+
+The highest-risk metadata area is privacy. Keep local-only analytics, the privacy manifest, App Store Connect answers, and public policy text aligned.
+
+The highest-value MVP loop is:
+Onboarding -> Home -> Sequence Detail -> Practice Player -> Completion -> Profile Stats/Library.
+
+Build that loop first. Polish it. Then expand the catalog and programs.
